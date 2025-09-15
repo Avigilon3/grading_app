@@ -71,7 +71,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Student Grading System</title>
+  <title>Pateros Technological Grading System</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body { background: #f9fafb; min-height: 100vh; }
@@ -124,3 +124,4 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
   </script>
 </body>
 </html>
+
