@@ -90,7 +90,14 @@ A web-based grading system built with PHP and MySQL, featuring Admin, Teacher, a
 
 ## Credits
 
-Developed by Tumamak jerick, San Pascual Phillip  for PROF. JC CODILAN
- PTC WEBPROG 2 CCS 2B , 2025.
+
 
 ---
+BETHEL ALBOR 
+BETHEL ALBOR 
+BETHEL ALBOR 
+BETHEL ALBOR 
+BETHEL ALBOR 
+BETHEL ALBOR
+BETHEL ALBOR 
+BETHEL ALBOR 
