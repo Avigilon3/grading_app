@@ -1,2 +1,4 @@
 <?php
-header("Location: /grading_app/admin/pages/login.php");
+require_once __DIR__ . '/../core/config/config.php';
+header('Location: ' . BASE_URL . '/admin/pages/dashboard.php'); /*pag gagamit ng Base_URL dapat may config.php*/
+exit;

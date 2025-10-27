@@ -1,0 +1,11 @@
+Admin:
+Email: jqtumamak@paterostechnologicalcollege.edu.ph
+Password: Admin123!
+
+Professor:
+Email: jmnaling@paterostechnologicalcollege.edu.ph
+Password: Prof123!
+
+Student:
+Email: cgbaldemor@paterostechnologicalcollege.edu.ph
+Password: Stud123!

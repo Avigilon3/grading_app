@@ -1,26 +1,28 @@
 <?php
-function flash(string $msg, string $type='info') {
-  $_SESSION['flash'] = ['msg'=>$msg, 'type'=>$type];
-}
-function show_flash() {
-  if (!empty($_SESSION['flash'])) {
-    $f = $_SESSION['flash'];
-    echo '<div class="flash '.$f['type'].'">'.htmlspecialchars($f['msg']).'</div>';
-    unset($_SESSION['flash']);
+
+if (!function_exists('isLoggedIn')) {
+  function isLoggedIn(): bool {
+    return !empty($_SESSION['user']) && in_array($_SESSION['user']['role'] ?? '', ['admin','registrar'], true);
   }
 }
-function audit(PDO $pdo, int $adminId, string $action, array $meta = []) {
-  $stmt = $pdo->prepare("INSERT INTO activity_logs (admin_id, action, meta) VALUES (?,?,?)");
-  $stmt->execute([$adminId, $action, $meta ? json_encode($meta) : null]);
+
+if (!function_exists('currentUserName')) {
+  function currentUserName(): string {
+    if (!empty($_SESSION['user']['name'])) return $_SESSION['user']['name'];
+    if (!empty($_SESSION['user']['email'])) return $_SESSION['user']['email'];
+    return 'User';
+  }
 }
-function csrf_token() {
-  if (empty($_SESSION['csrf'])) { $_SESSION['csrf'] = bin2hex(random_bytes(16)); }
-  return $_SESSION['csrf'];
-}
-function csrf_check() {
-  if (($_POST['csrf'] ?? '') !== ($_SESSION['csrf'] ?? '')) {
-    http_response_code(400);
-    echo "Invalid CSRF token.";
-    exit;
+
+if (!function_exists('show_flash')) {
+  function show_flash(): void {
+    if (!empty($_SESSION['flash']) && is_array($_SESSION['flash'])) {
+      foreach ($_SESSION['flash'] as $type => $msg) {
+        $t = htmlspecialchars((string)$type);
+        $m = htmlspecialchars((string)$msg);
+        echo "<div class=\"flash {$t}\">{$m}</div>";
+      }
+      unset($_SESSION['flash']);
+    }
   }
 }

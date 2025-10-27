@@ -1,8 +1,3 @@
 <?php
-function isLoggedIn(): bool { return !empty($_SESSION['professor']); }
-function requireLogin() {
-  if (!isLoggedIn()) {
-    header("Location: ./pages/login.php");
-    exit;
-  }
-}
+require_once __DIR__ . '/../../core/auth/session.php';
+require_once __DIR__ . '/../../core/auth/guards.php';

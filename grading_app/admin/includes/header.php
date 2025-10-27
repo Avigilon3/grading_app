@@ -1,4 +1,4 @@
-<?php // top bar ?>
+<?php require_once __DIR__ . '/../../core/config/config.php'; ?>
 <header class="header">
   <div class="logo">PTC Admin</div>
   <div class="spacer"></div>
@@ -12,8 +12,8 @@
   </div>
   <div class="user">
     <?php if (isLoggedIn()): ?>
-      <span><?= htmlspecialchars($_SESSION['admin']['name']) ?></span>
-      <a href="./login.php?logout=1">Logout</a>
+      <span><?= htmlspecialchars(currentUserName()) ?></span>
+      <a href="<?= BASE_URL; ?>/logout.php">Logout</a>
     <?php endif; ?>
   </div>
 </header>
