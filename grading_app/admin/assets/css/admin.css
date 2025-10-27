@@ -1,0 +1,92 @@
+:root { 
+    --bg:#0b200d; 
+    --panel:#123321; 
+    --ink:#e7eaf6; 
+    --muted:#98a2b3; 
+    --accent:#6ea8fe; 
+}
+
+*{ 
+    box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui
+}
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:12px;padding:12px 16px;
+    background:var(--panel);
+    border-bottom:1px solid #222
+}
+
+.header 
+.spacer{
+    flex:1
+}
+.header 
+.badge{
+    margin-left:12px;
+    padding:6px 10px;
+    background:#1f2a4a;
+    border-radius:999px;
+    text-decoration:none;
+    color:var(--ink)
+}
+.layout{
+    display:grid;
+    grid-template-columns:240px 1fr;
+    min-height:calc(100vh - 54px)
+}
+
+.sidebar{
+    background:var(--panel);
+    border-right:1px solid #222;
+    padding:16px
+}
+
+.nav-item{
+    display:block;
+    padding:10px 12px;
+    border-radius:8px;
+    color:var(--ink);
+    text-decoration:none
+}
+
+.nav-item:hover{
+    background:#1a2342
+}
+
+.content{
+    padding:24px
+}
+
+.flash{
+    padding:10px 12px;
+    border-radius:8px;
+    margin-bottom:12px
+}
+.flash.info{
+    background:#1a2342
+}
+.flash.success{
+    background:#123c1d
+}
+.flash.error{
+    background:#3c1212
+}
+label{
+    display:block;
+    margin:8px 0
+}
+input,button{
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #334
+}
+button{
+    background:var(--accent);
+    border-color:transparent;
+    color:#0b1020;
+    font-weight:600;
+    cursor:pointer
+}
