@@ -1,21 +1,38 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
 :root { 
-    --bg:#0b200d; 
-    --panel:#123321; 
-    --ink:#e7eaf6; 
-    --muted:#98a2b3; 
-    --accent:#6ea8fe; 
+  --bg: #0b200d; 
+  --panel: #123321; 
+  --ink: #e7eaf6; 
+  --muted: #98a2b3; 
+  --accent: #6ea8fe; 
+
+  --schoolcolor: #618A61;
+  --background: #F9F9F9;
 }
 
-*{ 
-    box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui
+
+* {
+  box-sizing: border-box;
 }
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif; 
+  font-size: 18px;
+  font-style: normal;
+  line-height: normal;
+  background: var(--background);
+  color: #000; 
+}
+
 
 .header{
     display:flex;
     align-items:center;
     gap:12px;padding:12px 16px;
-    background:var(--panel);
+    background:var(--schoolcolor);
     border-bottom:1px solid #222
 }
 
@@ -23,14 +40,15 @@
 .spacer{
     flex:1
 }
+
 .header 
 .badge{
     margin-left:12px;
     padding:6px 10px;
-    background:#1f2a4a;
+    /* background:var(--schoolcolor); */
     border-radius:999px;
     text-decoration:none;
-    color:var(--ink)
+    /* color:#fff */
 }
 .layout{
     display:grid;
@@ -39,8 +57,8 @@
 }
 
 .sidebar{
-    background:var(--panel);
-    border-right:1px solid #222;
+    background:var(--background);
+    border-right:1px solid #22222223;
     padding:16px
 }
 
@@ -48,12 +66,17 @@
     display:block;
     padding:10px 12px;
     border-radius:8px;
-    color:var(--ink);
+    color:var(#0000);
     text-decoration:none
 }
 
 .nav-item:hover{
-    background:#1a2342
+    background:var(--schoolcolor)
+
+}
+
+a {
+    text-decoration: none;
 }
 
 .content{
@@ -65,9 +88,10 @@
     border-radius:8px;
     margin-bottom:12px
 }
-.flash.info{
+/*ano toooooooo-bethel/*
+/* .flash.info{
     background:#1a2342
-}
+} */
 .flash.success{
     background:#123c1d
 }
@@ -84,9 +108,9 @@ input,button{
     border:1px solid #334
 }
 button{
-    background:var(--accent);
+    background:var(--schoolcolor);
     border-color:transparent;
-    color:#0b1020;
+    color:var(--background);
     font-weight:600;
     cursor:pointer
 }

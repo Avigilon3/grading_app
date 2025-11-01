@@ -1,8 +1,10 @@
 <?php
 // include this from the core folder as always
-require_once __DIR__ . '/../../core/config/config.php';
-require_once __DIR__ . '/../../core/auth/session.php';
-require_once __DIR__ . '/../../core/auth/guards.php';
+// require_once __DIR__ . '/../../core/config/config.php';
+// require_once __DIR__ . '/../../core/auth/session.php';
+// require_once __DIR__ . '/../../core/auth/guards.php';
+require_once __DIR__ . '/../includes/init.php';
+requireAdminLogin();
 
 // pang admin (or registrar) access to
 requireLogin();

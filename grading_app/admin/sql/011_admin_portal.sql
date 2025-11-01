@@ -300,3 +300,108 @@ CREATE TABLE IF NOT EXISTS notifications (
   is_read TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+--for database management CRUD
+CREATE TABLE IF NOT EXISTS students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(50) NOT NULL,          -- official school ID
+    ptc_email VARCHAR(150) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    middle_name VARCHAR(100) DEFAULT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    year_level VARCHAR(20) DEFAULT NULL,      -- e.g. "1st Year", "2nd Year"
+    section VARCHAR(50) DEFAULT NULL,         -- initial section (can be overridden by masterlist)
+    status ENUM('Regular','Irregular','Inactive') DEFAULT 'Regular',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_students_student_id (student_id),
+    UNIQUE KEY uq_students_ptc_email (ptc_email)
+);
+CREATE TABLE IF NOT EXISTS professors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    professor_id VARCHAR(50) NOT NULL,
+    ptc_email VARCHAR(150) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    middle_name VARCHAR(100) DEFAULT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_professors_professor_id (professor_id),
+    UNIQUE KEY uq_professors_ptc_email (ptc_email)
+);
+CREATE TABLE IF NOT EXISTS subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_code VARCHAR(50) NOT NULL,
+    subject_title VARCHAR(200) NOT NULL,
+    units DECIMAL(3,1) DEFAULT 0,
+    description TEXT DEFAULT NULL,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_subjects_code (subject_code)
+);
+CREATE TABLE IF NOT EXISTS terms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    term_name VARCHAR(100) NOT NULL,      -- e.g. "1st Semester 2025-2026"
+    school_year VARCHAR(20) DEFAULT NULL, -- e.g. "2025-2026"
+    start_date DATE DEFAULT NULL,
+    end_date DATE DEFAULT NULL,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS sections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    section_name VARCHAR(100) NOT NULL,     -- e.g. "BSIT 3A"
+    term_id INT DEFAULT NULL,               -- FK to terms.id
+    subject_id INT DEFAULT NULL,            -- FK to subjects.id
+    schedule VARCHAR(150) DEFAULT NULL,     -- e.g. "MWF 1:00-2:00"
+    assigned_professor_id INT DEFAULT NULL, -- Registrar can assign
+    is_active TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_sections_term FOREIGN KEY (term_id) REFERENCES terms(id)
+        ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT fk_sections_subject FOREIGN KEY (subject_id) REFERENCES subjects(id)
+        ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT DEFAULT NULL,                         -- admin / MIS / registrar ID
+    action VARCHAR(100) NOT NULL,                     -- e.g. "CREATE_STUDENT"
+    description TEXT,
+    ip_address VARCHAR(50) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+--kulang data ng students table 
+ALTER TABLE students
+ADD COLUMN ptc_email VARCHAR(150) DEFAULT NULL AFTER student_id,
+ADD COLUMN first_name VARCHAR(100) NOT NULL AFTER ptc_email,
+ADD COLUMN middle_name VARCHAR(100) DEFAULT NULL AFTER first_name,
+ADD COLUMN last_name VARCHAR(100) NOT NULL AFTER middle_name;
+
+ALTER TABLE students
+ADD UNIQUE KEY uq_students_ptc_email (ptc_email);
+
+--test
+INSERT INTO students (student_id, ptc_email, first_name, middle_name, last_name, year_level, section, status)
+VALUES ('STUD-0002', 'maria.santos@ptc.edu.ph', 'Maria', 'Luna', 'Santos', '3', 'BSIT-3A', 'Regular');
+
+--test update
+UPDATE students
+SET 
+student_id = '2022-9800'
+ptc_email = 'maria.santos@paterostechnologicalcollege.edu.ph'
+section = 'BSIT-3OL'
+WHERE id = 2;
+
+--alter yung column name sa users
+ALTER TABLE users
+CHANGE COLUMN name_first first_name VARCHAR(100) NOT NULL;
+
+ALTER TABLE users
+CHANGE COLUMN name_last last_name VARCHAR(100) NOT NULL;
