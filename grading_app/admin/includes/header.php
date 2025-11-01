@@ -1,13 +1,18 @@
-<?php require_once __DIR__ . '/../../core/config/config.php'; ?>
+<?php
+require_once __DIR__ . '/../../core/config/config.php';
+require_once __DIR__ . '/../../core/auth/session.php';
+require_once __DIR__ . '/../../core/config/functions.php'; 
+require_once __DIR__ . '/functions.php';  
+?>
 <header class="header">
-  <div class="logo">PTC Admin</div>
+  <div class="logo">
+    <img src="/Git/grading_app/grading_app/admin/assets/images/logo-ptc.png" height="50rem"alt="logo"/>
+  </div> 
+  <div class="portal name">PTC Admin</div>
   <div class="spacer"></div>
   <div class="notifications">
-    <a href="./activity_logs.php" class="badge">
-      Edit Requests <span id="edit-req-count">0</span>
-    </a>
-    <a href="./grading_sheets.php" class="badge">
-      Submissions <span id="submissions-count">0</span>
+    <a href="#" class="badge">
+      Notifications <span id="notifications-count">0</span>
     </a>
   </div>
   <div class="user">

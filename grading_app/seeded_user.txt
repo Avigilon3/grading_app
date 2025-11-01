@@ -9,3 +9,16 @@ Password: Prof123!
 Student:
 Email: cgbaldemor@paterostechnologicalcollege.edu.ph
 Password: Stud123!
+
+
+
+file directory 
+admin/assets/
+admin/includes/functions.php
+admin/pages/
+admin/sql/011_admin_portal.sql
+
+
+core/auth/
+core/config/
+core/db/
