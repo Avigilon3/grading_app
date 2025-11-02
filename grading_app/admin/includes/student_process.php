@@ -1,7 +1,4 @@
 <?php
-// require_once '../../core/db/connection.php';
-// require_once '../../core/auth/session.php';
-// require_once '../../core/config/functions.php';
 require_once __DIR__ . '/../includes/init.php';
 requireAdminLogin();
 
@@ -38,7 +35,11 @@ try {
                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$student_id, $ptc_email, $first_name, $middle_name, $last_name, $year_level, $section, $status]);
 
-        add_activity_log($pdo, $_SESSION['admin']['id'] ?? null, 'ADD_STUDENT', 'Added student: ' . $student_id);
+
+        //activity log add student
+        $userId = $_SESSION['user']['id'] ?? null;
+        add_activity_log($pdo, $userId, 'ADD_STUDENT', 'Added student: ' . $student_id);
+
 
         header('Location: ../pages/students.php?msg=' . urlencode('Student added successfully.'));
         exit;
@@ -66,7 +67,9 @@ try {
         $stmt = $pdo->prepare("UPDATE students SET student_id=?, ptc_email=?, first_name=?, middle_name=?, last_name=?, year_level=?, section=?, status=? WHERE id=?");
         $stmt->execute([$student_id, $ptc_email, $first_name, $middle_name, $last_name, $year_level, $section, $status, $id]);
 
-        add_activity_log($pdo, $_SESSION['admin']['id'] ?? null, 'UPDATE_STUDENT', 'Updated student: ' . $student_id);
+        //activity log edit or update student
+        $userId = $_SESSION['user']['id'] ?? null;
+        add_activity_log($pdo, $userId, 'ADD_STUDENT', 'Added student: ' . $student_id);
 
         header('Location: ../pages/students.php?msg=' . urlencode('Student updated successfully.'));
         exit;
@@ -77,7 +80,9 @@ try {
         $stmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
         $stmt->execute([$id]);
 
-        add_activity_log($pdo, $_SESSION['admin']['id'] ?? null, 'DELETE_STUDENT', 'Deleted student ID: ' . $id);
+        //activity log delete student
+        $userId = $_SESSION['user']['id'] ?? null;
+        add_activity_log($pdo, $userId, 'ADD_STUDENT', 'Added student: ' . $student_id);
 
         header('Location: ../pages/students.php?msg=' . urlencode('Student deleted successfully.'));
         exit;

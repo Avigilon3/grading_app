@@ -12,13 +12,122 @@ Password: Stud123!
 
 
 
-file directory 
-admin/assets/
-admin/includes/functions.php
-admin/pages/
-admin/sql/011_admin_portal.sql
 
 
-core/auth/
-core/config/
-core/db/
+
+
+seed_users.php (decapricated already)
+
+<?php
+// 1) Connect to the new DB (adjust if your DB creds differ)
+$DB_HOST = '127.0.0.1';
+$DB_PORT = 3306;
+$DB_NAME = 'grading_app';
+$DB_USER = 'root';
+$DB_PASS = '';
+
+try {
+  $pdo = new PDO(
+    "mysql:host=$DB_HOST;port=$DB_PORT;dbname=$DB_NAME;charset=utf8mb4",
+    $DB_USER, $DB_PASS,
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+  );
+} catch (Exception $e) { die("DB error: ".$e->getMessage()); }
+
+// 2) Define seed users (emails you provided)
+$users = [
+  [
+    'email' => 'jqtumamak@paterostechnologicalcollege.edu.ph',
+    'password' => 'Admin123!',      // change later
+    'role' => 'admin',
+    'first' => 'MIS', 'last' => 'Admin',
+  ],
+  [
+    'email' => 'jmnaling@paterostechnologicalcollege.edu.ph',
+    'password' => 'Prof123!',       // change later
+    'role' => 'professor',
+    'first' => 'Juan', 'last' => 'Naling',
+  ],
+  [
+    'email' => 'cgbaldemor@paterostechnologicalcollege.edu.ph',
+    'password' => 'Stud123!',       // change later
+    'role' => 'student',
+    'first' => 'Cris', 'last' => 'Baldemor',
+  ],
+];
+
+// 3) Insert users with bcrypt hashes
+foreach ($users as $u) {
+  $hash = password_hash($u['password'], PASSWORD_BCRYPT);
+
+  $stmt = $pdo->prepare("INSERT INTO users (email, password_hash, role, name_first, name_last, status)
+                         VALUES (?, ?, ?, ?, ?, 'ACTIVE')
+                         ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash), role=VALUES(role), name_first=VALUES(name_first), name_last=VALUES(name_last), status='ACTIVE'");
+  $stmt->execute([$u['email'], $hash, $u['role'], $u['first'], $u['last']]);
+
+  echo "Seeded user: {$u['email']} (role={$u['role']})<br>";
+}
+
+// 4) Create a sample course, section, professor profile, student profile, and enrollment
+//    (so dashboards/gradebook pages have something to load later)
+$pdo->exec("INSERT IGNORE INTO courses (code, title, units) VALUES ('IT101','Intro to IT',3)");
+
+$pdo->exec("INSERT IGNORE INTO sections (name, year_level, term)
+            VALUES ('BSIT-3A','3','1st Sem 2025-2026')");
+
+$courseId = $pdo->query("SELECT id FROM courses WHERE code='IT101'")->fetchColumn();
+if ($courseId) {
+  $pdo->prepare("UPDATE sections SET course_id=? WHERE name='BSIT-3A'")->execute([$courseId]);
+}
+
+// Link professor user -> professors table
+$profUserId = $pdo->prepare("SELECT id FROM users WHERE email=?");
+$profUserId->execute(['jmnaling@paterostechnologicalcollege.edu.ph']);
+$profUserId = $profUserId->fetchColumn();
+
+if ($profUserId) {
+  $pdo->exec("INSERT IGNORE INTO professors (user_id, professor_id) VALUES ($profUserId, 'PROF-0001')");
+}
+
+// Link student user -> students table
+$studUserId = $pdo->prepare("SELECT id FROM users WHERE email=?");
+$studUserId->execute(['cgbaldemor@paterostechnologicalcollege.edu.ph']);
+$studUserId = $studUserId->fetchColumn();
+
+if ($studUserId) {
+  $pdo->exec("INSERT IGNORE INTO students (user_id, student_id, year_level, section, status)
+              VALUES ($studUserId, 'STUD-0001', '3', 'BSIT-3A', 'Regular')");
+}
+
+// Enrollment of student into section
+$sectionId = $pdo->query("SELECT id FROM sections WHERE name='BSIT-3A'")->fetchColumn();
+$studentId = $pdo->query("SELECT id FROM students WHERE student_id='STUD-0001'")->fetchColumn();
+if ($sectionId && $studentId) {
+  $pdo->exec("INSERT IGNORE INTO enrollments (section_id, student_id) VALUES ($sectionId, $studentId)");
+}
+
+// Assign professor to section + create grading sheet
+$profId = $pdo->query("SELECT id FROM professors WHERE professor_id='PROF-0001'")->fetchColumn();
+if ($sectionId && $profId) {
+  $pdo->exec("INSERT IGNORE INTO grading_sheets (section_id, professor_id, status) VALUES ($sectionId, $profId, 'draft')");
+}
+
+// Default grade components for the section
+if ($sectionId) {
+  $components = [
+    ['Exams', 30.00],
+    ['Quizzes', 25.00],
+    ['Activities', 20.00],
+    ['Recitation', 15.00],
+    ['Attendance', 10.00],
+  ];
+  $ins = $pdo->prepare("INSERT INTO grade_components (section_id, name, weight) VALUES (?, ?, ?)");
+  foreach ($components as $c) {
+    // avoid duplicates
+    $exists = $pdo->prepare("SELECT id FROM grade_components WHERE section_id=? AND name=?");
+    $exists->execute([$sectionId, $c[0]]);
+    if (!$exists->fetch()) $ins->execute([$sectionId, $c[0], $c[1]]);
+  }
+}
+
+echo "<br>Seeding complete. You can delete this file now.";

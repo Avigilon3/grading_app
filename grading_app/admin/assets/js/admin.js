@@ -25,6 +25,7 @@
 				if (current.endsWith(url.pathname) || current === url.pathname + url.search) {
 					a.classList.add('active');
 					a.style.background = '#618A61';
+					a.style.color = '#fff';
 				} else {
 					a.classList.remove('active');
 					a.style.background = '';
