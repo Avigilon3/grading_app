@@ -25,21 +25,54 @@ body {
   line-height: normal;
   background: var(--background);
   color: #000; 
+  padding-top: 70px;
 }
 
-
-.header{
+header{
     display:flex;
-    align-items:center;
-    gap:12px;padding:12px 16px;
+    flex-wrap: wrap;
+    justify-content: space-between; 
+    position: fixed;
+    top: 0;
+    align-items:center; 
+    padding:10px 10px;
     background:var(--schoolcolor);
-    border-bottom:1px solid #222
+    border-bottom:1px solid #222;
+    width: 100%;
+    height: 70px;
 }
 
-.header 
+.left-header {
+    display: flex;
+    align-items: center; 
+    gap: 15px; 
+}
+
+.right-header {
+    display: flex; 
+    align-items: center; 
+    gap: 30px; 
+}
+
+.portal-name {
+    color: var(--background);
+    font-weight: 600;
+    font-size: 25px;
+}
+
+.user span {
+    color: var(--background); 
+    margin-right: 8px;
+}
+
+.user a {
+    color: #fff; 
+    font-weight: 500;
+}
+/* .header 
 .spacer{
     flex:1
-}
+} */
 
 .header 
 .badge{
@@ -66,17 +99,27 @@ body {
     display:block;
     padding:10px 12px;
     border-radius:8px;
-    color:var(#0000);
+    color:#000;
     text-decoration:none
 }
 
 .nav-item:hover{
-    background:var(--schoolcolor)
+    background:var(--schoolcolor);
+    color:#fff;
 
 }
 
 a {
-    text-decoration: none;
+    display:block;
+    padding:10px 12px;
+    border-radius:8px;
+    color:#000;
+    text-decoration:none
+}
+
+a:hover {
+    background:var(--schoolcolor);
+    color:#fff;
 }
 
 .content{
@@ -88,10 +131,10 @@ a {
     border-radius:8px;
     margin-bottom:12px
 }
-/*ano toooooooo-bethel/*
-/* .flash.info{
+
+.flash.info{
     background:#1a2342
-} */
+} 
 .flash.success{
     background:#123c1d
 }
@@ -102,10 +145,156 @@ label{
     display:block;
     margin:8px 0
 }
+
+
+/*tabs for datamanagemanet */
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+.tab-link {
+  background: #eee;
+  border: 0;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.tab-link.active {
+  background: var(--schoolcolor);
+  color: #fff;
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+
+
+.page-header.compact { margin-top: 0; }
+.page-header.compact h2 { margin: 0; font-size: 20px; }
+
+
+/* Form layout */
+.form-box {
+  background: #fff;
+  border: 1px solid #22222223;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.row-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.row-grid.cols-1 { grid-template-columns: 1fr; }
+.row-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.row-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.form-box input,
+.form-box select,
+.form-box textarea {
+  width: 100%;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #334;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #000;
+  font: inherit;
+  height: 42px;
+  line-height: 1.2;
+}
+
+select.form-control {
+
+  height: 42px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none; 
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 100px;
+  line-height: 1.4;
+}
+
+.form-box .form-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .row-grid.cols-2,
+  .row-grid.cols-3 { grid-template-columns: 1fr; }
+}
+
+
+
+/* Cards and tables */
+.card {
+  background: #fff;
+  border: 1px solid #22222223;
+  border-radius: 8px;
+  width: 100%;
+}
+.card-body {
+  padding: 16px;
+  overflow-x: auto; 
+}
+
+.table { 
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.table thead th {
+  text-align: left;
+  color: #111827;
+  border-bottom: 2px solid #d1d5db; 
+}
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #f9fafb;
+}
+.table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+.table-bordered {
+  border: 1px solid #e5e7eb;
+}
+.table-bordered th,
+.table-bordered td {
+  border-right: 1px solid #e5e7eb;
+}
+.table-bordered th:last-child,
+.table-bordered td:last-child {
+  border-right: 0;
+}
+.table td.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.table td.actions form {
+  display: inline;
+  margin: 0;
+}
+
+/* buttonnss */
 input,button{
     padding:10px 12px;
     border-radius:8px;
-    border:1px solid #334
+    border:1px 
 }
 button{
     background:var(--schoolcolor);
@@ -114,3 +303,31 @@ button{
     font-weight:600;
     cursor:pointer
 }
+
+.btn-danger {
+  background: #C15555; 
+  color: #fff;
+  border-color: transparent;
+}
+.btn-danger:hover {
+  background: #A84646;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+/* Link-style buttons used in Database Management */
+.button {
+  display: inline-block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--schoolcolor);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.button + .button { margin-left: 8px; }

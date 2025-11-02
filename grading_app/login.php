@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email && $pass) {
         require_once __DIR__ . '/core/db/connection.php';
 
-        // ✅ matches your actual columns (first_name, last_name, password_hash)
         $stmt = $pdo->prepare('SELECT id, email, password_hash, role, first_name, last_name, status FROM users WHERE email = ? LIMIT 1');
         $stmt->execute([$email]);
         $u = $stmt->fetch();
@@ -24,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = $u['email']; // fallback
             }
 
-            // optional: block inactive accounts
+            // block inactive accounts
             if (isset($u['status']) && strtoupper($u['status']) !== 'ACTIVE') {
                 $err = 'Your account is inactive.';
             } else {
@@ -36,18 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'name'  => $name,
                 ];
 
-                // backward support for admin session
-                if (in_array($u['role'], ['admin','registrar','mis','super_admin'], true)) {
-                    $_SESSION['admin'] = $_SESSION['user'];
-                }
-
                 // role-based redirects
                 switch ($u['role']) {
                     case 'admin':
                     case 'registrar':
                     case 'mis':
-                    case 'super_admin':
-                        header('Location: ' . BASE_URL . '/admin/pages/dashboard.php');
+                    case 'super_admin': //temporary for super_admin
+                        header('Location: ' . BASE_URL . '/admin/index.php');
                         break;
                     case 'professor':
                         header('Location: ' . BASE_URL . '/professor/index.php');

@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 function set_flash($k, $v) {
     $_SESSION['flash'][$k] = $v;
 }
+
 function get_flash($k) {
     if (isset($_SESSION['flash'][$k])) {
         $v = $_SESSION['flash'][$k];
@@ -17,20 +18,26 @@ function get_flash($k) {
 
 function isLoggedIn(): bool
 {
-    if (!empty($_SESSION['user']['id'])) {
-        return true;
-    }
-    if (!empty($_SESSION['admin']['id'])) {
-        return true;
-    }
-    return false;
+    return !empty($_SESSION['user']) && !empty($_SESSION['user']['id']);
 }
 
 function currentUserName(): string
 {
-    if (!empty($_SESSION['user']['name'])) return $_SESSION['user']['name'];
-    if (!empty($_SESSION['admin']['name'])) return $_SESSION['admin']['name'];
-    if (!empty($_SESSION['user']['email'])) return $_SESSION['user']['email'];
-    if (!empty($_SESSION['admin']['email'])) return $_SESSION['admin']['email'];
-    return 'Admin';
+
+    if (!empty($_SESSION['user']['name'])) {
+        return $_SESSION['user']['name'];
+    }
+
+    $first = $_SESSION['user']['first_name'] ?? '';
+    $last  = $_SESSION['user']['last_name'] ?? '';
+    $full  = trim($first . ' ' . $last);
+    if ($full !== '') {
+        return $full;
+    }
+
+    if (!empty($_SESSION['user']['email'])) {
+        return $_SESSION['user']['email'];
+    }
+
+    return 'User';
 }
