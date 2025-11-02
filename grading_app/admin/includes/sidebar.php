@@ -3,11 +3,11 @@
     <a href="./dashboard.php" class="nav-item">Dashboard</a>
     <a href="./database_management.php" class="nav-item">Database Management</a>
     <ul class="submenu">
-        <li><a href="./students.php">Students</a></li>
-        <li><a href="./professors.php">Professors</a></li>
-        <li><a href="./subjects.php">Courses / Subjects</a></li>
-        <li><a href="./sections.php">Sections</a></li>
-        <li><a href="./terms.php">Terms / Semesters</a></li>
+        <li><a class="nav-item" href="./students.php">Students</a></li>
+        <li><a class="nav-item" href="./professors.php">Professors</a></li>
+        <li><a class="nav-item" href="./subjects.php">Courses / Subjects</a></li>
+        <li><a class="nav-item" href="./sections.php">Sections</a></li>
+        <li><a class="nav-item" href="./terms.php">Terms / Semesters</a></li>
     </ul>
     <a href="./masterlist.php" class="nav-item">Masterlist</a>
     <a href="./grading_management.php" class="nav-item">Grading Management</a>
