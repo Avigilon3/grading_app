@@ -1,3 +1,41 @@
+
+
+
+
+
+-- ----------ARCHIVED:nov2 at 9am----------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -21,7 +59,7 @@ SET time_zone = "+00:00";
 -- Database: `grading_app`
 --
 
--- --------------------------------------------------------
+-- ------------OLD DATABASE EXPORT--------------------------------------------
 
 --
 -- Table structure for table `grades`
@@ -258,48 +296,38 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
--- added by bethel for admin portal
+-- add siguro later
 
-CREATE TABLE IF NOT EXISTS admins (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(120) NOT NULL,
-  email VARCHAR(190) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  role ENUM('mis','registrar','staff') NOT NULL DEFAULT 'staff',
-  status ENUM('pending_otp','active','disabled') NOT NULL DEFAULT 'pending_otp',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE IF NOT EXISTS admins (
+--   id INT AUTO_INCREMENT PRIMARY KEY,
+--   name VARCHAR(120) NOT NULL,
+--   email VARCHAR(190) NOT NULL UNIQUE,
+--   password_hash VARCHAR(255) NOT NULL,
+--   role ENUM('mis','registrar','staff') NOT NULL DEFAULT 'staff',
+--   status ENUM('pending_otp','active','disabled') NOT NULL DEFAULT 'pending_otp',
+--   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
-CREATE TABLE IF NOT EXISTS admin_otps (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  admin_id INT NOT NULL,
-  email VARCHAR(190) NOT NULL,
-  code VARCHAR(6) NOT NULL,
-  expires_at DATETIME NOT NULL,
-  used_at DATETIME NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX(admin_id),
-  CONSTRAINT fk_admin_otps_admin FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
-);
+-- CREATE TABLE IF NOT EXISTS admin_otps (
+--   id INT AUTO_INCREMENT PRIMARY KEY,
+--   admin_id INT NOT NULL,
+--   email VARCHAR(190) NOT NULL,
+--   code VARCHAR(6) NOT NULL,
+--   expires_at DATETIME NOT NULL,
+--   used_at DATETIME NULL,
+--   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--   INDEX(admin_id),
+--   CONSTRAINT fk_admin_otps_admin FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
+-- );
 
-CREATE TABLE IF NOT EXISTS activity_logs (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  admin_id INT NOT NULL,
-  action VARCHAR(100) NOT NULL,
-  meta JSON NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX(admin_id),
-  CONSTRAINT fk_logs_admin FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS notifications (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  type ENUM('submission','edit_request') NOT NULL,
-  actor VARCHAR(190) NULL,
-  payload JSON NULL,
-  is_read TINYINT(1) NOT NULL DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE IF NOT EXISTS notifications (
+--   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--   type ENUM('submission','edit_request') NOT NULL,
+--   actor VARCHAR(190) NULL,
+--   payload JSON NULL,
+--   is_read TINYINT(1) NOT NULL DEFAULT 0,
+--   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 
 --for database management CRUD
