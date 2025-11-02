@@ -1,7 +1,9 @@
+1. sections table - alisin ko pa ba yung prof column/attribute? 
+2. course table - no need na ba? mixed with section na?
+3. Manage sections - dapat ba parang format nya naka by section na (hindi list) kasi may multiple subjects and prof per section?
+4. kailangang pagaralan yung ERD nakakalito
 
 
-1. Manage sections 
-2. kailangang pagaralan yung ERD
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,

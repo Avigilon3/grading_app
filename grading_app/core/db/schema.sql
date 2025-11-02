@@ -344,3 +344,29 @@ SET term_name = CONCAT(
   school_year
 );
 
+
+
+--add section_subjects table para possible yung 1 section many subs 
+CREATE TABLE section_subjects (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  section_id INT NOT NULL,
+  subject_id INT NOT NULL,
+  professor_id INT NULL, 
+  term_id INT NULL, 
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+  FOREIGN KEY (professor_id) REFERENCES professors(id) ON DELETE SET NULL,
+  FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE SET NULL
+);
+
+--add section_students table para din sa block section ng student
+CREATE TABLE section_students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  section_id INT NOT NULL,
+  student_id INT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_section_student (section_id, student_id),
+  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);

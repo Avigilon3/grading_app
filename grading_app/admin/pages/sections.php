@@ -200,6 +200,7 @@ $result = $stmt->fetchAll();
               <td><?= htmlspecialchars(trim(($row['last_name'] ?? '') . ', ' . ($row['first_name'] ?? '') . ' ' . ($row['middle_name'] ?? '')) . (isset($row['professor_code']) && $row['professor_code'] ? ' ('.$row['professor_code'].')' : '')); ?></td>
               <td><?= ($row['is_active'] ? 'Active' : 'Inactive'); ?></td>
               <td class="actions">
+                <a class="btn btn-sm" href="./masterlist.php?section_id=<?= $row['id']; ?>">Masterlist</a>
                 <button
                   class="btn btn-sm btn-warning btn-edit"
                   data-id="<?= $row['id']; ?>"
