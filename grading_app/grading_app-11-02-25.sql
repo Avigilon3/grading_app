@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 27, 2025 at 06:38 PM
+-- Generation Time: Nov 02, 2025 at 04:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,6 +35,34 @@ CREATE TABLE `activity_logs` (
   `ip` varchar(45) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `activity_logs`
+--
+
+INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `created_at`) VALUES
+(1, 1, 'UPDATE_STUDENT', 'Updated student: 2022-9800', '::1', '2025-11-01 17:40:23'),
+(2, 1, 'ADD_STUDENT', 'Added student: 1900-0001', '::1', '2025-11-01 17:41:30'),
+(3, 1, 'ADD_STUDENT', 'Added student: 1900-0002', '::1', '2025-11-02 05:47:44'),
+(4, 1, 'ADD_STUDENT', 'Added student: 1900-0001', '::1', '2025-11-02 05:47:55'),
+(5, 1, 'ADD_STUDENT', 'Added student: 1900-0003', '::1', '2025-11-02 06:27:48'),
+(6, 1, 'ADD_STUDENT', 'Added student: ', '::1', '2025-11-02 06:27:57'),
+(7, 1, 'ADD_STUDENT', 'Added student: 2022-9800', '::1', '2025-11-02 06:29:51'),
+(8, 1, 'ADD_STUDENT', 'Added student: 1900-0002', '::1', '2025-11-02 06:30:05'),
+(9, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0004', '::1', '2025-11-02 07:51:29'),
+(10, 1, 'ADD_PROFESSOR', 'Added professor: PROF-0005', '::1', '2025-11-02 08:00:45'),
+(11, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0005', '::1', '2025-11-02 08:02:19'),
+(12, 1, 'UPDATE_SUBJECT', 'Updated subject: FIL1', '::1', '2025-11-02 08:03:08'),
+(13, 1, 'ADD_SUBJECT', 'Added subject: MS 102', '::1', '2025-11-02 08:03:35'),
+(14, 1, 'ADD_TERM', 'Added term: 2nd Semester', '::1', '2025-11-02 08:06:52'),
+(15, 1, 'ADD_TERM', 'Added term: 1st Semester 2021-2022', '::1', '2025-11-02 08:36:38'),
+(16, 1, 'DELETE_TERM', 'Deleted term id: 3', '::1', '2025-11-02 08:37:00'),
+(17, 1, 'ADD_TERM', 'Added term: 1st Semester 2024-2025', '::1', '2025-11-02 08:46:07'),
+(18, 1, 'ADD_SECTION', 'Added section: BSIT 2B', '::1', '2025-11-02 09:15:07'),
+(19, 1, 'ADD_TO_MASTERLIST', 'Added Burgos, Jose Apolonio to section ID 8', '::1', '2025-11-02 14:23:04'),
+(20, 1, 'ADD_TO_MASTERLIST', 'Added Burgos, Jose Apolonio to section ID 9', '::1', '2025-11-02 14:23:41'),
+(21, 1, 'ADD_TO_MASTERLIST', 'Added Burgos, Jose Apolonio to section ID 11', '::1', '2025-11-02 14:24:32'),
+(22, 1, 'ADD_TO_MASTERLIST', 'Added Burgos, Jose Apolonio to section ID 10', '::1', '2025-11-02 14:24:41');
 
 -- --------------------------------------------------------
 
@@ -105,7 +133,11 @@ CREATE TABLE `enrollments` (
 --
 
 INSERT INTO `enrollments` (`id`, `section_id`, `student_id`) VALUES
-(1, 1, 1);
+(1, 1, 1),
+(2, 8, 5),
+(3, 9, 5),
+(4, 11, 5),
+(5, 10, 5);
 
 -- --------------------------------------------------------
 
@@ -188,15 +220,26 @@ INSERT INTO `grading_sheets` (`id`, `section_id`, `professor_id`, `status`, `dea
 CREATE TABLE `professors` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `professor_id` varchar(50) DEFAULT NULL
+  `professor_id` varchar(50) NOT NULL,
+  `ptc_email` varchar(150) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `professors`
 --
 
-INSERT INTO `professors` (`id`, `user_id`, `professor_id`) VALUES
-(1, 2, 'PROF-0001');
+INSERT INTO `professors` (`id`, `user_id`, `professor_id`, `ptc_email`, `first_name`, `middle_name`, `last_name`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 2, 'PROF-0001', '', '', NULL, '', 1, '2025-11-02 15:05:53', '2025-11-02 15:05:53'),
+(8, NULL, 'PROF-0002', 'storre@paterostechnologicalcollege.edu.ph', 'Shider Rey', 'Dela Cruz', 'Toree', 1, '2025-11-02 15:22:08', '2025-11-02 15:22:08'),
+(9, NULL, 'PROF-0003', 'rnacario@paterostechnologicalcollege.edu.ph', 'Ryan Cesar', 'Legaspi', 'Nacario', 1, '2025-11-02 15:22:08', '2025-11-02 15:22:08'),
+(10, NULL, 'PROF-0004', 'mknazareno@paterostechnologicalcollege.edu.ph', 'Mark Kenneth', 'Borja', 'Nazareno', 1, '2025-11-02 15:22:08', '2025-11-02 15:51:29'),
+(14, NULL, 'PROF-0005', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria Elena', 'Cruz', 'Santos', 0, '2025-11-02 16:00:45', '2025-11-02 16:02:19');
 
 -- --------------------------------------------------------
 
@@ -206,7 +249,14 @@ INSERT INTO `professors` (`id`, `user_id`, `professor_id`) VALUES
 
 CREATE TABLE `sections` (
   `id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL,
+  `section_name` varchar(100) NOT NULL,
+  `term_id` int(11) DEFAULT NULL,
+  `subject_id` int(11) DEFAULT NULL,
+  `schedule` varchar(150) DEFAULT NULL,
+  `assigned_professor_id` int(11) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `year_level` enum('1','2','3','4') NOT NULL,
   `term` varchar(50) DEFAULT NULL,
   `course_id` int(11) DEFAULT NULL
@@ -216,8 +266,40 @@ CREATE TABLE `sections` (
 -- Dumping data for table `sections`
 --
 
-INSERT INTO `sections` (`id`, `name`, `year_level`, `term`, `course_id`) VALUES
-(1, 'BSIT-3A', '3', '1st Sem 2025-2026', 1);
+INSERT INTO `sections` (`id`, `section_name`, `term_id`, `subject_id`, `schedule`, `assigned_professor_id`, `is_active`, `created_at`, `updated_at`, `year_level`, `term`, `course_id`) VALUES
+(1, 'BSIT-3A', NULL, NULL, NULL, NULL, 1, '2025-11-02 15:05:53', '2025-11-02 15:05:53', '3', '1st Sem 2025-2026', 1),
+(8, 'BSIT 1A', 1, 1, 'MWF 8:00-9:00 AM', 8, 1, '2025-11-02 15:49:49', '2025-11-02 15:49:49', '1', NULL, NULL),
+(9, 'BSIT 2B', 1, 2, 'TTH 9:00-10:30 AM', 9, 1, '2025-11-02 15:49:49', '2025-11-02 15:49:49', '2', NULL, NULL),
+(10, 'BSIT 3C', 1, 3, 'MWF 1:00-2:30 PM', 10, 1, '2025-11-02 15:49:49', '2025-11-02 15:49:49', '3', NULL, NULL),
+(11, 'BSIT 2B', 2, 3, 'TFSA 16:00-18:00', 10, 1, '2025-11-02 17:15:07', '2025-11-02 17:15:07', '1', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `section_students`
+--
+
+CREATE TABLE `section_students` (
+  `id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `section_subjects`
+--
+
+CREATE TABLE `section_subjects` (
+  `id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `subject_id` int(11) NOT NULL,
+  `professor_id` int(11) DEFAULT NULL,
+  `term_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -229,6 +311,10 @@ CREATE TABLE `students` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `student_id` varchar(50) DEFAULT NULL,
+  `ptc_email` varchar(150) DEFAULT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) NOT NULL,
   `year_level` enum('1','2','3','4') NOT NULL,
   `section` varchar(50) DEFAULT NULL,
   `status` enum('Regular','Irregular') DEFAULT 'Regular'
@@ -238,8 +324,66 @@ CREATE TABLE `students` (
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`id`, `user_id`, `student_id`, `year_level`, `section`, `status`) VALUES
-(1, 3, 'STUD-0001', '3', 'BSIT-3A', 'Regular');
+INSERT INTO `students` (`id`, `user_id`, `student_id`, `ptc_email`, `first_name`, `middle_name`, `last_name`, `year_level`, `section`, `status`) VALUES
+(1, 3, 'STUD-0001', NULL, '', NULL, '', '3', 'BSIT-3A', 'Regular'),
+(2, NULL, '2022-9800', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria', 'Luna', 'Santos', '4', 'BSIT-3OL', 'Irregular'),
+(4, NULL, '1900-0001', 'joserizal@paterostechnologicalcollege.edu.ph', 'Jose', 'Mercado', 'Rizal', '2', 'CCS 1A', 'Regular'),
+(5, NULL, '1900-0002', 'jburgos@paterostechnologicalcollege.edu.ph', 'Jose', 'Apolonio', 'Burgos', '1', 'CCS 2C', 'Irregular');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subjects`
+--
+
+CREATE TABLE `subjects` (
+  `id` int(11) NOT NULL,
+  `subject_code` varchar(50) NOT NULL,
+  `subject_title` varchar(200) NOT NULL,
+  `units` decimal(3,1) DEFAULT 0.0,
+  `description` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `subjects`
+--
+
+INSERT INTO `subjects` (`id`, `subject_code`, `subject_title`, `units`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'AIS101', 'Information Assurance and Security', 3.0, 'About securities in IT field', 1, '2025-11-02 15:47:41', '2025-11-02 15:47:41'),
+(2, 'FIL1', 'Komunikasyon sa Akademikong Filipino', 3.0, 'Pagpapahalaga sa ating Wika eme', 1, '2025-11-02 15:47:41', '2025-11-02 16:03:08'),
+(3, 'DLD1', 'Digital Logic Design', 3.0, 'Covers Binary', 1, '2025-11-02 15:47:41', '2025-11-02 15:47:41'),
+(4, 'MS 102', 'Modeling and Simulation', 3.0, 'Simulations', 1, '2025-11-02 16:03:35', '2025-11-02 16:03:35');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `terms`
+--
+
+CREATE TABLE `terms` (
+  `id` int(11) NOT NULL,
+  `semester` enum('1','2') NOT NULL DEFAULT '1',
+  `term_name` varchar(100) NOT NULL,
+  `school_year` varchar(20) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `terms`
+--
+
+INSERT INTO `terms` (`id`, `semester`, `term_name`, `school_year`, `start_date`, `end_date`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, '1', '1st Semester 2025-2026', '2025-2026', '2025-08-01', '2025-12-15', 1, '2025-11-02 15:47:11', '2025-11-02 15:47:11'),
+(2, '1', '1st Semester 2025-2026', '2025-2026', '2026-01-10', '2026-05-15', 0, '2025-11-02 15:47:11', '2025-11-02 16:30:17'),
+(4, '1', '1st Semester 2021-2022', '2021-2022', '2025-11-02', '2025-11-03', 1, '2025-11-02 16:36:38', '2025-11-02 16:36:38'),
+(5, '1', '1st Semester 2024-2025', '2024-2025', '2024-08-04', '2024-12-08', 1, '2025-11-02 16:46:07', '2025-11-02 16:46:07');
 
 -- --------------------------------------------------------
 
@@ -252,8 +396,8 @@ CREATE TABLE `users` (
   `email` varchar(190) NOT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
   `role` enum('admin','registrar','professor','student') NOT NULL DEFAULT 'student',
-  `name_first` varchar(100) DEFAULT NULL,
-  `name_last` varchar(100) DEFAULT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
   `status` enum('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -262,7 +406,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `name_first`, `name_last`, `status`, `created_at`) VALUES
+INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `first_name`, `last_name`, `status`, `created_at`) VALUES
 (1, 'jqtumamak@paterostechnologicalcollege.edu.ph', '$2y$10$Y4tMPwhtLW1Hku2iYAFT7uqoW9wToz4pYSRoGnuW1NNt69T0WeB3q', 'admin', 'MIS', 'Admin', 'ACTIVE', '2025-10-27 16:29:29'),
 (2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', 'professor', 'Juan', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
 (3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', 'student', 'Cris', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
@@ -343,15 +487,37 @@ ALTER TABLE `grading_sheets`
 --
 ALTER TABLE `professors`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `user_id` (`user_id`),
-  ADD UNIQUE KEY `professor_id` (`professor_id`);
+  ADD UNIQUE KEY `professor_id` (`professor_id`),
+  ADD UNIQUE KEY `uq_professors_ptc_email` (`ptc_email`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `sections`
 --
 ALTER TABLE `sections`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `course_id` (`course_id`);
+  ADD KEY `course_id` (`course_id`),
+  ADD KEY `fk_sections_term` (`term_id`),
+  ADD KEY `fk_sections_subject` (`subject_id`),
+  ADD KEY `fk_sections_professor` (`assigned_professor_id`);
+
+--
+-- Indexes for table `section_students`
+--
+ALTER TABLE `section_students`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_section_student` (`section_id`,`student_id`),
+  ADD KEY `student_id` (`student_id`);
+
+--
+-- Indexes for table `section_subjects`
+--
+ALTER TABLE `section_subjects`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `section_id` (`section_id`),
+  ADD KEY `subject_id` (`subject_id`),
+  ADD KEY `professor_id` (`professor_id`),
+  ADD KEY `term_id` (`term_id`);
 
 --
 -- Indexes for table `students`
@@ -359,7 +525,21 @@ ALTER TABLE `sections`
 ALTER TABLE `students`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_id` (`user_id`),
-  ADD UNIQUE KEY `student_id` (`student_id`);
+  ADD UNIQUE KEY `student_id` (`student_id`),
+  ADD UNIQUE KEY `uq_students_ptc_email` (`ptc_email`);
+
+--
+-- Indexes for table `subjects`
+--
+ALTER TABLE `subjects`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_subjects_code` (`subject_code`);
+
+--
+-- Indexes for table `terms`
+--
+ALTER TABLE `terms`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `users`
@@ -376,7 +556,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -400,7 +580,7 @@ ALTER TABLE `edit_requests`
 -- AUTO_INCREMENT for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `grades`
@@ -430,19 +610,43 @@ ALTER TABLE `grading_sheets`
 -- AUTO_INCREMENT for table `professors`
 --
 ALTER TABLE `professors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `section_students`
+--
+ALTER TABLE `section_students`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `section_subjects`
+--
+ALTER TABLE `section_subjects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `subjects`
+--
+ALTER TABLE `subjects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `terms`
+--
+ALTER TABLE `terms`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -516,7 +720,26 @@ ALTER TABLE `professors`
 -- Constraints for table `sections`
 --
 ALTER TABLE `sections`
+  ADD CONSTRAINT `fk_sections_professor` FOREIGN KEY (`assigned_professor_id`) REFERENCES `professors` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_sections_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_sections_term` FOREIGN KEY (`term_id`) REFERENCES `terms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `sections_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `section_students`
+--
+ALTER TABLE `section_students`
+  ADD CONSTRAINT `section_students_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `section_students_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `section_subjects`
+--
+ALTER TABLE `section_subjects`
+  ADD CONSTRAINT `section_subjects_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `section_subjects_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `section_subjects_ibfk_3` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `section_subjects_ibfk_4` FOREIGN KEY (`term_id`) REFERENCES `terms` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `students`

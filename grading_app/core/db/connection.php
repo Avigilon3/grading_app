@@ -1,5 +1,4 @@
 <?php
-// core/db/connection.php
 $DB_HOST = getenv('DB_HOST') ?: 'localhost';
 $DB_PORT = getenv('DB_PORT') ?: '3306';
 $DB_NAME = getenv('DB_NAME') ?: 'grading_app';

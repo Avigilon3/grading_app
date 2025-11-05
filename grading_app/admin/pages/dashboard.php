@@ -1,9 +1,14 @@
 <?php
+<<<<<<< HEAD
 // include this from the core folder as always
 require_once __DIR__ . '/../../core/config/config.php';
 require_once __DIR__ . '/../../core/auth/session.php';
 require_once __DIR__ . '/../../core/auth/guards.php';
 require_once __DIR__ . '/../../core/index.php';
+=======
+require_once __DIR__ . '/../includes/init.php';
+requireAdmin();
+>>>>>>> main
 
 // pang admin (or registrar) access to
 requireLogin();
@@ -13,16 +18,27 @@ if (!in_array($_SESSION['user']['role'] ?? '', ['admin', 'registrar'])) {
   exit;
 }
 
-require_once __DIR__ . '/../includes/init.php';
-
 $stats = ['sections'=>0,'professors'=>0,'students'=>0,'edit_requests'=>0];
 ?>
+<<<<<<< HEAD
 <!doctype html><html><head>
   <meta charset="utf-8"><title>Dashboard</title>
   <link rel="stylesheet" href="../assets/css/admin.css">
 </head> 
 <body>
+=======
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+
+>>>>>>> main
 <?php include __DIR__.'/../includes/header.php'; ?>
+
+<body>
 <div class="layout">
   <?php include __DIR__.'/../includes/sidebar.php'; ?>
   <main class="content">

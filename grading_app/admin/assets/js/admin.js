@@ -24,7 +24,8 @@
 				// simple match: last segment or full pathname
 				if (current.endsWith(url.pathname) || current === url.pathname + url.search) {
 					a.classList.add('active');
-					a.style.background = '#1a2342';
+					a.style.background = '#618A61';
+					a.style.color = '#fff';
 				} else {
 					a.classList.remove('active');
 					a.style.background = '';
@@ -73,7 +74,7 @@
 		highlightNav();
 		wireLogoutConfirm();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
-		tryFetchCounts();
+		// tryFetchCounts();
 
 		// Expose small API for inline scripts to update counts dynamically
 		window.admin = window.admin || {};
