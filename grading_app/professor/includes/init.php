@@ -1,6 +1,15 @@
 <?php
-session_name('ptc_professor');
-session_start();
-require __DIR__.'/db.php';
-require __DIR__.'/functions.php';
-require __DIR__.'/auth.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load shared core modules to align with admin
+require_once '../../core/config/config.php';
+require_once '../../core/auth/session.php';
+require_once '../../core/auth/guards.php';
+require_once '../../core/db/connection.php';
+require_once '../../core/config/functions.php';
+
+// Module-specific helpers (keep for future use)
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/auth.php';
