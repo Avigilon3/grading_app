@@ -300,3 +300,12 @@ CREATE TABLE IF NOT EXISTS notifications (
   is_read TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE pickup_schedule (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT,
+    pickup_date DATE,
+    pickup_time TIME,
+    status ENUM('pending', 'approved', 'completed') DEFAULT 'pending',
+    FOREIGN KEY (student_id) REFERENCES users(id)
+);
