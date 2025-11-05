@@ -1,4 +1,13 @@
 <?php
+<<<<<<< HEAD
+// Masterlist Page
+require_once __DIR__ . '/../../core/config/config.php';
+require_once __DIR__ . '/../../core/auth/session.php';
+
+?>
+< --- IGNORE ---
+End of recent edits
+=======
 require_once __DIR__ . '/../includes/init.php';
 requireAdmin();
 
@@ -190,3 +199,4 @@ if ($sectionId) {
 </div>
 </body>
 </html>
+>>>>>>> main

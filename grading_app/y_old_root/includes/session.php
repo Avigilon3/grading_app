@@ -20,7 +20,8 @@ if (!isset($_SESSION['last_regeneration']) || time() - $_SESSION['last_regenerat
 }
 
 // Handle AJAX request to set theme
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($contentType, 'application/json') !== false) {
     $input = json_decode(file_get_contents('php://input'), true);
     $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
 

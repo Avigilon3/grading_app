@@ -5,7 +5,10 @@ try {
     $stmt = $pdo->query("SELECT id, username, role, email FROM users ORDER BY id");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Query failed: " . $e->getMessage());
+    error_log('Query failed (' . __FILE__ . '): ' . $e->getMessage());
+    http_response_code(500);
+    echo '<p>An error occurred while loading the users list. Please try again later.</p>';
+    exit;
 }
 ?>
 
