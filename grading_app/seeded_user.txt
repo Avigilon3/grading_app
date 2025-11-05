@@ -12,10 +12,6 @@ Password: Stud123!
 
 
 
-
-
-
-
 seed_users.php (decapricated already)
 
 <?php

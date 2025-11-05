@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/init.php';
+require_once '../includes/init.php';
 requireAdmin();
 
 // AJAX: lookup student by student_code (students.student_id)

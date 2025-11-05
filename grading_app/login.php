@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/core/config/config.php';
-require_once __DIR__ . '/core/auth/session.php';
+require_once 'core/config/config.php';
+require_once 'core/auth/session.php';
 
 $err = null;
 
@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pass  = trim($_POST['password'] ?? '');
 
     if ($email && $pass) {
-        require_once __DIR__ . '/core/db/connection.php';
+        require_once 'core/db/connection.php';
 
         $stmt = $pdo->prepare('SELECT id, email, password_hash, role, first_name, last_name, status FROM users WHERE email = ? LIMIT 1');
         $stmt->execute([$email]);

@@ -2,9 +2,7 @@
 
 //nuto? -bethel
 <?php
-require_once __DIR__ . '/../../core/config/config.php';
-require_once __DIR__ . '/../../core/auth/session.php';
-require_once __DIR__ . '/../../core/auth/guards.php';
+require_once '../includes/init.php';
 
 requireLogin();
 if (!in_array($_SESSION['user']['role'] ?? '', ['admin', 'registrar'])) {
@@ -12,8 +10,6 @@ if (!in_array($_SESSION['user']['role'] ?? '', ['admin', 'registrar'])) {
   echo 'Unauthorized.';
   exit;
 }
-
-require_once __DIR__ . '/../includes/init.php';
 
 $stats = ['sections' => 12, 'professors' => 4, 'students' => 128, 'edit_requests' => 3];
 ?>
@@ -25,9 +21,9 @@ $stats = ['sections' => 12, 'professors' => 4, 'students' => 128, 'edit_requests
     <link rel="stylesheet" href="../assets/css/admin.css">
   </head>
   <body>
-    <?php include __DIR__ . '/../includes/header.php'; ?>
+    <?php include '../includes/header.php'; ?>
     <div class="layout">
-      <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+      <?php include '../includes/sidebar.php'; ?>
       <main class="content">
         <?php show_flash(); ?>
         <h1>Sample Admin Page</h1>

@@ -1,12 +1,13 @@
 <?php
-require_once __DIR__ . '/core/auth/session.php';
+require_once 'core/config/config.php';
+require_once 'core/auth/session.php';
 $msg = $err = null;
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $email = trim($_POST['email'] ?? '');
   $pass  = trim($_POST['password'] ?? '');
   if(!$email || !$pass){ $err='Please fill in all fields.'; }
   else {
-    require_once __DIR__ . '/core/db/connection.php';
+    require_once 'core/db/connection.php';
     // Must already exist from MIS preload
     $check = $pdo->prepare('SELECT email FROM users WHERE email=? LIMIT 1');
     $check->execute([$email]);

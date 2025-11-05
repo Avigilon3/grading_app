@@ -1,6 +1,4 @@
-<?php
-require_once __DIR__ . '/../includes/init.php';
-?>
+<?php // assumes init.php already loaded by the page ?>
 <header>
   <div class="left-header">
 
