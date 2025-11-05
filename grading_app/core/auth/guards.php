@@ -1,5 +1,4 @@
 <?php
-require_once 'core/auth/session.php';
 
 
 function requireLogin() {

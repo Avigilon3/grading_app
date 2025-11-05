@@ -1,7 +1,5 @@
 <?php
 
-require_once 'core/db/connection.php';
-
 // --- Log user activity ---
 function add_activity_log($pdo, $user_id, $action, $details = '') {
     try {
