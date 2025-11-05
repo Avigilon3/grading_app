@@ -1,3 +1,2 @@
 <?php
-require_once 'core/auth/session.php';
-require_once 'core/auth/guards.php';
+// Module-specific auth helpers can go here, dependencies loaded by includes/init.php
