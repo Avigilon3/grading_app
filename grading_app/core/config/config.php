@@ -1,4 +1,9 @@
 <?php
+// Resolve application root and set include_path for root-relative includes
+if (!defined('APP_ROOT')) {
+    define('APP_ROOT', realpath(__DIR__ . '/../../'));
+}
+set_include_path(APP_ROOT . PATH_SEPARATOR . get_include_path());
 // core/config/config.php
 
 // --- Option A (manual, simplest) ---

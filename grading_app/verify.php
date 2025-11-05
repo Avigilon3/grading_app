@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/core/auth/session.php';
-require_once __DIR__ . '/core/db/connection.php';
+require_once 'core/config/config.php';
+require_once 'core/auth/session.php';
+require_once 'core/db/connection.php';
 
 if($_SERVER['REQUEST_METHOD']!=='POST' || empty($_SESSION['pending_reg'])){ header('Location: register.php'); exit; }
 $code = trim($_POST['code'] ?? '');

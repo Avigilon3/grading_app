@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/init.php';
+require_once '../includes/init.php';
 requireAdmin();
 
 // pang admin (or registrar) access to
@@ -20,11 +20,11 @@ $stats = ['sections'=>0,'professors'=>0,'students'=>0,'edit_requests'=>0];
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 
-<?php include __DIR__.'/../includes/header.php'; ?>
+<?php include '../includes/header.php'; ?>
 
 <body>
 <div class="layout">
-  <?php include __DIR__.'/../includes/sidebar.php'; ?>
+  <?php include '../includes/sidebar.php'; ?>
   <main class="content">
     <?php show_flash(); ?>
     <h1>Dashboard</h1>

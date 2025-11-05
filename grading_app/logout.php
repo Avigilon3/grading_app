@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/core/config/config.php';
-require_once __DIR__ . '/core/auth/session.php';
+require_once 'core/config/config.php';
+require_once 'core/auth/session.php';
 
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {

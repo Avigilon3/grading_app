@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/init.php';
+require_once '../includes/init.php';
 requireAdmin();
 
 // Filters
@@ -43,9 +43,9 @@ $logs = $stmt->fetchAll();
   <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
-<?php include __DIR__.'/../includes/header.php'; ?>
+<?php include '../includes/header.php'; ?>
 <div class="layout">
-  <?php include __DIR__.'/../includes/sidebar.php'; ?>
+<?php include '../includes/sidebar.php'; ?>
   <main class="content">
     <?php show_flash(); ?>
 
