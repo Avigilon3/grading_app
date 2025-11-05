@@ -18,6 +18,9 @@ try {
         ]
     );
 } catch (PDOException $e) {
-    exit("Database connection failed: " . $e->getMessage());
+    // Log the detailed error server-side and return a generic message to the client
+    error_log('DB connect error (' . __FILE__ . '): ' . $e->getMessage());
+    http_response_code(500);
+    exit('Internal server error.');
 }
 ?>

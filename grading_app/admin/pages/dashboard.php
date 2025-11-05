@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../core/config/config.php';
 require_once __DIR__ . '/../../core/auth/session.php';
 require_once __DIR__ . '/../../core/auth/guards.php';
+require_once __DIR__ . '/../../core/index.php';
 
 // pang admin (or registrar) access to
 requireLogin();
@@ -19,7 +20,7 @@ $stats = ['sections'=>0,'professors'=>0,'students'=>0,'edit_requests'=>0];
 <!doctype html><html><head>
   <meta charset="utf-8"><title>Dashboard</title>
   <link rel="stylesheet" href="../assets/css/admin.css">
-</head>
+</head> 
 <body>
 <?php include __DIR__.'/../includes/header.php'; ?>
 <div class="layout">

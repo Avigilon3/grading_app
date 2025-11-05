@@ -20,5 +20,7 @@ try {
     $stmt->execute([$subject_id]);
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    error_log('DB error in ajax_delete_subject.php: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Internal server error.']);
 } 

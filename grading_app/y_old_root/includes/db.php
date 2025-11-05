@@ -11,7 +11,10 @@ try {
     // Set PDO error mode to exception for debugging
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+    // Log the error for diagnostics and return a generic message to the user
+    error_log('DB connect error (' . __FILE__ . '): ' . $e->getMessage());
+    http_response_code(500);
+    exit('Internal server error.');
 }
 ?>
 
