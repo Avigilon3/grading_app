@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Professor Portal</title>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f1ec;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar */
+    header {
+      height: 56px;
+      background-color: white;
+      border-bottom: 1px solid #dcdada;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+    }
+    header .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    header .logo {
+      width: 36px;
+      height: 36px;
+    }
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+    header .right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: black;
+    }
+    header .icon {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      fill: black;
+    }
+
+    /* Container for sidebar + main */
+    .container {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 56px);
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      width: 220px;
+      background: white;
+      border-right: 1px solid #dcdada;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 20px;
+    }
+    nav.sidebar .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 5px;
+      color: black;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+      border: none;
+      background: none;
+      text-align: left;
+    }
+    nav.sidebar .nav-item:hover {
+      background-color: #79976922;
+    }
+    nav.sidebar .nav-item.active {
+      background-color: #799769;
+      color: white;
+      cursor: default;
+    }
+    nav.sidebar .nav-item svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Logout Button */
+    nav.sidebar .logout-btn {
+      margin-top: auto;
+      background-color: #799769;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background-color 0.3s ease;
+    }
+    nav.sidebar .logout-btn:hover {
+      background-color: #667a52;
+    }
+    nav.sidebar .logout-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+      flex-shrink: 0;
+    }
+
+    /* Main content */
+    main.content {
+      flex: 1;
+      padding: 30px 40px;
+      overflow-y: auto;
+      background-color: #f9f8f6;
+      color: #333;
+    }
+
+    /* Grading sheet inputs */
+    .grading-inputs, .total-inputs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .grading-inputs input, .total-inputs input {
+      width: 60px;
+      padding: 8px 6px;
+      font-size: 14px;
+      border: 1px solid #bebebe;
+      border-radius: 4px;
+      text-align: center;
+      transition: border-color 0.2s ease;
+    }
+    .grading-inputs input:focus, .total-inputs input:focus {
+      outline: none;
+      border-color: #799769;
+      box-shadow: 0 0 6px #79976988;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: 700;
+      margin-bottom: 25px;
+    }
+
+    /* Percentage display */
+    #percentage {
+      font-weight: 700;
+      font-size: 21px;
+      color: #799769;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="left">
+      <img class="logo" src="ptc.jpg" />
+      <h1>Professor Portal</h1>
+    </div>
+    <div class="right">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M17 21v-2a4 4 0 00-8 0v2"/></svg>
+      Hi! Sheryl
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="sidebar" aria-label="Main Navigation">
+      <button class="nav-item active" id="nav-dashboard" aria-pressed="true" type="button" aria-label="Dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" id="nav-sections" aria-pressed="false" type="button" aria-label="My Sections">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11h4v2H8zM12 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg>
+        My Sections
+      </button>
+      <button class="nav-item" id="nav-grading" aria-pressed="false" type="button" aria-label="Grading Sheets">
+        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 6h2v-2H3v2zm0-12h2V5H3v2zm16 4H9v10h10V11zm0-6H9v4h10V5z"/></svg>
+        Grading Sheets
+      </button>
+      <button class="nav-item" id="nav-requests" aria-pressed="false" type="button" aria-label="Requests">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v2H4V4zm0 6h10v2H4v-2zm0 6h16v2H4v-2z"/></svg>
+        Requests
+      </button>
+
+      <button class="logout-btn" id="logout" type="button" aria-label="Logout">
+        <svg viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3h9zM20 19h-8v-2h8V7h-8V5h8a2 2 0 012 2v10a2 2 0 01-2 2z"/></svg>
+        Logout
+      </button>
+    </nav>
+
+    <main class="content" id="content-area" role="main" tabindex="-1">
+      <h2>Dashboard</h2>
+      <p>Welcome to the Professor Portal Dashboard.</p>
+    </main>
+  </div>
+
+  <script>
+    // Elements
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navSections = document.getElementById('nav-sections');
+    const navGrading = document.getElementById('nav-grading');
+    const navRequests = document.getElementById('nav-requests');
+    const logoutBtn = document.getElementById('logout');
+    const contentArea = document.getElementById('content-area');
+    const navItems = [navDashboard, navSections, navGrading, navRequests];
+
+    // Clear active states
+    function clearActive() {
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        item.setAttribute('aria-pressed', 'false');
+      });
+    }
+
+    // Load Dashboard content
+    function loadDashboard() {
+      contentArea.innerHTML = `
+        <h2>Dashboard</h2>
+        <p>Welcome to the Professor Portal Dashboard.</p>
+      `;
+    }
+
+    // Load My Sections content
+    function loadSections() {
+      contentArea.innerHTML = `
+        <h2>My Sections</h2>
+        <p>Your sections will be listed here.</p>
+      `;
+    }
+
+    // Load Requests content
+    function loadRequests() {
+      contentArea.innerHTML = `
+        <h2>Requests</h2>
+        <p>Manage your requests here.</p>
+      `;
+    }
+
+    // Load Grading Sheets content with score and total inputs and calculation
+    function loadGradingSheet() {
+      contentArea.innerHTML = `
+        <h2>Grading Sheets</h2>
+        <label><strong>Enter Scores (B4 to I4):</strong></label>
+        <div class="grading-inputs" id="score-inputs">
+          ${[...Array(8)].map((_, i) =>
+            `<input type="number" min="0" step="1" id="score-${i}" placeholder="B4+${i}" aria-label="Score ${i + 1}" />`
+          ).join('')}
+        </div>
+
+        <label><strong>Enter Total Items (C3, E3, G3, I3):</strong></label>
+        <div class="total-inputs" id="total-inputs">
+          ${[...Array(4)].map((_, i) =>
+            `<input type="number" min="1" step="1" id="total-${i}" placeholder="Total ${i + 1}" aria-label="Total item ${i + 1}" />`
+          ).join('')}
+        </div>
+
+        <div>
+          Percentage: <span id="percentage">0.00</span>%
+        </div>
+        <div style="margin-top:6px; font-style: italic; font-size: 13px;">
+          Formula: (SUM(B4:I4) / SUM(C3,E3,G3,I3)) × 100
+        </div>
+      `;
+
+      // Add input listeners
+      for(let i=0; i < 8; i++) {
+        document.getElementById(`score-${i}`).addEventListener('input', calculatePercentage);
+      }
+      for(let i=0; i < 4; i++) {
+        document.getElementById(`total-${i}`).addEventListener('input', calculatePercentage);
+      }
+    }
+
+    // Calculate percentage formula
+    function calculatePercentage() {
+      let sumScores = 0;
+      for(let i = 0; i < 8; i++) {
+        const val = Number(document.getElementById(`score-${i}`).value);
+        if (!isNaN(val)) sumScores += val;
+      }
+      let sumTotals = 0;
+      for(let i = 0; i < 4; i++) {
+        const val = Number(document.getElementById(`total-${i}`).value);
+        if (!isNaN(val)) sumTotals += val;
+      }
+      const percent = sumTotals > 0 ? ((sumScores / sumTotals) * 100).toFixed(2) : "0.00";
+      document.getElementById('percentage').textContent = percent;
+    }
+
+    // Event listeners for nav items
+    navDashboard.addEventListener('click', () => {
+      clearActive();
+      navDashboard.classList.add('active');
+      navDashboard.setAttribute('aria-pressed', 'true');
+      loadDashboard();
+      contentArea.focus();
+    });
+    navSections.addEventListener('click', () => {
+      clearActive();
+      navSections.classList.add('active');
+      navSections.setAttribute('aria-pressed', 'true');
+      loadSections();
+      contentArea.focus();
+    });
+    navGrading.addEventListener('click', () => {
+      clearActive();
+      navGrading.classList.add('active');
+      navGrading.setAttribute('aria-pressed', 'true');
+      loadGradingSheet();
+      contentArea.focus();
+    });
+    navRequests.addEventListener('click', () => {
+      clearActive();
+      navRequests.classList.add('active');
+      navRequests.setAttribute('aria-pressed', 'true');
+      loadRequests();
+      contentArea.focus();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      alert("Logging out...");
+    });
+
+    // Initialize with Dashboard content
+    loadDashboard();
+  </script>
+</body>
+</html>
