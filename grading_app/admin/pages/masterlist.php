@@ -2,7 +2,6 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-// Sections list for selector
 $sectionsStmt = $pdo->query("SELECT s.id, s.section_name,
                                    t.term_name,
                                    sub.subject_title, sub.subject_code

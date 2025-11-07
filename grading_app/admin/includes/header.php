@@ -3,7 +3,7 @@
   <div class="left-header">
 
     <div class="logo">
-      <img src="/Git/grading_app/grading_app/admin/assets/images/logo-ptc.png" height="40px"alt="logo"/>
+      <img src="../assets/images/logo-ptc.png" height="40px"alt="logo"/>
     </div> 
     <div class="portal-name">PTC Admin</div>
     <!-- <div class="spacer"></div> -->
@@ -14,13 +14,13 @@
   <div class="right-header">
     <div class="notifications">
       <a href="#" class="badge">
-        <img src="/Git/grading_app/grading_app/admin/assets/images/notification.png" height="20px"alt="notification" <span id="notifications-count">0</span>
+        <img src="../assets/images/notification.png" height="20px"alt="notification" <span id="notifications-count">0</span>
       </a>
     </div>
       <div class="user">
         <?php if (adminIsLoggedIn()): ?>
           <span><?= htmlspecialchars(adminCurrentName()) ?></span>
-          <a href="<?= BASE_URL; ?>/logout.php">Logout</a>
+          <a href="../../logout.php">Logout</a>
         <?php endif; ?>
       </div>
   </div>

@@ -2,7 +2,7 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-// AJAX: lookup student by student_code (students.student_id)
+
 if (($_GET['action'] ?? '') === 'lookup_student') {
     header('Content-Type: application/json');
     $code = trim($_GET['student_code'] ?? '');
