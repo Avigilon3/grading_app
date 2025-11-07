@@ -1,12 +1,8 @@
 <?php
+require_once __DIR__ . '/../includes/init.php';
+requireStudent();
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
-
-require 'includes/config.php';
 
 // Function to safely prepare and execute SQL statements
 function safeQuery($pdo, $sql, $params = []) {
