@@ -23,7 +23,7 @@ try {
             exit;
         }
 
-        // Prevent duplicates of the same semester and school year
+        
         $dupe = $pdo->prepare("SELECT id FROM terms WHERE semester = ? AND school_year = ? LIMIT 1");
         $dupe->execute([$semester, $school_year]);
         if ($dupe->fetch()) {
@@ -57,7 +57,7 @@ try {
             exit;
         }
 
-        // Prevent duplicates of the same semester and school year (excluding current record)
+        
         $dupe = $pdo->prepare("SELECT id FROM terms WHERE semester = ? AND school_year = ? AND id <> ? LIMIT 1");
         $dupe->execute([$semester, $school_year, $id]);
         if ($dupe->fetch()) {

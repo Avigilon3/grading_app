@@ -3,6 +3,8 @@ require_once '../includes/init.php';
 requireAdmin();
 
 
+$err = $msg = null;
+
         //dito maglagay if may need ifetch sa database
 
 ?>

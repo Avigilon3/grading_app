@@ -32,7 +32,7 @@ if (!function_exists('adminCurrentName')) {
 function requireAdminLogin() {
     if (!adminIsLoggedIn()) {
         // go to main login
-        header('Location: ' . BASE_URL . '/login.php?session=expired');
+        header('Location: ../../login.php?session=expired');
         exit;
     }
 }
