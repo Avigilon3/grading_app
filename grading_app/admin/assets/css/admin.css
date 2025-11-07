@@ -23,7 +23,13 @@ body {
   font-size: 14px;
   font-style: normal;
   line-height: normal;
-  background: var(--background);
+  /* Soft overlay over background image for readability */
+  background-color: var(--background);
+  background-image: linear-gradient(rgba(249,249,249,0.90), rgba(249,249,249,0.90)), url('../images/ptc.jpg');
+  background-repeat: no-repeat;
+  background-size: auto, cover;
+  background-position: center center;
+  background-attachment: scroll, fixed;
   color: #000; 
   padding-top: 70px;
 }
