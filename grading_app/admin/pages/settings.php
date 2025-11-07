@@ -23,7 +23,7 @@ requireAdmin();
 <?php include '../includes/sidebar.php'; ?>
         <main class="content">
 
-            //lagay content here
+           //contents 
 
 
 
