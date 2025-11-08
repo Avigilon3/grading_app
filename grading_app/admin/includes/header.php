@@ -17,23 +17,22 @@
 <header>
   <div class="left-header">
     <div class="logo">
-      <img src="<?= BASE_URL; ?>/admin/assets/images/logo-ptc.png" height="40" alt="PTC Logo" />
-    </div>
+      <img src="../assets/images/logo-ptc.png" height="40px"alt="logo"/>
+    </div> 
     <div class="portal-name">PTC Admin</div>
   </div>
 
 
   <div class="right-header">
     <div class="notifications">
-      <a href="#" class="badge" title="Notifications">
-        <img src="<?= BASE_URL; ?>/admin/assets/images/notification.png" height="20" alt="Notifications" />
-        <span id="notifications-count">0</span>
+      <a href="#" class="badge">
+        <img src="../assets/images/notification.png" height="20px"alt="notification" <span id="notifications-count">0</span>
       </a>
     </div>
       <div class="user">
         <?php if (adminIsLoggedIn()): ?>
           <span><?= htmlspecialchars(adminCurrentName()) ?></span>
-          <a href="<?= BASE_URL; ?>/logout.php">Logout</a>
+          <a href="../../logout.php">Logout</a>
         <?php endif; ?>
       </div>
   </div>
