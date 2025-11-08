@@ -4,6 +4,16 @@
 4. kailangang pagaralan yung ERD nakakalito
 
 
+1. Error handling if student is already under a section for that term and year_level (or hindi kasi may mga irregular student na merong more than 1 section?)
+
+2. assign section_subject to one prof 
+
+3. Sections tab - show multiple subject per section (dapat pwede din mag add section for a batch ng subs) (yung select subject by batch na lang like third year 1 sem curriculum) tapos wala na section?
+
+
+
+
+
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
