@@ -103,7 +103,6 @@ $logs = $stmt->fetchAll();
               <th>Admin</th>
               <th>Action</th>
               <th>Details</th>
-              <th>IP</th>
             </tr>
           </thead>
           <tbody>
@@ -121,7 +120,6 @@ $logs = $stmt->fetchAll();
               </td>
               <td><?= htmlspecialchars($row['action']); ?></td>
               <td><?= htmlspecialchars($row['details'] ?? ''); ?></td>
-              <td><?= htmlspecialchars($row['ip'] ?? ''); ?></td>
             </tr>
           <?php endforeach; endif; ?>
           </tbody>

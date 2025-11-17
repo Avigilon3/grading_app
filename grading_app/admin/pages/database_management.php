@@ -12,14 +12,10 @@ $subjects = $pdo->query("SELECT id, subject_code, subject_title, units, is_activ
 $terms = $pdo->query("SELECT id, term_name, school_year, start_date, end_date, is_active FROM terms ORDER BY start_date DESC, id DESC LIMIT 10")->fetchAll();
 
 $sections = $pdo->query(
-  "SELECT s.id, s.section_name, s.schedule, s.is_active,
-          t.term_name,
-          sub.subject_code, sub.subject_title,
-          p.first_name, p.middle_name, p.last_name
+  "SELECT s.id, s.section_name, s.is_active, s.year_level, s.course_id,
+          t.term_name
      FROM sections s
 LEFT JOIN terms t ON t.id = s.term_id
-LEFT JOIN subjects sub ON sub.id = s.subject_id
-LEFT JOIN professors p ON p.id = s.assigned_professor_id
  ORDER BY s.section_name
  LIMIT 10"
 )->fetchAll();
@@ -233,25 +229,21 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
               <tr>
                 <th>#</th>
                 <th>Section Name</th>
+                <th>Course</th>
+                <th>Year Level</th>
                 <th>Term</th>
-                <th>Subject</th>
-                <th>Schedule</th>
-                <th>Professor</th>
-                <th>Status</th>
               </tr>
             </thead>
             <tbody>
             <?php if (!$sections): ?>
-              <tr><td colspan="7">No sections found.</td></tr>
+              <tr><td colspan="5">No sections found.</td></tr>
             <?php else: $i=1; foreach ($sections as $sec): ?>
               <tr>
                 <td><?= $i++; ?></td>
                 <td><?= htmlspecialchars($sec['section_name']); ?></td>
-                <td><?= htmlspecialchars($sec['term_name'] ?? ''); ?></td>
-                <td><?= htmlspecialchars(($sec['subject_code'] ? $sec['subject_code'].' - ' : '') . ($sec['subject_title'] ?? '')); ?></td>
-                <td><?= htmlspecialchars($sec['schedule']); ?></td>
-                <td><?= htmlspecialchars(trim(($sec['last_name'] ?? '') . ', ' . ($sec['first_name'] ?? '') . ' ' . ($sec['middle_name'] ?? ''))); ?></td>
-                <td><?= ($sec['is_active'] ? 'Active' : 'Inactive'); ?></td>
+                <td><?= htmlspecialchars($sec['course_id']); ?></td>
+                <td><?= htmlspecialchars($sec['year_level']); ?></td>
+                <td><?= htmlspecialchars($sec['term_name']); ?></td>
               </tr>
             <?php endforeach; endif; ?>
             </tbody>

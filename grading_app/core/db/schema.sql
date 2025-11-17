@@ -370,3 +370,59 @@ CREATE TABLE section_students (
   FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
+
+
+--
+--
+--
+-- --------added by bethel on november 17 at 5pm: database cleaning-------------
+--
+-- Add subject_id and schedule to professor table
+ALTER TABLE professors
+  ADD COLUMN subject_id INT NULL AFTER last_name,
+  ADD COLUMN schedule VARCHAR(150) DEFAULT NULL AFTER subject_id;
+
+ALTER TABLE professors
+  ADD CONSTRAINT fk_professors_subject
+    FOREIGN KEY (subject_id)
+    REFERENCES subjects(id)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL;
+
+ALTER TABLE courses
+  DROP COLUMN units;
+
+ALTER TABLE courses
+  ADD COLUMN is_active TINYINT(1) DEFAULT 1 AFTER title;
+
+ALTER TABLE courses
+  ADD COLUMN description TEXT AFTER title;
+
+ALTER TABLE subjects 
+  ADD COLUMN course_id INT NULL AFTER description,
+  ADD COLUMN year_level INT NULL AFTER course_id,
+  ADD COLUMN term_id INT NULL AFTER year_level;
+
+ALTER TABLE subjects 
+  ADD CONSTRAINT fk_subjects_course 
+    FOREIGN KEY (course_id)
+    REFERENCES courses(id)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL;
+
+ALTER TABLE subjects 
+  ADD CONSTRAINT fk_subjects_term
+  FOREIGN KEY (term_id)
+  REFERENCES terms(id)
+  ON UPDATE CASCADE
+  ON DELETE SET NULL;
+
+ALTER TABLE sections
+  DROP FOREIGN KEY fk_sections_professor,
+  DROP FOREIGN KEY fk_sections_subject,
+  DROP COLUMN schedule,
+  DROP COLUMN assigned_professor_id,
+  DROP COLUMN subject_id,
+  DROP COLUMN term;
+
+
