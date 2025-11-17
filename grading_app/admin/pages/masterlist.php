@@ -124,7 +124,7 @@ if ($sectionId) {
         <div class="card-body">
         <form action="../includes/masterlist_process.php" method="POST" id="add-student-form">
           <input type="hidden" name="action" value="add">
-          <!-- <input type="hidden" name="section_id" value="<?= (int)$sectionId; ?>"> -->
+          <input type="hidden" name="section_id" value="<?= (int)$sectionId; ?>">
           <div class="form-box">
             <div class="row-grid cols-3">
               <div class="form-group">
