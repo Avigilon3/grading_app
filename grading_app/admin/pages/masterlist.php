@@ -50,7 +50,8 @@ if ($sectionId) {
     <?php show_flash(); ?>
 
     <div class="page-header">
-      <h2>Section Masterlist</h2>
+      <h1>Section Masterlist</h1>
+      <p>Manage student enrollment by section and view assigned subjects</p>
     </div>
 
     <div class="card">

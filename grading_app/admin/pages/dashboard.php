@@ -130,31 +130,6 @@ try {
     <meta charset="utf-8">
       <title>Dashboard</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
-    <style>
-      /* Lightweight, page-scoped styles to mirror the concept */
-      .kpi-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
-      .kpi-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; }
-      .kpi-label { color: #6b7280; font-size: 13px; }
-      .kpi-value { font-size: 28px; font-weight: 700; margin-top: 6px; color: #111827; }
-
-      .chart-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; }
-      .chart-title { font-size: 18px; font-weight: 600; margin: 0 0 2px 0; }
-      .chart-subtitle { color: #6b7280; margin: 0 0 12px 0; font-size: 13px; }
-      .chart-header { display:flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
-      .chart-total { color: #10b981; font-size: 28px; font-weight: 700; }
-      .chart-delta { color: #10b981; font-weight: 600; font-size: 12px; }
-      .chart-actions { margin-top: 12px; display:flex; gap: 10px; }
-      .btn-outline { background: #fff; color: #111827; border: 1px solid #d1d5db; }
-
-      .bar-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; align-items: end; height: 180px; padding: 8px 0 0; }
-      .bar { background: #a7f3d0; border-radius: 8px 8px 0 0; width: 100%; position: relative; }
-      .bar.today { background: #34d399; }
-      .bar-wrap { text-align: center; }
-      .bar-label { margin-top: 6px; color: #6b7280; font-size: 12px; }
-
-      @media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-      @media (max-width: 640px)  { .kpi-grid { grid-template-columns: 1fr; } }
-    </style>
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -163,8 +138,8 @@ try {
   <main class="content">
     <?php show_flash(); ?>
     <div class="page-header">
-      <h2>Dashboard</h2>
-      <p class="muted">Welcome, <?= htmlspecialchars(adminCurrentName()); ?>.</p>
+      <h1>Dashboard</h1>
+      <p class="muted">Welcome, <?= htmlspecialchars(adminCurrentName()); ?>. Here's what's happening with your grading system.</p>
     </div>
 
     <!-- KPI cards -->

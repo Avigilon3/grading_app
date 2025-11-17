@@ -77,7 +77,8 @@ LEFT JOIN professors p ON p.id = er.professor_id
         <?php if ($msg): ?><div class="alert alert-success"><?= htmlspecialchars($msg) ?></div><?php endif; ?>
 
         <div class="page-header">
-          <h2>Requests</h2>
+          <h1>Requests</h1>
+          <p>Manage student document requests and professor grading sheet re-opening requests</p>
         </div>
 
         <div class="row-grid cols-1">

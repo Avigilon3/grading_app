@@ -23,7 +23,8 @@ $result = $stmt->fetchAll();
 
 
     <div class="page-header">
-      <h2>Manage Student Information</h2>
+      <h1>Manage Student Information</h1>
+      <p>Add, edit, and manage student records</p>
     </div>
 
 <!-- Feedback (optional) -->
