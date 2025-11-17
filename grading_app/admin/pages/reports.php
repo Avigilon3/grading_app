@@ -71,7 +71,8 @@ $logs = $pdo->query('SELECT a.id, a.action, a.details, a.ip, a.created_at, u.ema
         <?php show_flash(); ?>
 
         <div class="page-header">
-          <h2>Reports</h2>
+          <h1>Reports</h1>
+          <p>View and manage student grade reports by section and term</p>
         </div>
 
         <div class="row-grid cols-4">

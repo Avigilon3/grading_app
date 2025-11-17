@@ -17,7 +17,8 @@ $result = $stmt->fetchAll();
     <?php show_flash(); ?>
 
     <div class="page-header">
-      <h2>Manage Professor Information</h2>
+      <h1>Manage Professor Information</h1>
+      <p>Add, edit, and manage professor records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>

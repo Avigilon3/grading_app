@@ -64,8 +64,8 @@ try {
         <?php if ($msg): ?><div class="alert alert-success"><?= htmlspecialchars($msg) ?></div><?php endif; ?>
 
         <div class="page-header">
-          <h2>Grading Management</h2>
-          <p class="muted">View and manage grading sheets.</p>
+          <h1>Grading Management</h1>
+          <p>Manage grading sheet templates, track submissions, and set deadlines</p>
         </div>
 
         <div class="card">

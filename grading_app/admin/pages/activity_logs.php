@@ -50,7 +50,8 @@ $logs = $stmt->fetchAll();
     <?php show_flash(); ?>
 
     <div class="page-header">
-      <h2>Admin Activity Logs</h2>
+      <h1>Admin Activity Logs</h1>
+      <p>Track and monitor all administrative activities in the system</p>
     </div>
 
     <div class="card">

@@ -38,7 +38,8 @@ $result = $stmt->fetchAll();
     <?php show_flash(); ?>
 
     <div class="page-header">
-      <h2>Manage Sections Information</h2>
+      <h1>Manage Sections Information</h1>
+      <p>Add, edit, and manage section records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>

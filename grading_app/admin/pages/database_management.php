@@ -39,7 +39,8 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
     <?php show_flash(); ?>
 
     <div class="page-header">
-      <h2>Database Management Overview</h2>
+      <h1>Database Management Overview</h1>
+      <p>Manage all your academic database records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>
@@ -48,21 +49,17 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
       </div>
     <?php endif; ?>
 
-    <div class="row-grid cols-1 mb-16">
-      <div>
-        <a class="button" href="students.php">Manage Students</a>
-        <a class="button" href="professors.php">Manage Professors</a>
-        <a class="button" href="subjects.php">Manage Subjects</a>
-        <a class="button" href="sections.php">Manage Sections</a>
-        <a class="button" href="terms.php">Manage Semesters</a>
-      </div>
-    </div>
-
+    <!-- students table  -->
     <div class="row-grid cols-2">
       <div class="card">
         <div class="card-body">
-          <div class="page-header compact">
-            <h2>Students (latest)</h2>
+          <div class="card-header-actions">
+            <div class="page-header compact">
+              <p>Students (latest)</p>
+            </div>
+            <a class="button" href="students.php">
+              <img src="../assets/images/plus.svg" alt="" class="icon" aria-hidden="true"> Add Student
+            </a>
           </div>
           <table class="table table-striped table-bordered">
             <thead>
@@ -90,13 +87,22 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
             <?php endforeach; endif; ?>
             </tbody>
           </table>
+          <div class="view-all">
+            <a href="students.php">View all &rarr;</a>
+          </div>
         </div>
       </div>
 
+<!-- Professors table  -->
       <div class="card">
         <div class="card-body">
-          <div class="page-header compact">
-            <h2>Professors (latest)</h2>
+          <div class="card-header-actions">
+            <div class="page-header compact">
+              <p>Professors (latest)</p>
+            </div>
+            <a class="button" href="professors.php">
+              <img src="../assets/images/plus.svg" alt="" class="icon" aria-hidden="true"> Add Professor
+            </a>
           </div>
           <table class="table table-striped table-bordered">
             <thead>
@@ -120,15 +126,24 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
             <?php endforeach; endif; ?>
             </tbody>
           </table>
+          <div class="view-all">
+            <a href="professors.php">View all &rarr;</a>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Subjects table  -->
     <div class="row-grid cols-2">
       <div class="card">
         <div class="card-body">
-          <div class="page-header compact">
-            <h2>Subjects (latest)</h2>
+          <div class="card-header-actions">
+            <div class="page-header compact">
+              <p>Subjects (latest)</p>
+            </div>
+            <a class="button" href="subjects.php">
+              <img src="../assets/images/plus.svg" alt="" class="icon" aria-hidden="true"> Add Subject
+            </a>
           </div>
           <table class="table table-striped table-bordered">
             <thead>
@@ -154,14 +169,20 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
             <?php endforeach; endif; ?>
             </tbody>
           </table>
+          <div class="view-all">
+            <a href="subjects.php">View all →</a>
+          </div>
         </div>
       </div>
 
-      <div class="card">
+    <!-- Semesters table  -->
+      <!-- <div class="card">
         <div class="card-body">
           <div class="page-header compact">
-            <h2>Semesters (latest)</h2>
+            <p>Semesters (latest)</p>
           </div>
+          <a class="button" href="students.php">
+              <img src="../assets/images/plus.svg" alt="＋"> Add Semester</a>
           <table class="table table-striped table-bordered">
             <thead>
               <tr>
@@ -188,15 +209,24 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
             <?php endforeach; endif; ?>
             </tbody>
           </table>
+          <div class="view-all">
+            <a href="terms.php">View all &rarr;</a>
+          </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
+    <!-- Sections table  -->
     <div class="row-grid cols-1">
       <div class="card">
         <div class="card-body">
-          <div class="page-header compact">
-            <h2>Sections (latest)</h2>
+          <div class="card-header-actions">
+            <div class="page-header compact">
+              <p>Sections (latest)</p>
+            </div>
+            <a class="button" href="sections.php">
+              <img src="../assets/images/plus.svg" alt="" class="icon" aria-hidden="true"> Add Section
+            </a>
           </div>
           <table class="table table-striped table-bordered">
             <thead>
@@ -226,6 +256,9 @@ LEFT JOIN professors p ON p.id = s.assigned_professor_id
             <?php endforeach; endif; ?>
             </tbody>
           </table>
+          <div class="view-all">
+            <a href="sections.php">View all &rarr;</a>
+          </div>
         </div>
       </div>
     </div>

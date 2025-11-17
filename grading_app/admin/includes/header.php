@@ -1,19 +1,4 @@
 <?php // assumes init.php already loaded by the page ?>
-<style>
-  /* Admin background image applied via shared header include */
-  body {
-    background-image: linear-gradient(rgba(249,249,249,0.90), rgba(249,249,249,0.90)), url('<?= BASE_URL; ?>/admin/assets/images/ptc.jpg');
-    background-repeat: no-repeat;
-    background-size: auto, cover;
-    background-position: center center;
-    background-attachment: scroll, fixed;
-  }
-  /* Ensure header remains solid and readable over background */
-  header { background: var(--schoolcolor); }
-  .portal-name { color: var(--background); }
-  .user span, .user a { color: #fff; }
-  .badge span { color: #fff; }
- </style>
 <header>
   <div class="left-header">
     <div class="logo">
@@ -31,8 +16,16 @@
     </div>
       <div class="user">
         <?php if (adminIsLoggedIn()): ?>
-          <span><?= htmlspecialchars(adminCurrentName()) ?></span>
-          <a href="../../logout.php">Logout</a>
+          <div class="user-dropdown" data-user-dropdown>
+            <button type="button" class="user-trigger" data-user-trigger aria-haspopup="true" aria-expanded="false">
+              <span class="user-name"><?= htmlspecialchars(adminCurrentName()) ?></span>
+              <img src="../assets/images/dropdown.svg" alt="▾" class="dropdown-icon" aria-hidden="true" />
+            </button>
+            <div class="dropdown-menu" role="menu">
+              <a href="../pages/settings.php" role="menuitem"> <img src="../assets/images/settings.svg">Settings</a>
+              <a href="../../logout.php" role="menuitem"> <img src="../assets/images/logout.svg">Logout</a>
+            </div>
+          </div>
         <?php endif; ?>
       </div>
   </div>
