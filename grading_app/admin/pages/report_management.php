@@ -5,6 +5,9 @@ requireAdmin();
 // Handle actions for requests management
 $err = $msg = null;
 
+$err = $msg = null;
+
+        //dito maglagay if may need ifetch sa database
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
   try {

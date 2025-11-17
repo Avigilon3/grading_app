@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Load config and dependencies using only relative paths
+
 require_once '../../core/config/config.php';
 
 require_once '../../core/auth/session.php';
