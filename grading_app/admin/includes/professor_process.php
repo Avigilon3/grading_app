@@ -16,6 +16,11 @@ try {
         $first_name   = trim($_POST['first_name']);
         $middle_name  = trim($_POST['middle_name']);
         $last_name    = trim($_POST['last_name']);
+        $subject_id   = isset($_POST['subject_id']) && $_POST['subject_id'] !== '' ? (int)$_POST['subject_id'] : null;
+        $schedule     = isset($_POST['schedule']) ? trim($_POST['schedule']) : null;
+        if ($schedule === '') {
+            $schedule = null;
+        }
         $is_active    = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
 
         $check = $pdo->prepare("SELECT id FROM professors WHERE professor_id = ? OR ptc_email = ? LIMIT 1");
@@ -25,8 +30,8 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("INSERT INTO professors (professor_id, ptc_email, first_name, middle_name, last_name, is_active) VALUES (?,?,?,?,?,?)");
-        $stmt->execute([$professor_id, $ptc_email, $first_name, $middle_name, $last_name, $is_active]);
+        $stmt = $pdo->prepare("INSERT INTO professors (professor_id, ptc_email, first_name, middle_name, last_name, subject_id, schedule, is_active) VALUES (?,?,?,?,?,?,?,?)");
+        $stmt->execute([$professor_id, $ptc_email, $first_name, $middle_name, $last_name, $subject_id, $schedule, $is_active]);
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'ADD_PROFESSOR', 'Added professor: ' . $professor_id);
@@ -42,6 +47,11 @@ try {
         $first_name   = trim($_POST['first_name']);
         $middle_name  = trim($_POST['middle_name']);
         $last_name    = trim($_POST['last_name']);
+        $subject_id   = isset($_POST['subject_id']) && $_POST['subject_id'] !== '' ? (int)$_POST['subject_id'] : null;
+        $schedule     = isset($_POST['schedule']) ? trim($_POST['schedule']) : null;
+        if ($schedule === '') {
+            $schedule = null;
+        }
         $is_active    = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
 
         $check = $pdo->prepare("SELECT id FROM professors WHERE (professor_id = ? OR ptc_email = ?) AND id != ? LIMIT 1");
@@ -51,8 +61,8 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("UPDATE professors SET professor_id=?, ptc_email=?, first_name=?, middle_name=?, last_name=?, is_active=? WHERE id=?");
-        $stmt->execute([$professor_id, $ptc_email, $first_name, $middle_name, $last_name, $is_active, $id]);
+        $stmt = $pdo->prepare("UPDATE professors SET professor_id=?, ptc_email=?, first_name=?, middle_name=?, last_name=?, subject_id=?, schedule=?, is_active=? WHERE id=?");
+        $stmt->execute([$professor_id, $ptc_email, $first_name, $middle_name, $last_name, $subject_id, $schedule, $is_active, $id]);
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'UPDATE_PROFESSOR', 'Updated professor: ' . $professor_id);

@@ -49,7 +49,7 @@ try {
         }
 
         // Check duplicate
-        $chk = $pdo->prepare("SELECT id FROM enrollments WHERE section_id = ? AND student_id = ?");
+        $chk = $pdo->prepare("SELECT id FROM section_students WHERE section_id = ? AND student_id = ?");
         $chk->execute([$section_id, $student['id']]);
         if ($chk->fetch()) {
             $_SESSION['flash']['info'] = 'Student is already in this masterlist.';
@@ -58,7 +58,7 @@ try {
         }
 
         // Insert enrollment
-        $ins = $pdo->prepare("INSERT INTO enrollments (section_id, student_id) VALUES (?, ?)");
+        $ins = $pdo->prepare("INSERT INTO section_students (section_id, student_id) VALUES (?, ?)");
         $ins->execute([$section_id, $student['id']]);
 
         $userId = $_SESSION['user']['id'] ?? null;
@@ -79,7 +79,7 @@ try {
             exit;
         }
 
-        $del = $pdo->prepare("DELETE FROM enrollments WHERE section_id = ? AND student_id = ?");
+        $del = $pdo->prepare("DELETE FROM section_students WHERE section_id = ? AND student_id = ?");
         $del->execute([$section_id, $student_pk]);
 
         $userId = $_SESSION['user']['id'] ?? null;

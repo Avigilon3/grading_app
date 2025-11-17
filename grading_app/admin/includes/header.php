@@ -4,7 +4,7 @@
     <div class="logo">
       <img src="../assets/images/logo-ptc.png" height="40px"alt="logo"/>
     </div> 
-    <div class="portal-name">PTC Admin</div>
+    <div class="portal-name">Admin Portal</div>
   </div>
 
 

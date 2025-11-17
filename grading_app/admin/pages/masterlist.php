@@ -2,36 +2,62 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-$sectionsStmt = $pdo->query("SELECT s.id, s.section_name,
-                                   t.term_name,
-                                   sub.subject_title, sub.subject_code
-                              FROM sections s
-                         LEFT JOIN terms t   ON t.id = s.term_id
-                         LEFT JOIN subjects sub ON sub.id = s.subject_id
-                          ORDER BY s.section_name");
-$sections = $sectionsStmt->fetchAll();
+$sectionsStmt = $pdo->query("SELECT id, section_name FROM sections ORDER BY section_name");
+$sections = $sectionsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$subjectStmt = $pdo->query("SELECT ss.section_id,
+                                   sub.subject_code,
+                                   sub.subject_title,
+                                   t.term_name
+                              FROM section_subjects ss
+                         LEFT JOIN subjects sub ON sub.id = ss.subject_id
+                         LEFT JOIN terms t ON t.id = ss.term_id
+                          ORDER BY sub.subject_code, sub.subject_title");
+$subjectRows = $subjectStmt->fetchAll(PDO::FETCH_ASSOC);
+$sectionSubjects = [];
+$sectionTerms = [];
+foreach ($subjectRows as $row) {
+    $secId = (int)$row['section_id'];
+    if (!isset($sectionSubjects[$secId])) {
+        $sectionSubjects[$secId] = [];
+    }
+    if (!isset($sectionTerms[$secId])) {
+        $sectionTerms[$secId] = [];
+    }
+    $subjectLabel = trim(
+        ($row['subject_code'] ? $row['subject_code'] . ' - ' : '') .
+        ($row['subject_title'] ?? '')
+    );
+    if ($subjectLabel !== '') {
+        $sectionSubjects[$secId][$subjectLabel] = $subjectLabel;
+    }
+    if (!empty($row['term_name'])) {
+        $sectionTerms[$secId][$row['term_name']] = $row['term_name'];
+    }
+}
 
 $sectionId = isset($_GET['section_id']) ? (int)$_GET['section_id'] : 0;
 $section = null;
 $enrolled = [];
+$selectedSubjectLabels = [];
+$selectedTermLabels = [];
 
 if ($sectionId) {
-    $secStmt = $pdo->prepare("SELECT s.*, t.term_name, sub.subject_title, sub.subject_code
-                                FROM sections s
-                           LEFT JOIN terms t   ON t.id = s.term_id
-                           LEFT JOIN subjects sub ON sub.id = s.subject_id
-                               WHERE s.id = ?");
+    $secStmt = $pdo->prepare("SELECT * FROM sections WHERE id = ?");
     $secStmt->execute([$sectionId]);
     $section = $secStmt->fetch();
 
     if ($section) {
-        $enStmt = $pdo->prepare("SELECT e.student_id AS student_pk,
+        $selectedSubjectLabels = array_values($sectionSubjects[$sectionId] ?? []);
+        $selectedTermLabels = array_values($sectionTerms[$sectionId] ?? []);
+
+        $enStmt = $pdo->prepare("SELECT ss.student_id AS student_pk,
                                         st.student_id AS student_code,
                                         st.first_name, st.middle_name, st.last_name,
                                         st.year_level, st.status
-                                   FROM enrollments e
-                                   JOIN students st ON st.id = e.student_id
-                                  WHERE e.section_id = ?
+                                   FROM section_students ss
+                                   JOIN students st ON st.id = ss.student_id
+                                  WHERE ss.section_id = ?
                                ORDER BY st.last_name, st.first_name");
         $enStmt->execute([$sectionId]);
         $enrolled = $enStmt->fetchAll();
@@ -62,7 +88,24 @@ if ($sectionId) {
             <select name="section_id" class="form-control" onchange="this.form.submit()">
               <option value="">-- Choose Section --</option>
               <?php foreach ($sections as $s): ?>
-                <?php $label = trim(($s['section_name'] ?? '') . ' — ' . ($s['subject_code'] ? $s['subject_code'].' - ' : '') . ($s['subject_title'] ?? '') . ' ' . ($s['term_name'] ? '(' . $s['term_name'] . ')' : '')); ?>
+                <?php
+                  $label = trim($s['section_name'] ?? '');
+                  $subjectsLabel = '';
+                  if (!empty($sectionSubjects[$s['id']])) {
+                    $subjectsLabel = implode('; ', array_values($sectionSubjects[$s['id']]));
+                  }
+                  $termsLabel = '';
+                  if (!empty($sectionTerms[$s['id']])) {
+                    $termsLabel = implode(', ', array_values($sectionTerms[$s['id']]));
+                  }
+                  if ($subjectsLabel !== '') {
+                    $label .= ($label !== '' ? ' - ' : '') . $subjectsLabel;
+                  }
+                  if ($termsLabel !== '') {
+                    $label .= ' (' . $termsLabel . ')';
+                  }
+                  $label = trim($label);
+                ?>
                 <option value="<?= (int)$s['id']; ?>" <?= ($sectionId === (int)$s['id']) ? 'selected' : '' ?>>
                   <?= htmlspecialchars($label); ?>
                 </option>
@@ -77,20 +120,11 @@ if ($sectionId) {
       <div class="alert alert-info">Please select a section to manage its masterlist.</div>
     <?php else: ?>
 
-    <div class="card">
-      <div class="card-header">
-        <strong>Section:</strong> <?= htmlspecialchars($section['section_name']); ?>
-        <?php if (!empty($section['subject_title'])): ?>
-          &nbsp;|&nbsp; <strong>Subject:</strong> <?= htmlspecialchars(($section['subject_code'] ? $section['subject_code'].' - ' : '') . $section['subject_title']); ?>
-        <?php endif; ?>
-        <?php if (!empty($section['term_name'])): ?>
-          &nbsp;|&nbsp; <strong>Term:</strong> <?= htmlspecialchars($section['term_name']); ?>
-        <?php endif; ?>
-      </div>
-      <div class="card-body">
+      <div class="card">
+        <div class="card-body">
         <form action="../includes/masterlist_process.php" method="POST" id="add-student-form">
           <input type="hidden" name="action" value="add">
-          <input type="hidden" name="section_id" value="<?= (int)$sectionId; ?>">
+          <!-- <input type="hidden" name="section_id" value="<?= (int)$sectionId; ?>"> -->
           <div class="form-box">
             <div class="row-grid cols-3">
               <div class="form-group">

@@ -164,12 +164,8 @@ $result = $stmt->fetchAll();
   </div>
 </div>
 
-    <div class="page-header">
-      <h2>Student Information Table</h2>
-    </div>
-
-<div class="page-header"
-    <h1> Student Information Table</h1>
+<div class="page-header">
+    <h2>Student Information Table</h2>
 </div>
 
 <div class="card">

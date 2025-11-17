@@ -4,9 +4,30 @@ requireAdmin();
 
 $stmt = $pdo->query("SELECT * FROM professors ORDER BY last_name, first_name");
 $result = $stmt->fetchAll();
+
+$subjects = [];
+$subjectsById = [];
+try {
+  $subjectsStmt = $pdo->query("SELECT id, subject_code, subject_title FROM subjects ORDER BY subject_code");
+  $subjects = $subjectsStmt->fetchAll();
+  foreach ($subjects as $subject) {
+    $code = $subject['subject_code'] ?? '';
+    $title = $subject['subject_title'] ?? '';
+    $label = $code;
+    if ($title) {
+      $label = ($label ? $label . ' - ' : '') . $title;
+    } elseif (!$label) {
+      $label = 'Subject #' . (int)$subject['id'];
+    }
+    $subjectsById[$subject['id']] = $label;
+  }
+} catch (Exception $e) {
+  $subjects = [];
+  $subjectsById = [];
+}
 ?>
 <!doctype html><html><head>
-  <meta charset="utf-8"><title>Database Management - Professors</title>
+  <meta charset="utf-8"><title> Database Management - Professors</title>
   <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
@@ -61,7 +82,23 @@ $result = $stmt->fetchAll();
                   <input type="text" name="last_name" class="form-control" required>
                 </div>
               </div>
-              <div class="row-grid cols-2">
+              <div class="row-grid cols-3">
+                <div class="form-group">
+                  <label>Subject</label>
+                  <select name="subject_id" class="form-control">
+                    <option value="">-- Select Subject --</option>
+                    <?php foreach ($subjects as $subject): ?>
+                      <?php
+                        $label = $subjectsById[$subject['id']] ?? ('Subject #' . (int)$subject['id']);
+                      ?>
+                      <option value="<?= (int)$subject['id']; ?>"><?= htmlspecialchars($label); ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Schedule</label>
+                  <input type="text" name="schedule" class="form-control" placeholder="e.g. Mon/Wed 1:00-2:00 PM">
+                </div>
                 <div class="form-group">
                   <label>Status</label>
                   <select name="is_active" class="form-control">
@@ -105,7 +142,23 @@ $result = $stmt->fetchAll();
                   <input type="text" name="last_name" id="edit-last_name" class="form-control" required>
                 </div>
               </div>
-              <div class="row-grid cols-2">
+              <div class="row-grid cols-3">
+                <div class="form-group">
+                  <label>Subject</label>
+                  <select name="subject_id" id="edit-subject_id" class="form-control">
+                    <option value="">-- Select Subject --</option>
+                    <?php foreach ($subjects as $subject): ?>
+                      <?php
+                        $label = $subjectsById[$subject['id']] ?? ('Subject #' . (int)$subject['id']);
+                      ?>
+                      <option value="<?= (int)$subject['id']; ?>"><?= htmlspecialchars($label); ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Schedule</label>
+                  <input type="text" name="schedule" id="edit-schedule" class="form-control" placeholder="e.g. Mon/Wed 1:00-2:00 PM">
+                </div>
                 <div class="form-group">
                   <label>Status</label>
                   <select name="is_active" id="edit-is_active" class="form-control">
@@ -123,9 +176,9 @@ $result = $stmt->fetchAll();
       </div>
     </div>
 
-  <div class="page-header">
-    <h2>Professor Information Table</h2>
-  </div>
+    <div class="page-header">
+      <h2>Professor Information Table</h2>
+    </div>
 
 
     <div class="card">
@@ -137,6 +190,8 @@ $result = $stmt->fetchAll();
               <th>Professor ID</th>
               <th>PTC Email</th>
               <th>Name</th>
+              <th>Subject</th>
+              <th>Schedule</th>
               <th>Status</th>
               <th width="140">Actions</th>
             </tr>
@@ -148,6 +203,8 @@ $result = $stmt->fetchAll();
               <td><?= htmlspecialchars($row['professor_id']); ?></td>
               <td><?= htmlspecialchars($row['ptc_email']); ?></td>
               <td><?= htmlspecialchars($row['last_name'] . ', ' . $row['first_name'] . ' ' . $row['middle_name']); ?></td>
+              <td><?= htmlspecialchars($subjectsById[$row['subject_id']] ?? '--'); ?></td>
+              <td><?= htmlspecialchars($row['schedule'] ?: '--'); ?></td>
               <td><?= ($row['is_active'] ? 'Active' : 'Inactive'); ?></td>
               <td class="actions">
                 <button
@@ -159,6 +216,8 @@ $result = $stmt->fetchAll();
                   data-middle_name="<?= htmlspecialchars($row['middle_name']); ?>"
                   data-last_name="<?= htmlspecialchars($row['last_name']); ?>"
                   data-is_active="<?= htmlspecialchars($row['is_active']); ?>"
+                  data-subject_id="<?= htmlspecialchars((string)($row['subject_id'] ?? '')); ?>"
+                  data-schedule="<?= htmlspecialchars((string)($row['schedule'] ?? '')); ?>"
                 >Edit</button>
 
                 <form action="../includes/professor_process.php" method="POST" onsubmit="return confirm('Delete this professor?');">
@@ -173,7 +232,7 @@ $result = $stmt->fetchAll();
         </table>
       </div>
     </div>
-
+    </div>
     <?php if (function_exists('renderCrudTabsScript')) { renderCrudTabsScript(); } ?>
     <script src="../assets/js/admin.js"></script>
 
