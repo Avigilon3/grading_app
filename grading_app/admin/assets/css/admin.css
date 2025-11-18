@@ -356,6 +356,7 @@ textarea.form-control {
   border: 1px solid #22222223;
   border-radius: 8px;
   width: 100%;
+  margin-bottom: 20px;
 }
 .card-body {
   padding: 16px;
@@ -610,9 +611,9 @@ button{
   margin-bottom: 0.25rem;
 }
 
-.card + .card {
+/* .card + .card {
   margin-top: 1.5rem;
-}
+} */
 
 .card-section-header {
   display: flex;

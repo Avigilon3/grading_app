@@ -25,6 +25,10 @@ try {
             $term_id,
             $is_active
         ]);
+        $sectionId = (int)$pdo->lastInsertId();
+        if (function_exists('syncSectionSubjects')) {
+            syncSectionSubjects($pdo, $sectionId);
+        }
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'ADD_SECTION', 'Added section: ' . $section_name);
@@ -50,6 +54,9 @@ try {
             $is_active,
             $id
         ]);
+        if (function_exists('syncSectionSubjects')) {
+            syncSectionSubjects($pdo, $id);
+        }
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'UPDATE_SECTION', 'Updated section: ' . $section_name);
