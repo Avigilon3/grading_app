@@ -78,7 +78,7 @@ LEFT JOIN professors p ON p.id = er.professor_id
 
         <div class="page-header">
           <h1>Requests</h1>
-          <p>Manage student document requests and professor grading sheet re-opening requests</p>
+          <p class="text-muted">Manage student document requests and professor grading sheet re-opening requests</p>
         </div>
 
         <div class="row-grid cols-1">

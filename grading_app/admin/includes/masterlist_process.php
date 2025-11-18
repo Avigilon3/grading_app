@@ -38,6 +38,16 @@ try {
             exit;
         }
 
+        $secStmt = $pdo->prepare("SELECT section_name FROM sections WHERE id = ?");
+        $secStmt->execute([$section_id]);
+        $sectionRow = $secStmt->fetch();
+        if (!$sectionRow) {
+            $_SESSION['flash']['error'] = 'Selected section no longer exists.';
+            header('Location: ../pages/masterlist.php');
+            exit;
+        }
+        $sectionName = $sectionRow['section_name'];
+
         // Find student
         $s = $pdo->prepare("SELECT id, first_name, middle_name, last_name FROM students WHERE student_id = ?");
         $s->execute([$student_code]);
@@ -57,9 +67,14 @@ try {
             exit;
         }
 
+        $pdo->beginTransaction();
         // Insert enrollment
         $ins = $pdo->prepare("INSERT INTO section_students (section_id, student_id) VALUES (?, ?)");
         $ins->execute([$section_id, $student['id']]);
+        // Sync student's primary section assignment
+        $upd = $pdo->prepare("UPDATE students SET section = ? WHERE id = ?");
+        $upd->execute([$sectionName, $student['id']]);
+        $pdo->commit();
 
         $userId = $_SESSION['user']['id'] ?? null;
         $fullName = trim(($student['last_name'] ?? '') . ', ' . ($student['first_name'] ?? '') . ' ' . ($student['middle_name'] ?? ''));
@@ -79,8 +94,24 @@ try {
             exit;
         }
 
+        $secStmt = $pdo->prepare("SELECT section_name FROM sections WHERE id = ?");
+        $secStmt->execute([$section_id]);
+        $sectionRow = $secStmt->fetch();
+        if (!$sectionRow) {
+            $_SESSION['flash']['error'] = 'Selected section no longer exists.';
+            header('Location: ../pages/masterlist.php');
+            exit;
+        }
+        $sectionName = $sectionRow['section_name'];
+
+        $pdo->beginTransaction();
         $del = $pdo->prepare("DELETE FROM section_students WHERE section_id = ? AND student_id = ?");
         $del->execute([$section_id, $student_pk]);
+        if ($sectionName) {
+            $clear = $pdo->prepare("UPDATE students SET section = NULL WHERE id = ? AND section = ?");
+            $clear->execute([$student_pk, $sectionName]);
+        }
+        $pdo->commit();
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'REMOVE_FROM_MASTERLIST', 'Removed student ID ' . $student_pk . ' from section ID ' . $section_id);
@@ -93,6 +124,9 @@ try {
     header('Location: ../pages/masterlist.php');
     exit;
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     $_SESSION['flash']['error'] = 'Error: ' . $e->getMessage();
     $redir = '../pages/masterlist.php';
     if (!empty($_POST['section_id'])) { $redir .= '?section_id='.(int)$_POST['section_id']; }

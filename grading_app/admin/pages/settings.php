@@ -95,7 +95,7 @@ $lastName  = $me['last_name'] ?? '';
 
         <div class="page-header">
           <h2>Settings</h2>
-          <p class="muted">Manage portal preferences and your account.</p>
+          <p class="text-muted">Manage portal preferences and your account.</p>
         </div>
 
         <div class="row-grid cols-2">

@@ -3,22 +3,56 @@ require_once '../includes/init.php';
 requireAdmin();
 
 
-$students = $pdo->query("SELECT id, student_id, ptc_email, first_name, middle_name, last_name, year_level, section, status FROM students ORDER BY last_name, first_name LIMIT 10")->fetchAll();
+$students = $pdo->query("SELECT id,
+                                student_id,
+                                ptc_email,
+                                first_name,
+                                middle_name,
+                                last_name,
+                                year_level,
+                                section,
+                              status FROM students
+                              ORDER BY last_name,
+                                first_name
+                              LIMIT 10")->fetchAll();
 
-$professors = $pdo->query("SELECT id, professor_id, ptc_email, first_name, middle_name, last_name, is_active FROM professors ORDER BY last_name, first_name LIMIT 10")->fetchAll();
+$professors = $pdo->query("SELECT id,
+                                  professor_id,
+                                  ptc_email,
+                                  first_name,
+                                  middle_name,
+                                  last_name,
+                                  is_active
+                              FROM professors
+                              ORDER BY last_name,
+                                  first_name
+                              LIMIT 10")->fetchAll();
 
-$subjects = $pdo->query("SELECT id, subject_code, subject_title, units, is_active FROM subjects ORDER BY subject_code LIMIT 10")->fetchAll();
+$subjects = $pdo->query("SELECT id,
+                                subject_code,
+                                subject_title,
+                                units,
+                                is_active
+                          FROM subjects
+                          ORDER BY subject_code
+                          LIMIT 10")->fetchAll();
 
-$terms = $pdo->query("SELECT id, term_name, school_year, start_date, end_date, is_active FROM terms ORDER BY start_date DESC, id DESC LIMIT 10")->fetchAll();
+$terms = $pdo->query("SELECT id,
+                            term_name,
+                            school_year,
+                            start_date,
+                            end_date,
+                            is_active
+                        FROM terms
+                        ORDER BY start_date DESC,
+                        id DESC LIMIT 10")->fetchAll();
 
-$sections = $pdo->query(
-  "SELECT s.id, s.section_name, s.is_active, s.year_level, s.course_id,
-          t.term_name
-     FROM sections s
-LEFT JOIN terms t ON t.id = s.term_id
- ORDER BY s.section_name
- LIMIT 10"
-)->fetchAll();
+$sections = $pdo->query("SELECT s.id, s.section_name, s.is_active, s.year_level, s.course_id,
+                                t.term_name
+                          FROM sections s
+                      LEFT JOIN terms t ON t.id = s.term_id
+                      ORDER BY s.section_name
+                      LIMIT 10")->fetchAll();
 ?>
 <!doctype html>
 <html>
@@ -36,7 +70,7 @@ LEFT JOIN terms t ON t.id = s.term_id
 
     <div class="page-header">
       <h1>Database Management Overview</h1>
-      <p>Manage all your academic database records</p>
+      <p class="text-muted">Manage all your academic database records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>

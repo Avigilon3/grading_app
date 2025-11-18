@@ -65,7 +65,7 @@ try {
 
         <div class="page-header">
           <h1>Grading Management</h1>
-          <p>Manage grading sheet templates, track submissions, and set deadlines</p>
+          <p class="text-muted">Manage grading sheet templates, track submissions, and set deadlines</p>
         </div>
 
         <div class="card">

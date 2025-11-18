@@ -2,7 +2,12 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-$stmt = $pdo->query("SELECT s.*, t.term_name FROM subjects s LEFT JOIN terms t ON t.id = s.term_id ORDER BY s.subject_code");
+$stmt = $pdo->query("SELECT s.*,
+                             t.term_name
+                      FROM subjects s
+                      LEFT JOIN terms t
+                      ON t.id = s.term_id
+                      ORDER BY s.subject_code");
 $result = $stmt->fetchAll();
 
 $coursesStmt = $pdo->query("SELECT * FROM courses ORDER BY code, title");
@@ -38,7 +43,7 @@ $yearLevels = [
 
     <div class="page-header">
       <h1>Manage Subjects Information</h1>
-      <p>Add, edit, and manage course/subject records</p>
+      <p class="text-muted">Add, edit, and manage course/subject records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>

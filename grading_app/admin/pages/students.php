@@ -9,6 +9,31 @@ requireAdmin();
 
 $stmt = $pdo->query("SELECT * FROM students ORDER BY last_name, first_name");
 $result = $stmt->fetchAll();
+
+$sectionStmt = $pdo->query("SELECT s.id, s.section_name, s.term_id, t.school_year
+                              FROM sections s
+                         LEFT JOIN terms t ON s.term_id = t.id
+                             WHERE s.is_active = 1
+                          ORDER BY s.section_name");
+$sections = $sectionStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$sectionOptions = [];
+foreach ($sections as $section) {
+    $sectionName = trim($section['section_name'] ?? '');
+    if ($sectionName === '') {
+        continue;
+    }
+    $label = $sectionName;
+    $schoolYear = trim($section['school_year'] ?? '');
+    if ($schoolYear !== '') {
+        $label .= ' - ' . $schoolYear;
+    }
+    $sectionOptions[] = [
+        'value' => $sectionName,
+        'label' => $label
+    ];
+}
+
 ?>
 <!doctype html><html><head>
   <meta charset="utf-8"><title>Database Management - Students</title>
@@ -24,7 +49,7 @@ $result = $stmt->fetchAll();
 
     <div class="page-header">
       <h1>Manage Student Information</h1>
-      <p>Add, edit, and manage student records</p>
+      <p class="text-muted">Add, edit, and manage student records</p>
     </div>
 
 <!-- Feedback (optional) -->
@@ -81,10 +106,23 @@ $result = $stmt->fetchAll();
                 <option value="4">4th Year</option>
               </select>
             </div>
+
+
             <div class="form-group">
               <label>Section</label>
-              <input type="text" name="section" class="form-control">
+              <select name="section" class="form-control">
+                <option value="">-- Select Section --</option>
+                <?php foreach ($sectionOptions as $sectionOption): ?>
+                  <option value="<?= htmlspecialchars($sectionOption['value']); ?>">
+                    <?= htmlspecialchars($sectionOption['label']); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
             </div>
+
+
+
+
             <div class="form-group">
               <label>Status *</label>
               <select name="status" class="form-control" required>
@@ -144,7 +182,14 @@ $result = $stmt->fetchAll();
             </div>
             <div class="form-group">
               <label>Section</label>
-              <input type="text" name="section" id="edit-section" class="form-control">
+              <select name="section" id="edit-section" class="form-control">
+                <option value="">-- Select Section --</option>
+                <?php foreach ($sectionOptions as $sectionOption): ?>
+                  <option value="<?= htmlspecialchars($sectionOption['value']); ?>">
+                    <?= htmlspecialchars($sectionOption['label']); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
             </div>
             <div class="form-group">
               <label>Status *</label>
