@@ -53,16 +53,24 @@ if ($sectionId) {
     $secStmt->execute([$sectionId]);
     $selectedSection = $secStmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($selectedSection && $selectedSection['course_id']) {
+    if ($selectedSection) {
+        if (function_exists('syncSectionSubjects')) {
+            syncSectionSubjects($pdo, (int)$selectedSection['id']);
+        }
         $subjectStmt = $pdo->prepare("SELECT sub.subject_code,
                                              sub.subject_title,
                                              COALESCE(sub.units, 0) AS units,
                                              t.semester,
-                                             t.term_name
-                                        FROM subjects sub
-                                   LEFT JOIN terms t ON t.id = sub.term_id
-                                       WHERE sub.course_id = :course_id
-                                         AND sub.year_level = :year_level
+                                             t.term_name,
+                                             p.id AS professor_id,
+                                             p.first_name AS prof_first_name,
+                                             p.middle_name AS prof_middle_name,
+                                             p.last_name AS prof_last_name
+                                        FROM section_subjects ss
+                                   JOIN subjects sub ON sub.id = ss.subject_id
+                                   LEFT JOIN terms t ON t.id = ss.term_id
+                                   LEFT JOIN professors p ON p.id = ss.professor_id
+                                       WHERE ss.section_id = :section_id
                                     ORDER BY CASE
                                                WHEN t.semester = '1' THEN 1
                                                WHEN t.semester = '2' THEN 2
@@ -70,8 +78,7 @@ if ($sectionId) {
                                              END,
                                              sub.subject_title");
         $subjectStmt->execute([
-            ':course_id' => $selectedSection['course_id'],
-            ':year_level' => $selectedSection['year_level']
+            ':section_id' => $sectionId
         ]);
 
         while ($row = $subjectStmt->fetch(PDO::FETCH_ASSOC)) {
@@ -80,6 +87,20 @@ if ($sectionId) {
                 $subjectsBySemester[$semKey] = [];
                 $subjectUnitTotals[$semKey] = 0;
             }
+            $last = trim($row['prof_last_name'] ?? '');
+            $first = trim($row['prof_first_name'] ?? '');
+            $middle = trim($row['prof_middle_name'] ?? '');
+            $profName = '';
+            if ($last !== '') {
+                $profName = $last;
+            }
+            if ($first !== '') {
+                $profName .= ($profName !== '' ? ', ' : '') . $first;
+            }
+            if ($middle !== '') {
+                $profName .= ' ' . $middle;
+            }
+            $row['professor_name'] = $profName !== '' ? $profName : null;
             $subjectsBySemester[$semKey][] = $row;
             $subjectUnitTotals[$semKey] += (float)$row['units'];
         }
@@ -220,7 +241,7 @@ if ($sectionId) {
       </div>
     </div>
 
-    <!-- subjectss -->
+    <!-- subjects and prof -->
     <?php foreach (['1', '2'] as $semKey): ?>
       <div class="card">
         <div class="card-body">
@@ -243,6 +264,7 @@ if ($sectionId) {
                     <th>Subject Code</th>
                     <th>Subject Title</th>
                     <th>Units</th>
+                    <th>Professor</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -252,6 +274,7 @@ if ($sectionId) {
                       <td><?= htmlspecialchars($subject['subject_code'] ?? ''); ?></td>
                       <td><?= htmlspecialchars($subject['subject_title'] ?? ''); ?></td>
                       <td><?= htmlspecialchars(number_format((float)$subject['units'], 1)); ?></td>
+                      <td><?= htmlspecialchars($subject['professor_name'] ?? 'Unassigned'); ?></td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>

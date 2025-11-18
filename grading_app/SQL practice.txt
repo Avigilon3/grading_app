@@ -61,3 +61,21 @@ WHERE
 	s.id IS NOT NULL
 GROUP BY
 	s.id;
+
+
+--for students.php I want all sections to appear in the dropdown
+SELECT 
+	s.id,
+	s.section_name,
+	s.term_id,
+	t.school_year
+FROM sections s
+JOIN terms t
+ON s.term_id = t.id
+WHERE s.is_active = 1
+ORDER BY s.section_name;
+
+
+
+
+
