@@ -1,1 +1,1 @@
-<?php require_once __DIR__ . '/../../core/db/connection.php';
+<?php require_once '../../core/db/connection.php';

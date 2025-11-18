@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../includes/init.php';
+require_once '../includes/init.php';
 requireStudent();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-}
+
+
+
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pickup_date = $_POST['pickup_date'];
     $pickup_time = $_POST['pickup_time'];
@@ -21,8 +22,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-<form method="POST">
-    Pickup Date: <input type="date" name="pickup_date" required><br>
-    Pickup Time: <input type="time" name="pickup_time" required><br>
-    <button type="submit">Schedule</button>
-</form>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/student.css">
+</head>
+
+<body>
+    <?php include '../includes/header.php'; ?>
+    <div class="layout">
+        <?php include '../includes/sidebar.php'; ?>
+        <main class="content">
+            <p>PickUp</p>
+
+            <form method="POST">
+                Pickup Date: <input type="date" name="pickup_date" required><br>
+                Pickup Time: <input type="time" name="pickup_time" required><br>
+                <button type="submit">Schedule</button>
+            </form>
+
+
+        </main>
+
+    </div>
+
+    
+</body>
+</html>

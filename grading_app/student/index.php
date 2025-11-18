@@ -1,4 +1,4 @@
 <?php
-require_once __DIR__ . '/../core/config/config.php';
-header('Location: ' . BASE_URL . '/student/pages/dashboard.php'); /*pag gagamit ng Base_URL dapat may config.php*/
+require_once '../core/config/config.php';
+header('Location: pages/dashboard.php'); 
 exit;
