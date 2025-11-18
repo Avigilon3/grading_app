@@ -1,4 +1,4 @@
-<?php // assumes init.php already loaded by the page ?>
+<?php  ?>
 <header>
   <div class="left-header">
     <div class="logo">
