@@ -51,7 +51,7 @@ $logs = $stmt->fetchAll();
 
     <div class="page-header">
       <h1>Admin Activity Logs</h1>
-      <p>Track and monitor all administrative activities in the system</p>
+      <p class="text-muted">Track and monitor all administrative activities in the system</p> 
     </div>
 
     <div class="card">

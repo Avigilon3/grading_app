@@ -72,7 +72,7 @@ $logs = $pdo->query('SELECT a.id, a.action, a.details, a.ip, a.created_at, u.ema
 
         <div class="page-header">
           <h1>Reports</h1>
-          <p>View and manage student grade reports by section and term</p>
+          <p class="text-muted">View and manage student grade reports by section and term</p>
         </div>
 
         <div class="row-grid cols-4">

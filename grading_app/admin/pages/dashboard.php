@@ -139,7 +139,7 @@ try {
     <?php show_flash(); ?>
     <div class="page-header">
       <h1>Dashboard</h1>
-      <p class="muted">Welcome, <?= htmlspecialchars(adminCurrentName()); ?>. Here's what's happening with your grading system.</p>
+      <p class="text-muted">Welcome, <?= htmlspecialchars(adminCurrentName()); ?>. Here's what's happening with your grading system.</p>
     </div>
 
     <!-- KPI cards -->
@@ -212,7 +212,9 @@ try {
 
     <div class="card">
       <div class="card-body">
-        <div class="page-header compact"><h2>Recent Activity</h2></div>
+        <div class="page-header compact">
+          <h2>Recent Activity</h2>
+        </div>
         <table class="table table-striped table-bordered">
           <thead>
             <tr>

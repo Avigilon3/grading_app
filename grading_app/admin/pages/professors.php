@@ -8,7 +8,11 @@ $result = $stmt->fetchAll();
 $subjects = [];
 $subjectsById = [];
 try {
-  $subjectsStmt = $pdo->query("SELECT id, subject_code, subject_title FROM subjects ORDER BY subject_code");
+  $subjectsStmt = $pdo->query("SELECT id,
+                                      subject_code,
+                                      subject_title
+                                FROM subjects
+                                ORDER BY subject_code");
   $subjects = $subjectsStmt->fetchAll();
   foreach ($subjects as $subject) {
     $code = $subject['subject_code'] ?? '';
@@ -39,7 +43,7 @@ try {
 
     <div class="page-header">
       <h1>Manage Professor Information</h1>
-      <p>Add, edit, and manage professor records</p>
+      <p class="text-muted">Add, edit, and manage professor records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>

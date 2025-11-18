@@ -47,7 +47,7 @@ $yearLevels = [
 
     <div class="page-header">
       <h1>Manage Sections Information</h1>
-      <p>Add, edit, and manage course/subject records</p>
+      <p class="text-muted">Add, edit, and manage course/subject records</p>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>

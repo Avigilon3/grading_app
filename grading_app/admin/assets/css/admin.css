@@ -35,23 +35,26 @@ body {
 }
 
 header{
-    display:flex;
-    flex-wrap: wrap;
-    justify-content: space-between; 
-    position: fixed;
-    top: 0;
-    align-items:center; 
-    padding:10px 10px;
-    background:var(--schoolcolor);
-    border-bottom:1px solid #222;
-    width: 100%;
-    height: 70px;
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: space-between; 
+  position: fixed;
+  top: 0;
+  align-items:center; 
+  padding:10px 10px;
+  background:var(--schoolcolor);
+  border-bottom:1px solid #222;
+  width: 100%;
+  height: 70px;
 }
 
+.p {
+  padding: 8px;
+}
 .left-header {
-    display: flex;
-    align-items: center; 
-    gap: 15px; 
+  display: flex;
+  align-items: center; 
+  gap: 15px; 
 }
 
 .right-header {
@@ -194,7 +197,7 @@ a:hover {
 }
 
 .content{
-    padding:24px
+  padding:24px;
 }
 
 .flash{
@@ -204,13 +207,13 @@ a:hover {
 }
 
 .flash.info{
-    background:#1a2342
+    background:#1a2342;
 } 
 .flash.success{
-    background:#123c1d
+    background:#123c1d;
 }
 .flash.error{
-    background:#3c1212
+    background:#3c1212;
 }
 label{
     display:block;
@@ -581,6 +584,71 @@ button{
   margin-top: 6px;
   color: #6b7280;
   font-size: 12px;
+}
+
+/* Section masterlist */
+.section-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.section-meta-grid .meta-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+}
+
+.section-meta-grid .meta-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.card + .card {
+  margin-top: 1.5rem;
+}
+
+.card-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card-section-header h3 {
+  margin: 0;
+}
+
+.text-muted {
+  color:var(--primarycolor);
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+.total-pill {
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+}
+
+.search-input {
+  margin-bottom: 1rem;
+}
+
+.search-input input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 0.65rem 0.75rem;
 }
 
 @media (max-width: 1024px) {

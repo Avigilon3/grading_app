@@ -37,10 +37,6 @@ function requireAdminLogin() {
     }
 }
 
-/**
- * Outputs the Students page tab behavior script.
- * Moves inline JS from pages/students.php here for cleanliness.
- */
 function renderCrudTabsScript(): void {
     echo '<script>' . "\n" . <<<'JS'
 (function(){
@@ -102,3 +98,36 @@ JS
 
 // Back-compat wrapper
 function renderStudentsTabsScript(): void { renderCrudTabsScript(); }
+
+if (!function_exists('formatYearLabel')) {
+    function formatYearLabel($value, array $labels)
+    {
+        if ($value === null || $value === '') {
+            return '--';
+        }
+        return $labels[$value] ?? $value;
+    }
+}
+
+if (!function_exists('formatSemesterLabel')) {
+    function formatSemesterLabel($value, array $labels)
+    {
+        if ($value === null || $value === '') {
+            return '--';
+        }
+        return $labels[$value] ?? $value;
+    }
+}
+
+if (!function_exists('buildStudentSearchIndex')) {
+    function buildStudentSearchIndex(array $row): string
+    {
+        $segments = [];
+        foreach (['student_code', 'first_name', 'middle_name', 'last_name'] as $key) {
+            if (!empty($row[$key])) {
+                $segments[] = $row[$key];
+            }
+        }
+        return strtolower(implode(' ', $segments));
+    }
+}
