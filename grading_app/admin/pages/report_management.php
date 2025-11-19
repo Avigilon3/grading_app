@@ -11,6 +11,8 @@ $err = $msg = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
   try {
+    require_csrf_token();
+
     if ($action === 'docreq_update') {
       $id = (int)($_POST['id'] ?? 0);
       $status = $_POST['status'] ?? '';
@@ -111,6 +113,7 @@ LEFT JOIN professors p ON p.id = er.professor_id
                       <td><?= htmlspecialchars($r['released_at']); ?></td>
                       <td>
                         <form method="post" style="display:inline-block; min-width:240px;">
+                          <?= csrf_field(); ?>
                           <input type="hidden" name="action" value="docreq_update">
                           <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
                           <select name="status" class="form-control" style="width:120px; display:inline-block;">
@@ -159,6 +162,7 @@ LEFT JOIN professors p ON p.id = er.professor_id
                       <td>
                         <?php if ($r['status']==='pending'): ?>
                           <form method="post" style="display:inline-block;">
+                            <?= csrf_field(); ?>
                             <input type="hidden" name="action" value="editreq_decide">
                             <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
                             <button type="submit" name="decision" value="approved">Approve</button>

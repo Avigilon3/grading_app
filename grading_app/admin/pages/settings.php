@@ -6,14 +6,24 @@ requireAdmin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     try {
+        require_csrf_token();
+
         if ($action === 'set_active_term') {
             $termId = (int)($_POST['active_term_id'] ?? 0);
+            if ($termId <= 0) {
+                throw new Exception('Please select a valid term.');
+            }
+
+            $termCheck = $pdo->prepare('SELECT id FROM terms WHERE id = ? LIMIT 1');
+            $termCheck->execute([$termId]);
+            if (!$termCheck->fetchColumn()) {
+                throw new Exception('Selected term not found.');
+            }
+
             $pdo->beginTransaction();
             $pdo->exec("UPDATE terms SET is_active = 0");
-            if ($termId > 0) {
-                $stmt = $pdo->prepare("UPDATE terms SET is_active = 1 WHERE id = ?");
-                $stmt->execute([$termId]);
-            }
+            $stmt = $pdo->prepare("UPDATE terms SET is_active = 1 WHERE id = ?");
+            $stmt->execute([$termId]);
             $pdo->commit();
             $userId = $_SESSION['user']['id'] ?? null;
             add_activity_log($pdo, $userId, 'SET_ACTIVE_TERM', 'Active term id: ' . $termId);
@@ -103,6 +113,7 @@ $lastName  = $me['last_name'] ?? '';
             <h3>General</h3>
             <p class="muted">Select the active term used across the portal.</p>
             <form method="post">
+              <?= csrf_field(); ?>
               <input type="hidden" name="action" value="set_active_term">
               <label>Active Term</label>
               <select class="form-control" name="active_term_id" required>
@@ -122,6 +133,7 @@ $lastName  = $me['last_name'] ?? '';
             <h3>Profile</h3>
             <p class="muted">Update your display information.</p>
             <form method="post">
+              <?= csrf_field(); ?>
               <input type="hidden" name="action" value="update_profile">
               <label>First Name</label>
               <input class="form-control" type="text" name="first_name" value="<?= htmlspecialchars($firstName) ?>">
@@ -138,6 +150,7 @@ $lastName  = $me['last_name'] ?? '';
           <div class="form-box">
             <h3>Change Password</h3>
             <form method="post">
+              <?= csrf_field(); ?>
               <input type="hidden" name="action" value="change_password">
               <label>Current Password</label>
               <input class="form-control" type="password" name="current_password" required>

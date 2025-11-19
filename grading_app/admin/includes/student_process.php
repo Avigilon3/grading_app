@@ -3,6 +3,42 @@ require_once '../includes/init.php';
 requireAdminLogin();
 
 
+if (!function_exists('findSectionIdByName')) {
+    function findSectionIdByName(PDO $pdo, ?string $sectionName): ?int
+    {
+        $sectionName = trim((string)$sectionName);
+        if ($sectionName === '') {
+            return null;
+        }
+        $stmt = $pdo->prepare("SELECT id FROM sections WHERE LOWER(section_name) = LOWER(?) LIMIT 1");
+        $stmt->execute([$sectionName]);
+        $id = $stmt->fetchColumn();
+        return $id ? (int)$id : null;
+    }
+}
+
+if (!function_exists('ensureSectionStudentLink')) {
+    function ensureSectionStudentLink(PDO $pdo, int $studentId, ?int $sectionId): void
+    {
+        if (!$studentId) {
+            return;
+        }
+
+        if ($sectionId) {
+            $cleanup = $pdo->prepare("DELETE FROM section_students WHERE student_id = ? AND section_id <> ?");
+            $cleanup->execute([$studentId, $sectionId]);
+
+            $stmt = $pdo->prepare(
+                "INSERT INTO section_students (section_id, student_id) VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE section_id = VALUES(section_id)"
+            );
+            $stmt->execute([$sectionId, $studentId]);
+        } else {
+            $cleanup = $pdo->prepare("DELETE FROM section_students WHERE student_id = ?");
+            $cleanup->execute([$studentId]);
+        }
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../pages/students.php');
@@ -12,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $action = $_POST['action'] ?? '';
 
 try {
+    require_csrf_token();
+
     if ($action === 'create') {
         $student_id  = trim($_POST['student_id']);
         $ptc_email   = trim($_POST['ptc_email']);
@@ -35,6 +73,9 @@ try {
                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$student_id, $ptc_email, $first_name, $middle_name, $last_name, $year_level, $section, $status]);
 
+        $newStudentId = (int)$pdo->lastInsertId();
+        $sectionId = findSectionIdByName($pdo, $section);
+        ensureSectionStudentLink($pdo, $newStudentId, $sectionId);
 
         //activity log add student
         $userId = $_SESSION['user']['id'] ?? null;
@@ -67,9 +108,12 @@ try {
         $stmt = $pdo->prepare("UPDATE students SET student_id=?, ptc_email=?, first_name=?, middle_name=?, last_name=?, year_level=?, section=?, status=? WHERE id=?");
         $stmt->execute([$student_id, $ptc_email, $first_name, $middle_name, $last_name, $year_level, $section, $status, $id]);
 
+        $sectionId = findSectionIdByName($pdo, $section);
+        ensureSectionStudentLink($pdo, $id, $sectionId);
+
         //activity log edit or update student
         $userId = $_SESSION['user']['id'] ?? null;
-        add_activity_log($pdo, $userId, 'ADD_STUDENT', 'Added student: ' . $student_id);
+        add_activity_log($pdo, $userId, 'UPDATE_STUDENT', 'Updated student: ' . $student_id);
 
         header('Location: ../pages/students.php?msg=' . urlencode('Student updated successfully.'));
         exit;
@@ -82,7 +126,7 @@ try {
 
         //activity log delete student
         $userId = $_SESSION['user']['id'] ?? null;
-        add_activity_log($pdo, $userId, 'ADD_STUDENT', 'Added student: ' . $student_id);
+        add_activity_log($pdo, $userId, 'DELETE_STUDENT', 'Deleted student id: ' . $id);
 
         header('Location: ../pages/students.php?msg=' . urlencode('Student deleted successfully.'));
         exit;

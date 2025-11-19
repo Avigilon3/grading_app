@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../includes/init.php';
 requireAdmin();
 
@@ -7,6 +7,8 @@ $err = $msg = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
   try {
+    require_csrf_token();
+
     if ($action === 'set_deadline') {
       $id = (int)($_POST['id'] ?? 0);
       $deadline_at = trim($_POST['deadline_at'] ?? '');
@@ -93,15 +95,17 @@ try {
                     <td><?= htmlspecialchars($r['status'] ?? ''); ?></td>
                     <td>
                       <form method="post" style="display:inline-block;">
+                        <?= csrf_field(); ?>
                         <input type="hidden" name="action" value="set_deadline">
                         <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
                         <input type="datetime-local" name="deadline_at" value="<?= !empty($r['deadline_at']) ? htmlspecialchars(date('Y-m-d\TH:i', strtotime($r['deadline_at']))) : '' ?>" class="form-control" style="width:200px; display:inline-block;">
                         <button type="submit">Save</button>
                       </form>
                     </td>
-                    <td><?= !empty($r['submitted_at']) ? htmlspecialchars($r['submitted_at']) : '—'; ?></td>
+                    <td><?= !empty($r['submitted_at']) ? htmlspecialchars($r['submitted_at']) : '&mdash;'; ?></td>
                     <td>
                       <form method="post" style="display:inline-block;">
+                        <?= csrf_field(); ?>
                         <input type="hidden" name="action" value="change_status">
                         <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
                         <select name="status" class="form-control" style="width:140px; display:inline-block;">
@@ -125,3 +129,4 @@ try {
   </body>
   <?php include '../includes/footer.php'; ?>
 </html>
+

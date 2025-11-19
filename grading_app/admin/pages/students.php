@@ -43,6 +43,7 @@ $result = $stmt->fetchAll();
   <div class="card-body">
     <div class="tab-pane active" data-pane="add">
       <form action="../includes/student_process.php" method="POST">
+        <?= csrf_field(); ?>
         <input type="hidden" name="action" value="create">
         <div class="form-box">
           <div class="row-grid cols-2">
@@ -103,6 +104,7 @@ $result = $stmt->fetchAll();
 
     <div class="tab-pane" data-pane="edit">
       <form action="../includes/student_process.php" method="POST">
+        <?= csrf_field(); ?>
         <input type="hidden" name="action" value="update">
         <input type="hidden" name="id" id="edit-id">
         <div class="form-box">
@@ -220,6 +222,7 @@ $result = $stmt->fetchAll();
                         >Edit</button>
 
                         <form action="../includes/student_process.php" method="POST" style="display:inline-block" onsubmit="return confirm('Delete this student?');">
+                            <?= csrf_field(); ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $row['id']; ?>">
                             <button class="btn btn-sm btn-danger" type="submit">Delete</button>

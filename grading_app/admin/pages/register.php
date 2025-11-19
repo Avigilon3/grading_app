@@ -1,20 +1,27 @@
 <?php
 require_once '../includes/init.php';
-requireAdmin();
+requireRole(['super_admin']);
 
 $msg = $err = null;
+
+$allowedRoles = ['student','professor','registrar','mis','admin','super_admin'];
+$selectedRole = $_POST['role'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $role  = trim($_POST['role'] ?? '');
-    $first = trim($_POST['name_first'] ?? '');
-    $last  = trim($_POST['name_last'] ?? '');
+    $first = trim($_POST['first_name'] ?? '');
+    $last  = trim($_POST['last_name'] ?? '');
     $status = strtoupper(trim($_POST['status'] ?? 'ACTIVE'));
 
     if (!$email || !$role) {
         $err = 'Email and role are required.';
+    } elseif (!in_array($role, $allowedRoles, true)) {
+        $err = 'Invalid role selected.';
     } else {
         try {
+            require_csrf_token();
+
             // Check if user exists
             $chk = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
             $chk->execute([$email]);
@@ -22,15 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($exists) {
                 // Update basic fields; do not overwrite password here
-                $upd = $pdo->prepare('UPDATE users SET role = ?, name_first = ?, name_last = ?, status = ? WHERE id = ?');
-                $upd->execute([$role, $first, $last, $status, $exists]);
+                $upd = $pdo->prepare('UPDATE users SET role = ?, first_name = ?, last_name = ?, status = ? WHERE id = ?');
+                $upd->execute([$role, $first ?: null, $last ?: null, $status, $exists]);
 
                 add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'UPDATE_USER', 'Updated user '.$email);
                 $msg = 'User updated successfully.';
             } else {
                 // Insert placeholder; password will be set by public verification flow
-                $ins = $pdo->prepare('INSERT INTO users (email, role, name_first, name_last, status) VALUES (?, ?, ?, ?, ?)');
-                $ins->execute([$email, $role, $first, $last, $status]);
+                $ins = $pdo->prepare('INSERT INTO users (email, role, first_name, last_name, status) VALUES (?, ?, ?, ?, ?)');
+                $ins->execute([$email, $role, $first ?: null, $last ?: null, $status]);
 
                 add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'ADD_USER', 'Added user '.$email);
                 $msg = 'User added successfully.';
@@ -69,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="card">
           <div class="card-body">
             <form method="post">
+              <?= csrf_field(); ?>
               <div class="row-grid cols-2">
                 <div class="form-group">
                   <label>PTC Email *</label>
@@ -78,12 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <label>Role *</label>
                   <select name="role" class="form-control" required>
                     <option value="">-- Select --</option>
-                    <option value="student">Student</option>
-                    <option value="professor">Professor</option>
-                    <option value="registrar">Registrar</option>
-                    <option value="mis">MIS</option>
-                    <option value="admin">Admin</option>
-                    <option value="super_admin">Super Admin</option>
+                    <?php foreach ($allowedRoles as $roleValue): ?>
+                      <option value="<?= htmlspecialchars($roleValue); ?>" <?= ($selectedRole === $roleValue) ? 'selected' : ''; ?>>
+                        <?= ucwords(str_replace('_', ' ', $roleValue)); ?>
+                      </option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
               </div>
@@ -91,11 +98,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="row-grid cols-2">
                 <div class="form-group">
                   <label>First Name</label>
-                  <input type="text" name="name_first" class="form-control">
+                  <input type="text" name="first_name" class="form-control">
                 </div>
                 <div class="form-group">
                   <label>Last Name</label>
-                  <input type="text" name="name_last" class="form-control">
+                  <input type="text" name="last_name" class="form-control">
                 </div>
               </div>
 
