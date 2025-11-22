@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 18, 2025 at 03:10 PM
+-- Generation Time: Nov 22, 2025 at 04:59 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -120,7 +120,17 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `create
 (77, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0008', '::1', '2025-11-18 04:59:45'),
 (78, 1, 'ADD_SUBJECT', 'Added subject: AAA222', '::1', '2025-11-18 05:01:58'),
 (79, 1, 'ADD_PROFESSOR', 'Added professor: PROF-0016', '::1', '2025-11-18 05:12:29'),
-(80, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1545', '::1', '2025-11-18 13:46:04');
+(80, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1545', '::1', '2025-11-18 13:46:04'),
+(81, 1, 'DELETE_STUDENT', 'Deleted student id: 1', '::1', '2025-11-18 15:14:18'),
+(82, 1, 'UPDATE_STUDENT', 'Updated student: 25BSIT-1545', '::1', '2025-11-18 15:14:23'),
+(83, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0001', '::1', '2025-11-22 13:15:22'),
+(84, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0016', '::1', '2025-11-22 13:17:12'),
+(85, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0001', '::1', '2025-11-22 13:22:35'),
+(86, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0008', '::1', '2025-11-22 14:45:30'),
+(87, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0011', '::1', '2025-11-22 14:45:33'),
+(88, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0010', '::1', '2025-11-22 14:45:35'),
+(89, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0006', '::1', '2025-11-22 14:45:38'),
+(90, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0001', '::1', '2025-11-22 14:45:42');
 
 -- --------------------------------------------------------
 
@@ -181,29 +191,6 @@ CREATE TABLE `edit_requests` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `enrollments`
---
-
-CREATE TABLE `enrollments` (
-  `id` int(11) NOT NULL,
-  `section_id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `enrollments`
---
-
-INSERT INTO `enrollments` (`id`, `section_id`, `student_id`) VALUES
-(1, 1, 1),
-(2, 8, 5),
-(4, 11, 5),
-(5, 10, 5),
-(6, 1, 5);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `grades`
 --
 
@@ -259,6 +246,7 @@ CREATE TABLE `grade_items` (
 
 CREATE TABLE `grading_sheets` (
   `id` int(11) NOT NULL,
+  `section_subject_id` int(11) NOT NULL,
   `section_id` int(11) NOT NULL,
   `professor_id` int(11) NOT NULL,
   `status` enum('draft','submitted','locked','reopened') DEFAULT 'draft',
@@ -270,8 +258,12 @@ CREATE TABLE `grading_sheets` (
 -- Dumping data for table `grading_sheets`
 --
 
-INSERT INTO `grading_sheets` (`id`, `section_id`, `professor_id`, `status`, `deadline_at`, `submitted_at`) VALUES
-(1, 1, 1, 'draft', NULL, NULL);
+INSERT INTO `grading_sheets` (`id`, `section_subject_id`, `section_id`, `professor_id`, `status`, `deadline_at`, `submitted_at`) VALUES
+(3, 3, 11, 17, 'draft', NULL, NULL),
+(4, 6, 11, 20, 'draft', NULL, NULL),
+(5, 5, 11, 19, 'draft', NULL, NULL),
+(6, 1, 11, 15, 'draft', NULL, NULL),
+(7, 10, 11, 1, 'draft', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -299,7 +291,7 @@ CREATE TABLE `professors` (
 --
 
 INSERT INTO `professors` (`id`, `user_id`, `professor_id`, `ptc_email`, `first_name`, `middle_name`, `last_name`, `subject_id`, `schedule`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 2, 'PROF-0001', 'aldenrichards@paterostechonologicalcollege.edu.ph', 'Alden', 'Asurion', 'Richards', 1, 'WTH 4PM-6PM', 1, '2025-11-02 15:05:53', '2025-11-17 14:48:28'),
+(1, 2, 'PROF-0001', 'jmnaling@paterostechnologicalcollege.edu.ph', 'Alden', 'Asurion', 'Richards', 14, 'WTH 4PM-6PM', 1, '2025-11-02 15:05:53', '2025-11-22 21:15:22'),
 (8, NULL, 'PROF-0002', 'storre@paterostechnologicalcollege.edu.ph', 'Shider Rey', 'Dela Cruz', 'Torre', 1, 'Sat 3:00PM-5:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:51:31'),
 (9, NULL, 'PROF-0003', 'rnacario@paterostechnologicalcollege.edu.ph', 'Ryan Cesar', 'Legaspi', 'Nacario', 2, 'Tue 1:00PM-4:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:49:15'),
 (10, NULL, 'PROF-0004', 'mknazareno@paterostechnologicalcollege.edu.ph', 'Mark Kenneth', 'Borja', 'Nazareno', 3, 'TH 4:00PM-7:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:49:48'),
@@ -312,7 +304,7 @@ INSERT INTO `professors` (`id`, `user_id`, `professor_id`, `ptc_email`, `first_n
 (20, NULL, 'PROF-0011', 'jaguilar@paterostechnologicalcollege.edu.ph', 'Jasper', '', 'Aguilar', 10, 'Sat 10:00AM - 3:00PM', 1, '2025-11-17 21:51:33', '2025-11-17 21:51:33'),
 (21, NULL, 'PROF-00012', 'msaavedra@paterostechnologicalcollege.edu.ph', 'Manuel', '', 'Saavedra III', 11, NULL, 1, '2025-11-17 21:52:19', '2025-11-17 21:52:19'),
 (22, NULL, 'PROF-0013', 'aarsison@paterostechnologicalcollege.edu.ph', 'Ariel Antwan Rolando', '', 'Sison', 13, 'Mon 7:00AM - 12:00PM', 1, '2025-11-17 21:53:19', '2025-11-17 21:53:19'),
-(23, NULL, 'PROF-0016', 'testingduplicate@paterostechnologicalcollege.edu.ph', 'Test', 'Test', 'Test', 10, 'WTH 4PM-6PM', 1, '2025-11-18 13:12:29', '2025-11-18 13:12:29');
+(23, NULL, 'PROF-0016', 'testingduplicate@paterostechnologicalcollege.edu.ph', 'Test', 'Test', 'Test', 15, 'WTH 4PM-6PM', 1, '2025-11-18 13:12:29', '2025-11-22 21:17:12');
 
 -- --------------------------------------------------------
 
@@ -362,7 +354,8 @@ CREATE TABLE `section_students` (
 
 INSERT INTO `section_students` (`id`, `section_id`, `student_id`, `created_at`) VALUES
 (2, 11, 4, '2025-11-17 23:33:28'),
-(3, 11, 5, '2025-11-18 10:10:11');
+(3, 11, 5, '2025-11-18 10:10:11'),
+(4, 11, 7, '2025-11-18 23:14:23');
 
 -- --------------------------------------------------------
 
@@ -393,9 +386,12 @@ INSERT INTO `section_subjects` (`id`, `section_id`, `subject_id`, `professor_id`
 (7, 11, 11, 21, 6, '2025-11-18 13:10:54'),
 (8, 11, 12, NULL, 6, '2025-11-18 13:10:54'),
 (9, 11, 13, 22, 6, '2025-11-18 13:10:54'),
-(10, 11, 14, NULL, 6, '2025-11-18 13:10:54'),
+(10, 11, 14, 1, 6, '2025-11-18 13:10:54'),
 (11, 11, 15, NULL, 6, '2025-11-18 13:10:54'),
-(12, 11, 16, NULL, 6, '2025-11-18 13:10:54');
+(12, 11, 16, NULL, 6, '2025-11-18 13:10:54'),
+(13, 10, 2, 9, 2, '2025-11-22 21:49:16'),
+(14, 10, 3, 10, 2, '2025-11-22 21:49:16'),
+(15, 10, 4, NULL, 2, '2025-11-22 21:49:16');
 
 -- --------------------------------------------------------
 
@@ -421,11 +417,10 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`id`, `user_id`, `student_id`, `ptc_email`, `first_name`, `middle_name`, `last_name`, `year_level`, `section`, `status`) VALUES
-(1, 3, 'STUD-0001', NULL, '', NULL, '', '3', 'BSIT-3A', 'Regular'),
 (2, NULL, '2022-9800', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria', 'Luna', 'Santos', '4', 'BSIT 2B', 'Irregular'),
 (4, NULL, '1900-0001', 'joserizal@paterostechnologicalcollege.edu.ph', 'Jose', 'Mercado', 'Rizal', '2', 'CCS 1A', 'Regular'),
 (5, NULL, '1900-0002', 'jburgos@paterostechnologicalcollege.edu.ph', 'Jose', 'Apolonio', 'Burgos', '1', 'BSIT 2B', 'Irregular'),
-(7, NULL, '25BSIT-1545', 'cgbaldemor@paterostechnologicalcollege.edu.ph', 'Carlo', 'Guzman', 'Baldemor', '2', 'BSIT 2B', 'Regular');
+(7, 3, '25BSIT-1545', 'cgbaldemor@paterostechnologicalcollege.edu.ph', 'Carlo', 'Guzman', 'Baldemor', '2', 'BSIT 2B', 'Regular');
 
 -- --------------------------------------------------------
 
@@ -520,7 +515,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `first_name`, `last_name`, `status`, `created_at`) VALUES
 (1, 'jqtumamak@paterostechnologicalcollege.edu.ph', '$2y$10$Y4tMPwhtLW1Hku2iYAFT7uqoW9wToz4pYSRoGnuW1NNt69T0WeB3q', 'admin', 'Jerick', 'Tumamak', 'ACTIVE', '2025-10-27 16:29:29'),
-(2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', 'professor', 'Juan', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
+(2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', 'professor', 'Joshua', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
 (3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', 'student', 'Cris', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
 
 --
@@ -557,14 +552,6 @@ ALTER TABLE `edit_requests`
   ADD KEY `professor_id` (`professor_id`);
 
 --
--- Indexes for table `enrollments`
---
-ALTER TABLE `enrollments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `section_id` (`section_id`),
-  ADD KEY `student_id` (`student_id`);
-
---
 -- Indexes for table `grades`
 --
 ALTER TABLE `grades`
@@ -591,6 +578,7 @@ ALTER TABLE `grade_items`
 --
 ALTER TABLE `grading_sheets`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_grading_sheets_section_subject` (`section_subject_id`),
   ADD KEY `section_id` (`section_id`),
   ADD KEY `professor_id` (`professor_id`);
 
@@ -669,7 +657,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -688,12 +676,6 @@ ALTER TABLE `document_requests`
 --
 ALTER TABLE `edit_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `enrollments`
---
-ALTER TABLE `enrollments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `grades`
@@ -717,7 +699,7 @@ ALTER TABLE `grade_items`
 -- AUTO_INCREMENT for table `grading_sheets`
 --
 ALTER TABLE `grading_sheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `professors`
@@ -735,13 +717,13 @@ ALTER TABLE `sections`
 -- AUTO_INCREMENT for table `section_students`
 --
 ALTER TABLE `section_students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `section_subjects`
 --
 ALTER TABLE `section_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `students`
@@ -791,13 +773,6 @@ ALTER TABLE `edit_requests`
   ADD CONSTRAINT `edit_requests_ibfk_2` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `enrollments`
---
-ALTER TABLE `enrollments`
-  ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
-
---
 -- Constraints for table `grades`
 --
 ALTER TABLE `grades`
@@ -820,6 +795,7 @@ ALTER TABLE `grade_items`
 -- Constraints for table `grading_sheets`
 --
 ALTER TABLE `grading_sheets`
+  ADD CONSTRAINT `fk_grading_sheets_section_subject` FOREIGN KEY (`section_subject_id`) REFERENCES `section_subjects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `grading_sheets_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `grading_sheets_ibfk_2` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`) ON DELETE CASCADE;
 
