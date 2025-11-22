@@ -1,105 +1,260 @@
-
 <?php
-require_once __DIR__ . '/../../core/config/config.php';
-require_once __DIR__ . '/../../core/auth/session.php';
-require_once __DIR__ . '/../../core/auth/guards.php';
-requireLogin();
-if (($_SESSION['user']['role'] ?? '') !== 'professor') {
-    http_response_code(403);
-    echo 'Unauthorized.';
-    exit;
+// DB connection
+$host = 'http://localhost/grading_app/';
+$db = 'professor_portal';
+$user = 'root'; // teacher1
+$pass = '';     // password
+
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
-require_once __DIR__ . '/../includes/init.php';
+
+// Assuming professor is logged in, professor_id = 1
+$professor_id = 1;
+
+// Fetch totals
+$totalClasses = 0;
+$totalStudents = 0;
+$pendingGrades = 0;
+$submittedSheets = 0;
+
+// Total Classes
+$sql = "SELECT COUNT(*) as cnt FROM classes WHERE professor_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $professor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($row = $result->fetch_assoc()) {
+    $totalClasses = $row['cnt'];
+}
+
+// Total Students (for classes of this professor)
+$sql = "SELECT COUNT(s.id) as cnt FROM students s JOIN classes c ON s.class_id = c.id WHERE c.professor_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $professor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($row = $result->fetch_assoc()) {
+    $totalStudents = $row['cnt'];
+}
+
+// Pending Grades (grading sheets submitted = FALSE)
+$sql = "SELECT COUNT(*) as cnt FROM grading_sheets gs JOIN classes c ON gs.class_id = c.id WHERE c.professor_id = ? AND gs.submitted = 0";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $professor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($row = $result->fetch_assoc()) {
+    $pendingGrades = $row['cnt'];
+}
+
+// Submitted Sheets
+$sql = "SELECT COUNT(*) as cnt FROM grading_sheets gs JOIN classes c ON gs.class_id = c.id WHERE c.professor_id = ? AND gs.submitted = 1";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $professor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($row = $result->fetch_assoc()) {
+    $submittedSheets = $row['cnt'];
+}
+
+// Fetch all classes
+$sql = "SELECT * FROM classes WHERE professor_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $professor_id);
+$stmt->execute();
+$classes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Fetch deadlines
+$sql = "SELECT d.due_date, c.code, c.title FROM deadlines d JOIN classes c ON d.class_id = c.id WHERE c.professor_id = ? ORDER BY d.due_date ASC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $professor_id);
+$stmt->execute();
+$deadlines = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Function to calculate due text
+function dueText($date) {
+    $now = new DateTime();
+    $due = new DateTime($date);
+    $diff = $now->diff($due);
+    if($due < $now) {
+        return "Past due";
+    }
+    if($diff->days == 0) {
+        return "Due today";
+    }
+    if($diff->days <= 7) {
+        return "Due in " . $diff->days . " days";
+    }
+    return "Due " . $due->format('M j, Y');
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Professor Dashboard</title>
-        <link rel="stylesheet" href="../assets/css/professor.css">
-        <style>
-            .stat-cards { display: flex; gap: 18px; margin-bottom: 24px; }
-            .stat-card {
-                background: #fff; color: #222; border-radius: 16px; box-shadow: 0 2px 8px #0001;
-                padding: 18px 24px; min-width: 140px; flex: 1; display: flex; flex-direction: column; align-items: flex-start;
-            }
-            .stat-card .stat-label { font-size: 15px; color: #888; margin-bottom: 6px; }
-            .stat-card .stat-value { font-size: 2em; font-weight: 700; }
-            .stat-card .stat-icon { font-size: 1.5em; margin-left: 8px; }
-            .dashboard-chart {
-                background: #fff; border-radius: 16px; box-shadow: 0 2px 8px #0001;
-                padding: 24px; margin-bottom: 24px;
-            }
-            .chart-bars { display: flex; align-items: flex-end; gap: 18px; height: 120px; margin: 24px 0 12px; }
-            .chart-bar {
-                flex: 1; display: flex; flex-direction: column; align-items: center;
-            }
-            .bar {
-                width: 32px; border-radius: 8px 8px 0 0; background: #6ea8fe; opacity: 0.3;
-                transition: background 0.2s, opacity 0.2s;
-            }
-            .bar.active { background: #2ecc40; opacity: 1; }
-            .chart-label { font-size: 13px; color: #888; margin-top: 6px; }
-            .chart-value { font-size: 1.1em; font-weight: 600; color: #222; }
-            .chart-actions { display: flex; gap: 12px; margin-top: 18px; }
-            .btn { padding: 8px 18px; border-radius: 8px; border: 1px solid #bbb; background: #fff; color: #222; font-weight: 500; cursor: pointer; }
-            .btn.primary { background: #2ecc40; color: #fff; border-color: #2ecc40; }
-        </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Professor Portal Dashboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0; background: #f9fafb; color: #111;
+    }
+    .sidebar {
+        width: 200px;
+        background: #5a7a4f;
+        height: 100vh;
+        color: white;
+        padding: 20px;
+        position: fixed;
+    }
+    .sidebar h1 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    .sidebar a {
+        color: white;
+        display: block;
+        padding: 10px 0;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .sidebar a.active, .sidebar a:hover {
+        background: #4b6b3f;
+    }
+    .main {
+        margin-left: 220px;
+        padding: 20px;
+    }
+    h2 {
+        margin-bottom: 0;
+    }
+    .stats {
+        display: flex;
+        gap: 20px;
+        margin: 20px 0 40px 0;
+    }
+    .stat {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        flex: 1;
+        box-shadow: 0 0 8px #ddd;
+        font-weight: bold;
+        font-size: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .stat small {
+        font-weight: normal;
+        font-size: 14px;
+        color: #666;
+    }
+    .classes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .class-card {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 8px #ddd;
+        flex: 1 1 45%;
+        position: relative;
+    }
+    .class-card button {
+        background: #5a7a4f;
+        border: none;
+        color: white;
+        border-radius: 8px;
+        padding: 7px 15px;
+        cursor: pointer;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .deadline-list {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 8px #ddd;
+        margin-top: 40px;
+    }
+    .deadline-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+    .deadline-upcoming {
+        background: #fef3e6;
+        color: #c15f00;
+    }
+    .deadline-later {
+        background: #e6f3ff;
+        color: #0070c1;
+    }
+    h3 {
+        margin-bottom: 15px;
+    }
+</style>
 </head>
 <body>
-        <?php include __DIR__ . '/../includes/header.php'; ?>
-        <div class="layout">
-            <?php include __DIR__ . '/../includes/sidebar.php'; ?>
-            <main class="content">
-                <h1>Dashboard</h1>
-                <div class="stat-cards">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Students</div>
-                        <div class="stat-value">1,234</div>
-                        <div class="stat-icon">👥</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Professors</div>
-                        <div class="stat-value">56</div>
-                        <div class="stat-icon">🎓</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Sections</div>
-                        <div class="stat-value">78</div>
-                        <div class="stat-icon">📄</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Submitted Sheets</div>
-                        <div class="stat-value">90</div>
-                        <div class="stat-icon">📝</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Pending Requests</div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-icon">📋</div>
-                    </div>
-                </div>
-                <div class="dashboard-chart">
-                    <div style="font-size:1.2em;font-weight:600;margin-bottom:8px;">Grading Sheet Submission Statistics</div>
-                    <div style="color:#888;font-size:14px;margin-bottom:8px;">Number of submissions in the last 7 days.</div>
-                    <div class="chart-value">1,234 <span style="color:#2ecc40;font-size:0.9em;font-weight:500;">↑ 12.5%</span></div>
-                    <div class="chart-bars">
-                        <div class="chart-bar"><div class="bar" style="height:60px;"></div><div class="chart-label">Mon</div></div>
-                        <div class="chart-bar"><div class="bar" style="height:40px;"></div><div class="chart-label">Tue</div></div>
-                        <div class="chart-bar"><div class="bar" style="height:32px;"></div><div class="chart-label">Wed</div></div>
-                        <div class="chart-bar"><div class="bar" style="height:80px;"></div><div class="chart-label">Thu</div></div>
-                        <div class="chart-bar"><div class="bar active" style="height:110px;"></div><div class="chart-label" style="color:#2ecc40;">Fri</div></div>
-                        <div class="chart-bar"><div class="bar" style="height:22px;"></div><div class="chart-label">Sat</div></div>
-                        <div class="chart-bar"><div class="bar" style="height:28px;"></div><div class="chart-label">Sun</div></div>
-                    </div>
-                    <div class="chart-actions">
-                        <button class="btn">View Full Report</button>
-                        <button class="btn primary">Download CSV</button>
-                    </div>
-                </div>
-            </main>
-        </div>
-        <script src="../assets/js/professor.js"></script>
+
+<div class="sidebar">
+    <h1>Professor Portal</h1>
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Classes</a>
+    <a href="#">Grading Sheets</a>
+    <a href="#">Requests</a>
+</div>
+
+<div class="main">
+    <h2>Dashboard Overview</h2>
+    <p>Welcome back! Here's your grading summary for this term.</p>
+
+    <div class="stats">
+        <div class="stat"><small>Total Classes</small> <span><?= $totalClasses ?></span></div>
+        <div class="stat"><small>Total Students</small> <span><?= $totalStudents ?></span></div>
+        <div class="stat"><small>Pending Grades</small> <span><?= $pendingGrades ?></span></div>
+        <div class="stat"><small>Submitted Sheets</small> <span><?= $submittedSheets ?></span></div>
+    </div>
+
+    <h3>My Classes</h3>
+    <div class="classes">
+        <?php foreach ($classes as $class): ?>
+            <div class="class-card">
+                <strong><?= htmlspecialchars($class['code']) ?></strong><br>
+                <small><?= htmlspecialchars($class['title']) ?></small><br>
+                <small><?= htmlspecialchars($class['section']) ?></small>
+                <button>View</button>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="deadline-list">
+        <h3>Upcoming Deadlines</h3>
+        <?php if(empty($deadlines)): ?>
+            <p>No upcoming deadlines.</p>
+        <?php endif; ?>
+        <?php foreach($deadlines as $d): ?>
+            <?php 
+                $dueClass = (new DateTime($d['due_date']) < new DateTime()) ? 'deadline-upcoming' : 'deadline-later'; 
+                $dueText = dueText($d['due_date']);
+            ?>
+            <div class="deadline-item <?= $dueClass ?>">
+                <strong><?= htmlspecialchars($d['code']) ?></strong><br>
+                <small><?= htmlspecialchars($d['title']) ?></small>
+                <span style="float: right;"><?= $dueText ?></span>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
 </body>
 </html>
