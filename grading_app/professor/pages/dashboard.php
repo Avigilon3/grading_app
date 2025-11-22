@@ -1,4 +1,3 @@
-
 <?php
 require_once '../includes/init.php';
 requireProfessor();
@@ -174,4 +173,3 @@ function dueText(?string $date): string
 </body>
 <?php include '../includes/footer.php'; ?>
 </html>
->>>>>>> Stashed changes

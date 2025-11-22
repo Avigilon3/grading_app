@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 <?php
 require_once '../includes/init.php';
 requireProfessor();
@@ -181,4 +179,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 <?php include '../includes/footer.php'; ?>
 </html>
->>>>>>> Stashed changes
