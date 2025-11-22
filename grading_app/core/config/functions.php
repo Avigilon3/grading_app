@@ -100,6 +100,68 @@ if (!function_exists('syncSectionSubjects')) {
                 $professorId,
                 $termForInsert
             ]);
+
+            $sectionSubjectId = (int)$pdo->lastInsertId();
+            if ($professorId) {
+                ensureGradingSheetForSectionSubject($pdo, $sectionSubjectId);
+            }
         }
+    }
+}
+
+if (!function_exists('ensureGradingSheetForSectionSubject')) {
+    function ensureGradingSheetForSectionSubject(PDO $pdo, int $sectionSubjectId): void
+    {
+        if ($sectionSubjectId <= 0) {
+            return;
+        }
+
+        $ssStmt = $pdo->prepare('SELECT section_id, professor_id FROM section_subjects WHERE id = ? LIMIT 1');
+        $ssStmt->execute([$sectionSubjectId]);
+        $sectionSubject = $ssStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$sectionSubject) {
+            return;
+        }
+
+        $sectionId = (int)($sectionSubject['section_id'] ?? 0);
+        $professorId = $sectionSubject['professor_id'] !== null ? (int)$sectionSubject['professor_id'] : null;
+
+        $sheetStmt = $pdo->prepare('SELECT id, professor_id FROM grading_sheets WHERE section_subject_id = ? LIMIT 1');
+        $sheetStmt->execute([$sectionSubjectId]);
+        $gradingSheet = $sheetStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$gradingSheet) {
+            $insert = $pdo->prepare(
+                "INSERT INTO grading_sheets (section_id, professor_id, status, deadline_at, submitted_at, section_subject_id)
+                 VALUES (?, ?, 'draft', NULL, NULL, ?)"
+            );
+            $insert->execute([$sectionId, $professorId, $sectionSubjectId]);
+            return;
+        }
+
+        $currentProfessor = $gradingSheet['professor_id'] !== null ? (int)$gradingSheet['professor_id'] : null;
+        if ($currentProfessor !== $professorId) {
+            $update = $pdo->prepare('UPDATE grading_sheets SET professor_id = ? WHERE id = ?');
+            $update->execute([$professorId, $gradingSheet['id']]);
+        }
+    }
+}
+
+if (!function_exists('removeProfessorFromGradingSheet')) {
+    function removeProfessorFromGradingSheet(PDO $pdo, int $sectionId, int $professorId): void
+    {
+        if ($sectionId <= 0 || $professorId <= 0) {
+            return;
+        }
+
+        $stmt = $pdo->prepare(
+            "UPDATE grading_sheets
+                SET professor_id = NULL,
+                    status = 'draft',
+                    submitted_at = NULL
+              WHERE section_id = ?
+                AND professor_id = ?"
+        );
+        $stmt->execute([$sectionId, $professorId]);
     }
 }
