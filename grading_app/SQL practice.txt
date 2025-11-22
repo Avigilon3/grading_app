@@ -1,0 +1,81 @@
+-- subjects and respective prof
+SELECT 
+	s.subject_code,
+	s.subject_title,
+	s.units,
+	CONCAT(p.first_name,' ',p.last_name) AS "Professor Name",
+	p.schedule
+FROM
+	subjects s
+JOIN
+	professors p
+ON
+	s.id = p.subject_id
+WHERE
+	s.id IS NOT NULL
+GROUP BY
+	s.id;
+
+--concat prof name
+
+SELECT CONCAT AS (p.first_name,' ',p.last_name) AS "Professor Name" FROM professors;
+
+
+--subjects on a given course, year level and semester
+SELECT 
+	subject_code,
+	subject_title 
+FROM 
+	subjects
+WHERE
+	course_id = 2 AND
+	year_level = 3 AND
+	term_id = 2;
+
+
+
+
+
+--a section's subjects and profs (considering their year level and course) mali pa to
+
+SELECT
+	se.section_name,
+	s.subject_code,
+	s.subject_title,
+	s.units,
+	CONCAT(p.first_name,' ',p.last_name) AS "Professor Name",
+	p.schedule
+FROM
+	subjects s
+JOIN
+	professors p
+ON
+	s.id = p.subject_id  -- This joins subjects (s) to professors (p)
+JOIN
+	sections se
+ON
+	se.year_level = s.year_level AND  -- This joins sections (se) to subjects (s)
+	se.course_id = s.course_id AND
+	se.term_id = s.term_id
+WHERE
+	s.id IS NOT NULL
+GROUP BY
+	s.id;
+
+
+--for students.php I want all sections to appear in the dropdown
+SELECT 
+	s.id,
+	s.section_name,
+	s.term_id,
+	t.school_year
+FROM sections s
+JOIN terms t
+ON s.term_id = t.id
+WHERE s.is_active = 1
+ORDER BY s.section_name;
+
+
+
+
+

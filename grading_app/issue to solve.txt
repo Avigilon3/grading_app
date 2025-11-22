@@ -1,0 +1,5 @@
+
+1. Error handling if student is already under a section for that term and year_level (or hindi kasi may mga irregular student na merong more than 1 section?)
+
+2. confirmation of assignment ng prof sa section - create selection if more than 1 prof is teaching for that section 
+
