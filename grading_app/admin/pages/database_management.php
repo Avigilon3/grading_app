@@ -291,7 +291,7 @@ $sections = $pdo->query("SELECT s.id, s.section_name, s.is_active, s.year_level,
 
     <script src="../assets/js/admin.js"></script>
   </main>
-  <?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>
 </div>
 </body>
 </html>

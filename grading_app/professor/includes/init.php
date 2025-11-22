@@ -11,5 +11,5 @@ require_once '../../core/db/connection.php';
 require_once '../../core/config/functions.php';
 
 // Module-specific helpers (keep for future use)
-require_once __DIR__ . '/functions.php';
-require_once __DIR__ . '/auth.php';
+require_once 'functions.php';
+require_once 'auth.php';

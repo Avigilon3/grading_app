@@ -124,13 +124,13 @@ try {
   // leave defaults
 }
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
       <title>Dashboard</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
-</head>
+  </head>
 <body>
 <?php include '../includes/header.php'; ?>
 <div class="layout">
@@ -245,4 +245,5 @@ try {
 </div>
 <script src="../assets/js/admin.js"></script>
 </body>
+<?php include '../includes/footer.php'; ?>
 </html>

@@ -426,3 +426,27 @@ ALTER TABLE sections
   DROP COLUMN term;
 
 
+
+--
+--
+--
+-- --------added by bethel on november 22 at 10pm: grading_sheet table missing attribute-------------
+--
+-- Add foreign key of section_subject to grading_sheet table
+
+ALTER TABLE grading_sheets
+  ADD COLUMN section_subject_id INT(11) DEFAULT NULL AFTER id;
+
+UPDATE grading_sheets gs
+JOIN section_subjects ss
+  ON ss.section_id   = gs.section_id
+ AND ss.professor_id = gs.professor_id
+SET gs.section_subject_id = ss.id
+WHERE gs.section_subject_id IS NULL;
+
+--deleted the first entry na for testing lang naman tapos add tong foreign key
+ALTER TABLE grading_sheets
+  MODIFY section_subject_id INT(11) NOT NULL,
+  ADD CONSTRAINT fk_grading_sheets_section_subject
+    FOREIGN KEY (section_subject_id) REFERENCES section_subjects(id) ON DELETE CASCADE,
+  ADD UNIQUE KEY uq_grading_sheets_section_subject (section_subject_id);

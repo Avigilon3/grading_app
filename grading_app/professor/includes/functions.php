@@ -1,27 +1,49 @@
 <?php
-// function flash(string $msg, string $type='info') {
-//   $_SESSION['flash'] = ['msg'=>$msg, 'type'=>$type];
-// }
-// function show_flash() {
-//   if (!empty($_SESSION['flash'])) {
-//     $f = $_SESSION['flash'];
-//     echo '<div class="flash '.$f['type'].'">'.htmlspecialchars($f['msg']).'</div>';
-//     unset($_SESSION['flash']);
-//   }
-// }
-// function audit(PDO $pdo, int $adminId, string $action, array $meta = []) {
-//   $stmt = $pdo->prepare("INSERT INTO activity_logs (admin_id, action, meta) VALUES (?,?,?)");
-//   $stmt->execute([$adminId, $action, $meta ? json_encode($meta) : null]);
-// }
-// function csrf_token() {
-//   if (empty($_SESSION['csrf'])) { $_SESSION['csrf'] = bin2hex(random_bytes(16)); }
-//   return $_SESSION['csrf'];
-// }
-// function csrf_check() {
-//   if (($_POST['csrf'] ?? '') !== ($_SESSION['csrf'] ?? '')) {
-//     http_response_code(400);
-//     echo "Invalid CSRF token.";
-//     exit;
-//   }
-// }
-?>
+
+if (!function_exists('currentProfessorRecord')) {
+    function currentProfessorRecord(PDO $pdo): ?array
+    {
+        static $cache = null;
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $userId = $_SESSION['user']['id'] ?? null;
+        if (!$userId) {
+            return null;
+        }
+
+        $stmt = $pdo->prepare('SELECT * FROM professors WHERE user_id = ? LIMIT 1');
+        $stmt->execute([$userId]);
+        $cache = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+        return $cache;
+    }
+}
+
+if (!function_exists('requireProfessorRecord')) {
+    function requireProfessorRecord(PDO $pdo): array
+    {
+        $record = currentProfessorRecord($pdo);
+        if ($record) {
+            return $record;
+        }
+
+        http_response_code(403);
+        echo 'Professor record not found. Please contact the registrar.';
+        exit;
+    }
+}
+
+if (!function_exists('professorFullName')) {
+    function professorFullName(array $professor): string
+    {
+        $parts = [
+            trim($professor['first_name'] ?? ''),
+            trim($professor['middle_name'] ?? ''),
+            trim($professor['last_name'] ?? ''),
+        ];
+
+        return trim(implode(' ', array_filter($parts)));
+    }
+}
