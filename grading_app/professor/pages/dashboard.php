@@ -1,6 +1,7 @@
 
 <?php
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 require_once __DIR__ . '/../../core/config/config.php';
 require_once __DIR__ . '/../../core/auth/session.php';
 require_once __DIR__ . '/../../core/auth/guards.php';
@@ -18,6 +19,14 @@ requireProfessor();
 $professor = requireProfessorRecord($pdo);
 $professorId = (int)$professor['id'];
 
+=======
+require_once '../includes/init.php';
+requireProfessor();
+
+$professor = requireProfessorRecord($pdo);
+$professorId = (int)$professor['id'];
+
+>>>>>>> Stashed changes
 $totalClasses = 0;
 $totalStudents = 0;
 $pendingGrades = 0;
@@ -114,10 +123,14 @@ function dueText(?string $date): string
 
     return 'Due ' . $due->format('M j, Y');
 }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <head>
         <meta charset="UTF-8">
@@ -207,7 +220,75 @@ function dueText(?string $date): string
             </main>
         </div>
         <script src="../assets/js/professor.js"></script>
+=======
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>Professor Portal Dashboard</title>
+        <link rel="stylesheet" href="../assets/css/professor.css">
+    </head>
+<body>
+  <?php include '../includes/header.php'; ?>
+<div class="layout"> 
+  <?php include '../includes/sidebar.php'; ?>
+  <main class="content">
+    <?php show_flash(); ?>
+    <div class="page-header">
+      <h2>Dashboard Overview</h2>
+      <p>Welcome back! Here's your grading summary for this term.</p>
+    </div>
+
+      <div class="stats">
+          <div class="stat"><small>Total Classes</small> <span><?= $totalClasses ?></span></div>
+          <div class="stat"><small>Total Students</small> <span><?= $totalStudents ?></span></div>
+          <div class="stat"><small>Pending Grades</small> <span><?= $pendingGrades ?></span></div>
+          <div class="stat"><small>Submitted Sheets</small> <span><?= $submittedSheets ?></span></div>
+      </div>
+
+      <h3>My Classes</h3>
+      <div class="classes">
+          <?php if (empty($classes)): ?>
+            <p>No active teaching assignments yet.</p>
+          <?php else: ?>
+            <?php foreach ($classes as $class): ?>
+              <div class="class-card">
+                <strong><?= htmlspecialchars($class['subject_code'] ?? 'Subject') ?></strong><br>
+                <small><?= htmlspecialchars($class['subject_title'] ?? 'Untitled subject') ?></small><br>
+                <small><?= htmlspecialchars($class['section_name'] ?? '') ?></small><br>
+                <?php if(!empty($class['term_name'])): ?>
+                <small><?= htmlspecialchars($class['term_name']) ?></small><br>
+                <?php endif; ?>
+                <button type="button" onclick="window.location.href='./grading_sheet.php'">Open Sheet</button>
+              </div>
+              <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+
+      <div class="deadline-list">
+          <h3>Upcoming Deadlines</h3>
+          <?php if(empty($deadlines)): ?>
+              <p>No upcoming deadlines.</p>
+          <?php endif; ?>
+          <?php foreach($deadlines as $d): ?>
+              <?php 
+                  $deadlineAt = $d['deadline_at'] ?? null;
+                  $now = new DateTimeImmutable();
+                  $dueClass = ($deadlineAt && new DateTimeImmutable($deadlineAt) < $now) ? 'deadline-upcoming' : 'deadline-later'; 
+                  $dueText = dueText($deadlineAt);
+              ?>
+              <div class="deadline-item <?= $dueClass ?>">
+                  <strong><?= htmlspecialchars($d['section_name'] ?? 'Section') ?></strong><br>
+                  <small>Status: <?= htmlspecialchars(ucfirst($d['status'] ?? 'draft')) ?></small>
+                  <span style="float: right;"><?= $dueText ?></span>
+              </div>
+          <?php endforeach; ?>
+        </div>
+  </main>
+</div>
+<script src="../assets/js/professor.js"></script>
+>>>>>>> Stashed changes
 </body>
+<?php include '../includes/footer.php'; ?>
 </html>
 =======
     <head>
