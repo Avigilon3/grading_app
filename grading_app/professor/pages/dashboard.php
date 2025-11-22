@@ -2,6 +2,7 @@
 <?php
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 require_once __DIR__ . '/../../core/config/config.php';
 require_once __DIR__ . '/../../core/auth/session.php';
 require_once __DIR__ . '/../../core/auth/guards.php';
@@ -19,6 +20,14 @@ requireProfessor();
 $professor = requireProfessorRecord($pdo);
 $professorId = (int)$professor['id'];
 
+=======
+require_once '../includes/init.php';
+requireProfessor();
+
+$professor = requireProfessorRecord($pdo);
+$professorId = (int)$professor['id'];
+
+>>>>>>> Stashed changes
 =======
 require_once '../includes/init.php';
 requireProfessor();
@@ -124,12 +133,16 @@ function dueText(?string $date): string
     return 'Due ' . $due->format('M j, Y');
 }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <head>
@@ -228,6 +241,15 @@ function dueText(?string $date): string
         <link rel="stylesheet" href="../assets/css/professor.css">
     </head>
 <body>
+=======
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>Professor Portal Dashboard</title>
+        <link rel="stylesheet" href="../assets/css/professor.css">
+    </head>
+<body>
+>>>>>>> Stashed changes
   <?php include '../includes/header.php'; ?>
 <div class="layout"> 
   <?php include '../includes/sidebar.php'; ?>
@@ -286,6 +308,9 @@ function dueText(?string $date): string
   </main>
 </div>
 <script src="../assets/js/professor.js"></script>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 </body>
 <?php include '../includes/footer.php'; ?>
