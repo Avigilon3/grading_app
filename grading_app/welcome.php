@@ -7,29 +7,52 @@
     <title>Welcome | Online Grading System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root {
-            --primary-yellow: #ffd43b;
+            --primary-yellow: #FFD700;
             --accent-yellow: #f7b733;
             --deep-green: #11593c;
             --teal-border: #1bb8d1;
-            --text-base: #f7f8f3;
+            --text-base: #F9F9F9;
+            
         }
         * {
             box-sizing: border-box;
+        
+            
+        /* FONTS */
+        .space-grotesk {
+          font-family: "Space Grotesk", sans-serif;
+          font-optical-sizing: auto;
+          font-weight: <weight>;
+          font-style: normal;
+        }
+        .bayon-regular {
+          font-family: "Bayon", sans-serif;
+          font-weight: 400;
+          font-style: normal;
+        }
+        .arimo {
+          font-family: "Arimo", sans-serif;
+          font-optical-sizing: auto;
+          font-weight: 400;
+          font-style: normal;
+        }
+
         }
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: 'Poppins', Arial, sans-serif;
+            font-family: 'Arimo', Arial, sans-serif;
             color: var(--text-base);
             background: linear-gradient(120deg, rgba(6, 64, 42, 0.92), rgba(6, 98, 80, 0.7)),
-                url('admin/assets/images/ptc.jpg') center/cover no-repeat fixed;
+                url('admin/assets/images/background.jpg') center/cover no-repeat fixed;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 32px;
+            /* padding: 32px; */
             position: relative;
             text-align: center;
         }
@@ -44,82 +67,117 @@
         .welcome-card {
             position: relative;
             z-index: 1;
-            width: min(100%, 980px);
-            min-height: calc(100vh - 96px);
-            border: 4px solid var(--teal-border);
-            border-radius: 22px;
-            padding: 56px 48px 112px;
+            width: 100%;
+            min-height: 100vh;
+            /* border: 4px solid var(--teal-border);
+            border-radius: 22px; */
+            /* padding: 56px 48px 112px; */
             backdrop-filter: blur(3px);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 18px;
         }
         .school-brand img {
-            width: 110px;
+            /* width: 110px;
             height: 110px;
             object-fit: contain;
             margin-bottom: 8px;
-            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4)); */
+            margin-top: 150px;
+            width: 110px;
+            height: 110px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            aspect-ratio: 54/55;
+            border: 10px solid rgba(255, 255, 255, 0.20);
+            border-radius: 50%;
+
         }
         .school-name {
-            font-size: clamp(1.3rem, 4vw, 1.85rem);
+            /* font-size: clamp(1.3rem, 4vw, 1.85rem);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 2.5px;
-            margin: 0;
+            margin: 0; */
+
+            color: var(--text-base);
+            text-align: center;
+            font-family: Bayon;
+            font-size: 35px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 35px; /* 100% */
         }
         .tagline {
-            margin: 6px 0 32px;
+            /* margin: 6px 0 32px;
             font-weight: 400;
             color: rgba(247, 248, 243, 0.85);
-            letter-spacing: 0.6px;
+            letter-spacing: 0.6px; */
+
+          color: var(--text-base);
+          font-family: Arimo;
+          font-size: 18px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 28px;
+
         }
         .system-intro h1 {
             font-size: clamp(2rem, 5vw, 3rem);
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            text-align: center;
             color: var(--primary-yellow);
             margin: 0;
             text-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+
         }
         .system-intro p {
-            max-width: 640px;
             margin: 12px auto 28px;
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: rgba(247, 248, 243, 0.88);
+            text-align: center;
+            font-family: Arimo;
+            font-size: 22px;
+            font-weight: 400;
+            font-style: normal;
+            line-height: 28px;
+            color: var(--text-base);
+
         }
         .cta-button {
             display: inline-flex;
             align-items: center;
-            gap: 14px;
+            gap: 20px;
+            padding: 0 248px;
             text-decoration: none;
             font-weight: 600;
             color: var(--text-base);
             letter-spacing: 1.2px;
-            text-transform: uppercase;
+            font-family: Arimo;
+            /* text-transform: uppercase; */
         }
-        .cta-button .cta-icon {
+        .cta-button .material-symbols-rounded {
             width: 52px;
             height: 52px;
-            border: 2px solid rgba(255, 255, 255, 0.85);
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
             transition: 0.3s ease;
         }
-        .cta-button:hover .cta-icon {
-            background: var(--primary-yellow);
-            color: #0a5035;
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.20);;
+            /* color: #0a5035; */
             border-color: transparent;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
         }
         .cta-button span:last-child {
             font-size: 1rem;
         }
-        .status-panel {
+        /* .status-panel {
             position: absolute;
             left: 38px;
             right: 38px;
@@ -144,16 +202,14 @@
         .status-stripes .stripe.accent {
             height: 9px;
             background: linear-gradient(90deg, #0aa34f, #0e8a63 65%, #0f704f);
+        } */
+        .divider {
+          width: 100%;
+          height: 47px;
+          background: linear-gradient(180deg, #FFD700 25.96%, #998100 99.98%, #A08700 99.99%);
+          align-items: bottom;
         }
-        .status-pill {
-            background: #d92027;
-            border-radius: 50px;
-            padding: 4px 20px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 1.1px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-        }
+
         @media (max-width: 768px) {
             body {
                 padding: 16px;
@@ -186,18 +242,23 @@
         <div class="system-intro">
             <h1>Online Grading System</h1>
             <p>Access your grades, monitor progress, and stay connected with your academic journey whenever and wherever you are.</p>
+        </div>
+        <div class="start">
             <a href="login.php" class="cta-button">
-                <span class="cta-icon">&#x21E9;</span>
+                <span class="material-symbols-rounded">arrow_circle_down</span>
                 <span>Get Started</span>
             </a>
         </div>
-        <div class="status-panel">
+        <div class="divider">
+            <div class="divide"></div>
+          </div>
+        <!-- <div class="status-panel">
             <div class="status-stripes">
                 <div class="stripe"></div>
                 <div class="stripe accent"></div>
             </div>
-            <div class="status-pill">26</div>
-        </div>
+        </div> -->
     </div>
+    
 </body>
 </html>
