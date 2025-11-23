@@ -143,6 +143,11 @@ header{
 .user-dropdown .dropdown-menu a:hover {
     background: rgba(0,0,0,0.05);
 }
+
+.user-dropdown .dropdown-menu .material-symbols-rounded {
+  color: var(--primarycolor);
+  vertical-align: middle;
+}
 /* .header 
 .spacer{
     flex:1
@@ -170,7 +175,9 @@ header{
 }
 
 .nav-item{
-    display:block;
+    display:flex;
+    align-items: center;
+    gap: 8px;
     padding:10px 12px;
     border-radius:8px;
     color: var(--primarycolor);

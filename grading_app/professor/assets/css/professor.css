@@ -122,7 +122,7 @@ header{
     top: calc(100% + 8px);
     right: 0;
     background: #fff;
-    color: #1c1c1c;
+    color: var(--primarycolor);
     border-radius: 8px;
     min-width: 160px;
     box-shadow: 0 12px 30px rgba(5,9,30,0.2);
@@ -144,6 +144,11 @@ header{
 
 .user-dropdown .dropdown-menu a:hover {
     background: rgba(0,0,0,0.05);
+}
+
+.user-dropdown .dropdown-menu .material-symbols-rounded {
+  color: var(--primarycolor);
+  vertical-align: middle;
 }
 /* .header 
 .spacer{
@@ -175,7 +180,9 @@ header{
 }
 
 .nav-item{
-    display:block;
+    display:flex;
+    align-items: center;
+    gap: 8px;
     padding:10px 12px;
     border-radius:8px;
     color: var(--primarycolor);
