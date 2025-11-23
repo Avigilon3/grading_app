@@ -70,10 +70,43 @@
 		});
 	}
 
+  function initSidebarDropdowns() {
+    var dropdowns = safeQueryAll ('[data-dropdown]'); 
+    if (!dropdowns.length) return; 
+
+    dropdowns.forEach(function (dropdown) {
+      var toggle = safeQuery ('.dropdown-toggle',dropdown);
+      var submenu = safeQuery ('.submenu',dropdown);
+      if (!toggle || !submenu) return; 
+
+      submenu.style.display = 'none' ;
+      toggle.setAttribute ('aria-expanded','false'); 
+
+      toggle.addEventListener('click',function (event) {
+        event.preventDefault();
+        var isOpen = dropdown.classList.toggle('open');
+
+        if (isOpen) {
+          submenu.style.display = 'block' ;
+          toggle.setAttribute ('aria-expanded','true'); 
+        } else {
+          submenu.style.display = 'none' ;
+          toggle.setAttribute ('aria-expanded','false'); 
+
+        }
+      });
+    });
+
+  }
+
+
+
+
 	function init() {
 		highlightNav();
 		wireLogoutConfirm();
 		initUserDropdowns();
+    initSidebarDropdowns();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
 		// tryFetchCounts();
 

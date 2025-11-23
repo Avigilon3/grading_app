@@ -1,20 +1,49 @@
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+
+
 <aside class="sidebar">
-  <nav>
-    <a href="./dashboard.php" class="nav-item"> <img src="../assets/images/dashboard2.svg"> Dashboard</a>
-    <a href="./database_management.php" class="nav-item"> <img src="../assets/images/database2.svg"> Database Management</a>
+  <nav class="sidebar-nav">
+    <a href="./dashboard.php" class="nav-item">
+      <span class="material-symbols-rounded">dashboard</span>
+        Dashboard</a>
+
+
+<!-- Dropdown -->
+  <div class="dropdown" data-dropdown>
+    <a href="./database_management.php" class="nav-item dropdown-toggle" aria-expanded="false"> 
+      <span class="material-symbols-rounded">database</span>
+      <span class="nav-label">Database Management</span>
+      <span class="material-symbols-rounded dropdown-arrow">keyboard_arrow_down</span>
+    </a>
+
+
+    <!-- Dropdown menu -->
     <ul class="submenu">
-        <li> 
-          
-          <a class="nav-item" href="./students.php">Students</a>
-        </li>
+        <li><a class="nav-item" href="./students.php">Students</a></li>
         <li><a class="nav-item" href="./professors.php">Professors</a></li>
         <li><a class="nav-item" href="./subjects.php">Courses / Subjects</a></li>
         <li><a class="nav-item" href="./sections.php">Sections</a></li>
     </ul>
-    <a href="./masterlist.php" class="nav-item"> <img src="../assets/images/Paper2.svg"> Masterlist</a>
-    <a href="./grading_management.php" class="nav-item"> <img src="../assets/images/gradingsheets2.svg">Grading Sheets</a>
-    <a href="./report_management.php" class="nav-item"> <img src="../assets/images/requests2.svg">Requests</a>
-    <a href="./reports.php" class="nav-item"> <img src="../assets/images/reports2.svg">Reports</a>
-    <a href="./activity_logs.php" class="nav-item"> <img src="../assets/images/activity2.svg">Activity Logs</a>
+  </div>
+
+
+    <a href="./masterlist.php" class="nav-item">
+      <span class="material-symbols-rounded">list_alt</span>
+        Masterlist</a>
+    <a href="./grading_management.php" class="nav-item">
+      <span class="material-symbols-rounded">stacks</span>
+        Grading Sheets</a>
+    <a href="./report_management.php" class="nav-item">
+      <span class="material-symbols-rounded">error</span>
+        Requests</a>
+    <a href="./reports.php" class="nav-item">
+      <span class="material-symbols-rounded">docs</span>
+        Reports</a>
+    <a href="./activity_logs.php" class="nav-item">
+      <span class="material-symbols-rounded">earthquake</span>
+        Activity Logs</a>
   </nav>
+  <script> src= "../assets/js/admin.js"</script>
 </aside>
