@@ -2,38 +2,8 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-$err = $msg = null;
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    try {
-        if ($action === 'set_deadline') {
-            $id = (int)($_POST['id'] ?? 0);
-            $deadlineAt = trim($_POST['deadline_at'] ?? '');
-            if (!$id) {
-                throw new Exception('Invalid grading sheet.');
-            }
-            $stmt = $pdo->prepare('UPDATE grading_sheets SET deadline_at = ? WHERE id = ?');
-            $stmt->execute([$deadlineAt ?: null, $id]);
-            add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'SET_DEADLINE', "Grading sheet #{$id} deadline updated.");
-            $msg = 'Deadline updated.';
-        }
-
-        if ($action === 'change_status') {
-            $id = (int)($_POST['id'] ?? 0);
-            $status = $_POST['status'] ?? '';
-            $allowed = ['draft', 'submitted', 'locked', 'reopened'];
-            if (!$id || !in_array($status, $allowed, true)) {
-                throw new Exception('Invalid status.');
-            }
-            $stmt = $pdo->prepare('UPDATE grading_sheets SET status = ? WHERE id = ?');
-            $stmt->execute([$status, $id]);
-            add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'CHANGE_STATUS', "Grading sheet #{$id} set to {$status}.");
-            $msg = 'Status updated.';
-        }
-    } catch (Exception $e) {
-        $err = $e->getMessage();
-    }
-}
+$err = $_GET['err'] ?? null;
+$msg = $_GET['msg'] ?? null;
 
 $courseId = isset($_GET['course_id']) ? (int)$_GET['course_id'] : 0;
 $yearLevel = isset($_GET['year_level']) ? trim($_GET['year_level']) : '';
@@ -141,6 +111,8 @@ if ($templateSectionId) {
 }
 
 $deadlineSheets = $gradingSheets;
+$currentQuery = $_SERVER['QUERY_STRING'] ?? '';
+$redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $currentQuery : '');
 ?>
 <!doctype html>
 <html lang="en">
@@ -148,24 +120,6 @@ $deadlineSheets = $gradingSheets;
     <meta charset="utf-8">
     <title>Grading Sheets Management</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
-    <style>
-        .tabs { display: flex; gap: 1rem; border-bottom: 1px solid #e4e7eb; margin-bottom: 1.5rem; }
-        .tabs button { background: none; border: none; padding: 0.75rem 1rem; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
-        .tabs button.active { border-bottom-color: #2f855a; color: #2f855a; font-weight: 600; }
-        .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card { padding: 1rem; border-radius: 12px; background: #f8fafc; border: 1px solid #e4e7eb; }
-        .table-like { width: 100%; border-collapse: collapse; }
-        .table-like th, .table-like td { padding: 0.75rem; border-bottom: 1px solid #edf2f7; text-align: left; }
-        .badge { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.85rem; }
-        .badge.submitted { background: #e6fffa; color: #276749; }
-        .badge.pending { background: #fffaf0; color: #b7791f; }
-        .template-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .template-table th, .template-table td { border: 1px solid #e2e8f0; padding: 0.5rem; text-align: center; }
-        .template-head { background: #f7fafc; font-weight: 600; }
-        .tab-pane { display: none; }
-        .tab-pane.active { display: block; }
-    </style>
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -181,284 +135,309 @@ $deadlineSheets = $gradingSheets;
             <p class="text-muted">Manage grading sheet templates, track submissions, and set deadlines</p>
         </div>
 
-        <div class="tabs">
-            <button class="tab-trigger active" data-tab="view">View Grading Sheets</button>
-            <button class="tab-trigger" data-tab="template">Manage Template</button>
-            <button class="tab-trigger" data-tab="deadlines">Submission Deadlines</button>
-        </div>
-
-        <section class="tab-pane active" id="tab-view">
-            <form method="get" class="filters card" style="padding:1rem;">
-                <div>
-                    <label>Course</label>
-                    <select name="course_id" class="form-control">
-                        <option value="0">-- Select Course --</option>
-                        <?php foreach ($courses as $c): ?>
-                            <option value="<?= (int)$c['id']; ?>" <?= $courseId === (int)$c['id'] ? 'selected' : ''; ?>>
-                                <?= htmlspecialchars($c['code'] . ' - ' . $c['title']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label>Year Level</label>
-                    <select name="year_level" class="form-control">
-                        <option value="">-- Select Year --</option>
-                        <?php foreach (['1' => '1st', '2' => '2nd', '3' => '3rd', '4' => '4th'] as $val => $label): ?>
-                            <option value="<?= $val; ?>" <?= $yearLevel === $val ? 'selected' : ''; ?>><?= $label; ?> Year</option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label>Section</label>
-                    <select name="section_id" class="form-control">
-                        <option value="0">-- Select Section --</option>
-                        <?php foreach ($sections as $sec): ?>
-                            <option value="<?= (int)$sec['id']; ?>" <?= $sectionId === (int)$sec['id'] ? 'selected' : ''; ?>>
-                                <?= htmlspecialchars($sec['section_name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label>Term/Semester</label>
-                    <select name="term_id" class="form-control">
-                        <option value="0">-- Select Term --</option>
-                        <?php foreach ($terms as $t): ?>
-                            <option value="<?= (int)$t['id']; ?>" <?= $termId === (int)$t['id'] ? 'selected' : ''; ?>>
-                                <?= htmlspecialchars($t['term_name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label>Status</label>
-                    <select name="status_filter" class="form-control">
-                        <option value="all" <?= $statusFilter === 'all' ? 'selected' : ''; ?>>All</option>
-                        <option value="submitted" <?= $statusFilter === 'submitted' ? 'selected' : ''; ?>>Submitted</option>
-                        <option value="locked" <?= $statusFilter === 'locked' ? 'selected' : ''; ?>>Locked</option>
-                        <option value="draft" <?= $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
-                        <option value="reopened" <?= $statusFilter === 'reopened' ? 'selected' : ''; ?>>Reopened</option>
-                    </select>
-                </div>
-                <div style="align-self:end;">
-                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                </div>
-            </form>
-
-            <div class="stat-cards">
-                <div class="stat-card">
-                    <div class="text-muted">Submitted</div>
-                    <div style="font-size:1.5rem;font-weight:700;"><?= (int)$stats['submitted']; ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="text-muted">Pending</div>
-                    <div style="font-size:1.5rem;font-weight:700;"><?= (int)$stats['pending']; ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="text-muted">Total Sheets</div>
-                    <div style="font-size:1.5rem;font-weight:700;"><?= (int)$stats['total']; ?></div>
-                </div>
+        <div class="card" id="grading-tabs">
+            <div class="card-header tabs">
+                <button class="tab-link active" type="button" data-tab="view">View Grading Sheets</button>
+                <button class="tab-link" type="button" data-tab="template">Manage Template</button>
+                <button class="tab-link" type="button" data-tab="deadlines">Submission Deadlines</button>
             </div>
+            <div class="card-body">
+                <section class="tab-pane active" data-pane="view">
+                    <form method="get" class="form-box filters-grid">
+                        <div class="form-group">
+                            <label>Course</label>
+                            <select name="course_id" class="form-control">
+                                <option value="0">-- Select Course --</option>
+                                <?php foreach ($courses as $c): ?>
+                                    <option value="<?= (int)$c['id']; ?>" <?= $courseId === (int)$c['id'] ? 'selected' : ''; ?>>
+                                        <?= htmlspecialchars($c['code'] . ' - ' . $c['title']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Year Level</label>
+                            <select name="year_level" class="form-control">
+                                <option value="">-- Select Year --</option>
+                                <?php foreach (['1' => '1st', '2' => '2nd', '3' => '3rd', '4' => '4th'] as $val => $label): ?>
+                                    <option value="<?= $val; ?>" <?= $yearLevel === $val ? 'selected' : ''; ?>><?= $label; ?> Year</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Section</label>
+                            <select name="section_id" class="form-control">
+                                <option value="0">-- Select Section --</option>
+                                <?php foreach ($sections as $sec): ?>
+                                    <option value="<?= (int)$sec['id']; ?>" <?= $sectionId === (int)$sec['id'] ? 'selected' : ''; ?>>
+                                        <?= htmlspecialchars($sec['section_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Term/Semester</label>
+                            <select name="term_id" class="form-control">
+                                <option value="0">-- Select Term --</option>
+                                <?php foreach ($terms as $t): ?>
+                                    <option value="<?= (int)$t['id']; ?>" <?= $termId === (int)$t['id'] ? 'selected' : ''; ?>>
+                                        <?= htmlspecialchars($t['term_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status_filter" class="form-control">
+                                <option value="all" <?= $statusFilter === 'all' ? 'selected' : ''; ?>>All</option>
+                                <option value="submitted" <?= $statusFilter === 'submitted' ? 'selected' : ''; ?>>Submitted</option>
+                                <option value="locked" <?= $statusFilter === 'locked' ? 'selected' : ''; ?>>Locked</option>
+                                <option value="draft" <?= $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
+                                <option value="reopened" <?= $statusFilter === 'reopened' ? 'selected' : ''; ?>>Reopened</option>
+                            </select>
+                        </div>
+                        <div class="form-actions filter-actions">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </form>
 
-            <div class="card">
-                <div class="card-body">
-                    <h3>Grading Sheets</h3>
-                    <table class="table-like">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Section</th>
-                            <th>Subject</th>
-                            <th>Professor</th>
-                            <th>Deadline</th>
-                            <th>Status</th>
-                            <th>Submitted On</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php if (!$gradingSheets): ?>
-                            <tr><td colspan="8">No grading sheets found.</td></tr>
-                        <?php else: foreach ($gradingSheets as $row): ?>
-                            <tr>
-                                <td><?= (int)$row['id']; ?></td>
-                                <td><?= htmlspecialchars($row['section_name'] ?? ''); ?></td>
-                                <td>
-                                    <strong><?= htmlspecialchars($row['subject_code'] ?? 'N/A'); ?></strong><br>
-                                    <small><?= htmlspecialchars($row['subject_title'] ?? ''); ?></small>
-                                </td>
-                                <td><?= htmlspecialchars(trim($row['professor_name'] ?? 'Unassigned')); ?></td>
-                                <td><?= $row['deadline_at'] ? htmlspecialchars(date('Y-m-d', strtotime($row['deadline_at']))) : '—'; ?></td>
-                                <td>
-                                    <?php
-                                    $status = $row['status'] ?? 'draft';
-                                    $badgeClass = in_array($status, ['submitted','locked'], true) ? 'submitted' : 'pending';
-                                    ?>
-                                    <span class="badge <?= $badgeClass; ?>"><?= htmlspecialchars(ucfirst($status)); ?></span>
-                                </td>
-                                <td><?= $row['submitted_at'] ? htmlspecialchars(date('Y-m-d', strtotime($row['submitted_at']))) : '—'; ?></td>
-                                <td>
-                                    <form method="post" style="display:inline;">
-                                        <input type="hidden" name="action" value="change_status">
-                                        <input type="hidden" name="id" value="<?= (int)$row['id']; ?>">
-                                        <select name="status" class="form-control" style="width:120px;display:inline-block;">
-                                            <?php foreach (['draft','submitted','locked','reopened'] as $st): ?>
-                                                <option value="<?= $st; ?>" <?= $status === $st ? 'selected' : ''; ?>><?= ucfirst($st); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-link">Update</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Submitted</div>
+                            <div class="stat-value"><?= (int)$stats['submitted']; ?></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Pending</div>
+                            <div class="stat-value"><?= (int)$stats['pending']; ?></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Sheets</div>
+                            <div class="stat-value"><?= (int)$stats['total']; ?></div>
+                        </div>
+                    </div>
 
-        <section class="tab-pane" id="tab-template">
-            <form method="get" class="card" style="padding:1rem; margin-bottom:1rem;">
-                <h3>Manage Template</h3>
-                <div style="max-width:300px;">
-                    <label>Select Section</label>
-                    <select name="template_section_id" class="form-control" onchange="this.form.submit()">
-                        <?php foreach ($templateSections as $sec): ?>
-                            <option value="<?= (int)$sec['id']; ?>" <?= $templateSectionId === (int)$sec['id'] ? 'selected' : ''; ?>>
-                                <?= htmlspecialchars($sec['section_name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </form>
-
-            <?php if (!$templateSectionId): ?>
-                <p>No sections available.</p>
-            <?php else: ?>
-                <div class="card">
-                    <div class="card-body">
-                        <h3>Default Grading Sheet</h3>
-                        <?php if (!$templateComponents): ?>
-                            <p>No grading template configured for this section.</p>
-                        <?php else: ?>
-                            <table class="template-table">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-section-header">
+                                <h3>Grading Sheets</h3>
+                            </div>
+                            <table class="table table-striped table-bordered">
                                 <thead>
                                 <tr>
-                                    <th class="template-head">Student ID</th>
-                                    <th class="template-head">Student Name</th>
-                                    <?php foreach ($templateComponents as $component): ?>
-                                        <?php $items = $templateItems[$component['id']] ?? []; ?>
-                                        <th class="template-head" colspan="<?= max(count($items), 1); ?>">
-                                            <?= htmlspecialchars($component['name']); ?>
-                                            <br><small><?= (float)$component['weight']; ?>%</small>
-                                        </th>
-                                    <?php endforeach; ?>
-                                </tr>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <?php foreach ($templateComponents as $component): ?>
-                                        <?php $items = $templateItems[$component['id']] ?? []; ?>
-                                        <?php if (!$items): ?>
-                                            <th>Score</th>
-                                        <?php else: foreach ($items as $item): ?>
-                                            <th><?= htmlspecialchars($item['title']); ?><br><small><?= (float)$item['total_points']; ?> pts</small></th>
-                                        <?php endforeach; endif; ?>
-                                    <?php endforeach; ?>
+                                    <th>#</th>
+                                    <th>Section</th>
+                                    <th>Subject</th>
+                                    <th>Professor</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <?php if (!$templateStudents): ?>
-                                    <tr><td colspan="20">No students assigned yet.</td></tr>
-                                <?php else: foreach ($templateStudents as $student): ?>
+                                <?php if (!$gradingSheets): ?>
+                                    <tr><td colspan="8">No grading sheets found.</td></tr>
+                                <?php else: foreach ($gradingSheets as $row): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($student['student_id']); ?></td>
-                                        <td><?= htmlspecialchars($student['last_name'] . ', ' . $student['first_name']); ?></td>
-                                        <?php foreach ($templateComponents as $component): ?>
-                                            <?php $items = $templateItems[$component['id']] ?? []; ?>
-                                            <?php if (!$items): ?>
-                                                <td>—</td>
-                                            <?php else: foreach ($items as $item): ?>
-                                                <td>—</td>
-                                            <?php endforeach; endif; ?>
-                                        <?php endforeach; ?>
+                                        <td><?= (int)$row['id']; ?></td>
+                                        <td><?= htmlspecialchars($row['section_name'] ?? '--'); ?></td>
+                                        <td>
+                                            <strong><?= htmlspecialchars($row['subject_code'] ?? 'N/A'); ?></strong><br>
+                                            <small><?= htmlspecialchars($row['subject_title'] ?? '--'); ?></small>
+                                        </td>
+                                        <td><?= htmlspecialchars(trim($row['professor_name'] ?? 'Unassigned')); ?></td>
+                                        <td><?= $row['deadline_at'] ? htmlspecialchars(date('Y-m-d', strtotime($row['deadline_at']))) : '--'; ?></td>
+                                        <td>
+                                            <?php
+                                            $status = $row['status'] ?? 'draft';
+                                            $badgeClass = in_array($status, ['submitted', 'locked'], true) ? 'status-good' : 'status-warn';
+                                            ?>
+                                            <span class="status-badge <?= $badgeClass; ?>"><?= htmlspecialchars(ucfirst($status)); ?></span>
+                                        </td>
+                                        <td><?= $row['submitted_at'] ? htmlspecialchars(date('Y-m-d', strtotime($row['submitted_at']))) : '--'; ?></td>
+                                        <td>
+                                            <form method="post" class="inline-form" action="../includes/gradingsheet_process.php">
+                                                <input type="hidden" name="action" value="change_status">
+                                                <input type="hidden" name="id" value="<?= (int)$row['id']; ?>">
+                                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirectUrl); ?>">
+                                                <select name="status" class="form-control inline-select">
+                                                    <?php foreach (['draft','submitted','locked','reopened'] as $st): ?>
+                                                        <option value="<?= $st; ?>" <?= $status === $st ? 'selected' : ''; ?>><?= ucfirst($st); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <button type="submit" class="btn btn-link">Update</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <?php endforeach; endif; ?>
                                 </tbody>
                             </table>
-                        <?php endif; ?>
-                        <div class="alert alert-info" style="margin-top:1rem;">
-                            Adjust grade components and items from the academic settings to update this template for all assigned professors.
                         </div>
                     </div>
-                </div>
-            <?php endif; ?>
-        </section>
+                </section>
 
-        <section class="tab-pane" id="tab-deadlines">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Submission Deadlines</h3>
-                    <table class="table-like">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Section</th>
-                            <th>Professor</th>
-                            <th>Deadline</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php if (!$deadlineSheets): ?>
-                            <tr><td colspan="6">No grading sheets found.</td></tr>
-                        <?php else: foreach ($deadlineSheets as $sheet): ?>
-                            <tr>
-                                <td><?= (int)$sheet['id']; ?></td>
-                                <td><?= htmlspecialchars($sheet['section_name'] ?? ''); ?></td>
-                                <td><?= htmlspecialchars($sheet['professor_name'] ?? 'Unassigned'); ?></td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="action" value="set_deadline">
-                                        <input type="hidden" name="id" value="<?= (int)$sheet['id']; ?>">
-                                        <input type="date" name="deadline_at" value="<?= $sheet['deadline_at'] ? htmlspecialchars(date('Y-m-d', strtotime($sheet['deadline_at']))) : ''; ?>" class="form-control">
-                                        <button type="submit" class="btn btn-link">Save</button>
-                                    </form>
-                                </td>
-                                <td><?= htmlspecialchars(ucfirst($sheet['status'] ?? 'draft')); ?></td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="action" value="change_status">
-                                        <input type="hidden" name="id" value="<?= (int)$sheet['id']; ?>">
-                                        <select name="status" class="form-control">
-                                            <?php foreach (['draft','submitted','locked','reopened'] as $st): ?>
-                                                <option value="<?= $st; ?>" <?= ($sheet['status'] ?? '') === $st ? 'selected' : ''; ?>><?= ucfirst($st); ?></option>
+                <section class="tab-pane" data-pane="template">
+                    <div class="form-box form-box-inline">
+                        <h3>Manage Template</h3>
+                        <div class="form-group narrow">
+                            <label>Select Section</label>
+                            <select name="template_section_id" class="form-control" onchange="this.form.submit()" form="template-section-form">
+                                <?php foreach ($templateSections as $sec): ?>
+                                    <option value="<?= (int)$sec['id']; ?>" <?= $templateSectionId === (int)$sec['id'] ? 'selected' : ''; ?>>
+                                        <?= htmlspecialchars($sec['section_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <form id="template-section-form" method="get"></form>
+                    </div>
+
+                    <?php if (!$templateSectionId): ?>
+                        <p>No sections available.</p>
+                    <?php else: ?>
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Default Grading Sheet</h3>
+                                <?php if (!$templateComponents): ?>
+                                    <p>No grading template configured for this section.</p>
+                                <?php else: ?>
+                                    <table class="table table-bordered template-table">
+                                        <thead>
+                                        <tr>
+                                            <th class="template-head">Student ID</th>
+                                            <th class="template-head">Student Name</th>
+                                            <?php foreach ($templateComponents as $component): ?>
+                                                <?php $items = $templateItems[$component['id']] ?? []; ?>
+                                                <th class="template-head" colspan="<?= max(count($items), 1); ?>">
+                                                    <?= htmlspecialchars($component['name']); ?>
+                                                    <br><small><?= (float)$component['weight']; ?>%</small>
+                                                </th>
                                             <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-link">Update</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <?php foreach ($templateComponents as $component): ?>
+                                                <?php $items = $templateItems[$component['id']] ?? []; ?>
+                                                <?php if (!$items): ?>
+                                                    <th>Score</th>
+                                                <?php else: foreach ($items as $item): ?>
+                                                    <th><?= htmlspecialchars($item['title']); ?><br><small><?= (float)$item['total_points']; ?> pts</small></th>
+                                                <?php endforeach; endif; ?>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php if (!$templateStudents): ?>
+                                            <tr><td colspan="20">No students assigned yet.</td></tr>
+                                        <?php else: foreach ($templateStudents as $student): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($student['student_id']); ?></td>
+                                                <td><?= htmlspecialchars($student['last_name'] . ', ' . $student['first_name']); ?></td>
+                                                <?php foreach ($templateComponents as $component): ?>
+                                                    <?php $items = $templateItems[$component['id']] ?? []; ?>
+                                                    <?php if (!$items): ?>
+                                                        <td>--</td>
+                                                    <?php else: foreach ($items as $item): ?>
+                                                        <td>--</td>
+                                                    <?php endforeach; endif; ?>
+                                                <?php endforeach; ?>
+                                            </tr>
+                                        <?php endforeach; endif; ?>
+                                        </tbody>
+                                    </table>
+                                <?php endif; ?>
+                                <div class="alert alert-info info-note">
+                                    Adjust grade components and items from the academic settings to update this template for all assigned professors.
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </section>
+
+                <section class="tab-pane" data-pane="deadlines">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Submission Deadlines</h3>
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Section</th>
+                                    <th>Professor</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php if (!$deadlineSheets): ?>
+                                    <tr><td colspan="6">No grading sheets found.</td></tr>
+                                <?php else: foreach ($deadlineSheets as $sheet): ?>
+                                    <tr>
+                                        <td><?= (int)$sheet['id']; ?></td>
+                                        <td><?= htmlspecialchars($sheet['section_name'] ?? '--'); ?></td>
+                                        <td><?= htmlspecialchars($sheet['professor_name'] ?? 'Unassigned'); ?></td>
+                                        <td>
+                                            <form method="post" class="inline-form" action="../includes/gradingsheet_process.php">
+                                                <input type="hidden" name="action" value="set_deadline">
+                                                <input type="hidden" name="id" value="<?= (int)$sheet['id']; ?>">
+                                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirectUrl); ?>">
+                                                <input type="date" name="deadline_at" value="<?= $sheet['deadline_at'] ? htmlspecialchars(date('Y-m-d', strtotime($sheet['deadline_at']))) : ''; ?>" class="form-control inline-select">
+                                                <button type="submit" class="btn btn-link">Save</button>
+                                            </form>
+                                        </td>
+                                        <td><?= htmlspecialchars(ucfirst($sheet['status'] ?? 'draft')); ?></td>
+                                        <td>
+                                            <form method="post" class="inline-form" action="../includes/gradingsheet_process.php">
+                                                <input type="hidden" name="action" value="change_status">
+                                                <input type="hidden" name="id" value="<?= (int)$sheet['id']; ?>">
+                                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirectUrl); ?>">
+                                                <select name="status" class="form-control inline-select">
+                                                    <?php foreach (['draft','submitted','locked','reopened'] as $st): ?>
+                                                        <option value="<?= $st; ?>" <?= ($sheet['status'] ?? '') === $st ? 'selected' : ''; ?>><?= ucfirst($st); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <button type="submit" class="btn btn-link">Update</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </section>
+        </div>
     </main>
 </div>
 <script>
-    document.querySelectorAll('.tab-trigger').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-            btn.classList.add('active');
-            const target = document.getElementById('tab-' + btn.dataset.tab);
-            if (target) target.classList.add('active');
-        });
-    });
+    (function(){
+        function activateTab(which) {
+            document.querySelectorAll('#grading-tabs .tab-link').forEach(function(btn){
+                btn.classList.toggle('active', btn.dataset.tab === which);
+            });
+            document.querySelectorAll('#grading-tabs .tab-pane').forEach(function(pane){
+                pane.classList.toggle('active', pane.dataset.pane === which);
+            });
+        }
+
+        function init() {
+            document.querySelectorAll('#grading-tabs .tab-link').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    activateTab(btn.dataset.tab);
+                });
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
 </script>
+<script src="../assets/js/admin.js"></script>
 </body>
 </html>
