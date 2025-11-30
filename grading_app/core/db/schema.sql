@@ -450,3 +450,36 @@ ALTER TABLE grading_sheets
   ADD CONSTRAINT fk_grading_sheets_section_subject
     FOREIGN KEY (section_subject_id) REFERENCES section_subjects(id) ON DELETE CASCADE,
   ADD UNIQUE KEY uq_grading_sheets_section_subject (section_subject_id);
+
+
+--
+--
+--
+-- --------added by bethel on november 30 at 4:12pm: add cancelled status in document requests-------------
+--
+-- 
+ALTER TABLE document_requests
+MODIFY COLUMN status ENUM('pending','scheduled','ready','released','cancelled') DEFAULT 'pending';
+
+-- notifications table
+CREATE TABLE notifications (
+  id int(11) NOT NULL,
+  user_id int(11) NOT NULL, 
+  type varchar(50) DEFAULT NULL,
+  message text NOT NULL,
+  is_read tinyint(1) NOT NULL DEFAULT 0,
+  created_at datetime DEFAULT current_timestamp(), 
+  read_at datetime DEFAULT NULL     
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE notifications
+  ADD PRIMARY KEY (id),
+  ADD KEY user_id (user_id),
+  ADD KEY idx_notifications_user_unread (user_id,is_read);
+
+ALTER TABLE notifications
+  MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE notifications
+  ADD CONSTRAINT fk_notifications_user
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;
