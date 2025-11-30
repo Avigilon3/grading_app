@@ -16,12 +16,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $status = $_POST['status'] ?? '';
       $scheduled_at = trim($_POST['scheduled_at'] ?? '');
       $released_at  = trim($_POST['released_at'] ?? '');
-      $allowed = ['pending','scheduled','ready','released','completed'];
+      $allowed = ['pending','scheduled','ready','released'];
       if (!$id || !in_array($status, $allowed, true)) {
         throw new Exception('Invalid document request update.');
       }
+
       $stmt = $pdo->prepare('UPDATE document_requests SET status=?, scheduled_at=?, released_at=? WHERE id=?');
       $stmt->execute([$status, ($scheduled_at ?: null), ($released_at ?: null), $id]);
+
+      // When a pickup schedule is set, create a notification for the student.
+      if ($status === 'scheduled' && $scheduled_at !== '') {
+        try {
+          $docStmt = $pdo->prepare('SELECT student_id, type FROM document_requests WHERE id = ? LIMIT 1');
+          $docStmt->execute([$id]);
+          $doc = $docStmt->fetch(PDO::FETCH_ASSOC);
+
+          if ($doc && !empty($doc['student_id'])) {
+            $studentId = (int)$doc['student_id'];
+            $userStmt = $pdo->prepare('SELECT user_id FROM students WHERE id = ? LIMIT 1');
+            $userStmt->execute([$studentId]);
+            $userId = (int)$userStmt->fetchColumn();
+
+            if ($userId > 0) {
+              $docType = $doc['type'] ?? 'report';
+              if ($docType === 'certificate') {
+                $message = 'Your request for a Certification of Grades has been scheduled for pick-up.';
+              } else {
+                $message = 'Your request for a hard copy of your Report of Grades has been scheduled for pick-up.';
+              }
+
+              $notifStmt = $pdo->prepare(
+                'INSERT INTO notifications (user_id, type, message, is_read) VALUES (?, ?, ?, 0)'
+              );
+              $notifStmt->execute([$userId, 'pickup_schedule', $message]);
+            }
+          }
+        } catch (Throwable $e) {
+          // Notification failures should not block the update.
+        }
+      }
+
       add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'UPDATE_DOC_REQUEST', 'Updated document request id: '.$id.' -> '.$status);
       $msg = 'Document request updated.';
     }
@@ -44,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Load requests
 $docRequests = $pdo->query(
-  "SELECT dr.id, dr.type, dr.purpose, dr.status, dr.scheduled_at, dr.released_at,
-          COALESCE(dr.scheduled_at, dr.released_at) AS request_date,
+  "SELECT dr.id, dr.type, dr.purpose, dr.status, dr.created_at, dr.scheduled_at, dr.released_at,
+          dr.created_at AS request_date,
           s.student_id, s.first_name, s.middle_name, s.last_name, s.year_level
      FROM document_requests dr
 LEFT JOIN students s ON s.id = dr.student_id
@@ -107,47 +141,6 @@ foreach ($editRequests as $r) {
     <meta charset="utf-8">
     <title>Requests</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
-    <style>
-      :root {
-        --accent: #4b7250;
-        --warn: #c06500;
-        --blue: #1d4ed8;
-        --green: #15803d;
-        --border: #e5e7eb;
-        --panel: #ffffff;
-        --muted: #4b5563;
-      }
-      .requests-hero { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-      .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px; }
-      .stat-card { background: #fff7e6; border: 1px solid #f5deb5; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
-      .stat-card.blue { background: #eef4ff; border-color: #d8e4ff; }
-      .stat-card.red { background: #ffecec; border-color: #f8c7c7; }
-      .stat-value { font-size: 28px; font-weight: 700; color: #111827; }
-      .tabs { display: flex; gap: 12px; margin: 14px 0 6px; }
-      .tab-btn { background: none; border: none; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; color: #1f2937; }
-      .tab-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
-      .filters-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin: 12px 0; }
-      .search-box { position: relative; }
-      .search-box input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
-      .status-filter { min-width: 160px; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
-      .requests-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-      .requests-table th, .requests-table td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; font-size: 14px; }
-      .requests-table thead th { background: #f8fafc; font-weight: 700; }
-      .status-chip { font-weight: 700; }
-      .status-chip.pending { color: #dc2626; }
-      .status-chip.scheduled { color: var(--blue); }
-      .status-chip.ready { color: var(--green); }
-      .status-chip.released { color: #0f5132; }
-      .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-      .btn-pill { padding: 8px 12px; border-radius: 10px; border: 1px solid transparent; font-weight: 700; cursor: pointer; }
-      .btn-pill.primary { background: var(--accent); color: #fff; }
-      .btn-pill.ghost { background: #fff; border-color: var(--accent); color: var(--accent); }
-      .btn-pill.neutral { background: #fff; border-color: #d1d5db; color: #111827; }
-      .table-card { border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--panel); box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
-      @media (max-width: 900px) {
-        .controls-row, .filters-row { grid-template-columns: 1fr; }
-      }
-    </style>
   </head>
   <body>
     <?php include '../includes/header.php'; ?>
@@ -187,10 +180,10 @@ foreach ($editRequests as $r) {
           </div>
         </div>
 
-        <div class="table-card">
+        <div class="table-card" id="request-tabs">
           <div class="tabs">
-            <button class="tab-btn active" data-tab="student">Student Document Requests</button>
-            <button class="tab-btn" data-tab="prof">Professor Re-opening Requests</button>
+            <button type="button" class="tab-link active" data-tab="student">Student Document Requests</button>
+            <button type="button" class="tab-link" data-tab="prof">Professor Re-opening Requests</button>
           </div>
 
           <form class="filters-row" method="get" action="">
@@ -199,7 +192,7 @@ foreach ($editRequests as $r) {
             </div>
             <div>
               <select class="status-filter" name="status" onchange="this.form.submit()">
-                <?php foreach (['all' => 'All', 'pending' => 'Pending', 'scheduled' => 'Scheduled', 'ready' => 'Ready', 'released' => 'Released', 'completed' => 'Completed'] as $val => $label): ?>
+                <?php foreach (['all' => 'All', 'pending' => 'Pending', 'scheduled' => 'Scheduled', 'ready' => 'Ready', 'released' => 'Released'] as $val => $label): ?>
                   <option value="<?= $val; ?>" <?= $statusFilter === $val ? 'selected' : ''; ?>><?= $label; ?></option>
                 <?php endforeach; ?>
               </select>
@@ -217,13 +210,15 @@ foreach ($editRequests as $r) {
                   <th>Course/Year</th>
                   <th>Document Type</th>
                   <th>Request Date</th>
+                  <th>Pickup Schedule</th>
+                  <th>Released Date</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <?php if (!$docFiltered): ?>
-                  <tr><td colspan="8">No document requests.</td></tr>
+                  <tr><td colspan="10">No document requests.</td></tr>
                 <?php else: foreach ($docFiltered as $r): ?>
                   <?php
                     $fullName = trim(($r['last_name'] ?? '').', '.($r['first_name'] ?? '').' '.($r['middle_name'] ?? ''));
@@ -238,9 +233,11 @@ foreach ($editRequests as $r) {
                     <td><?= 'REQ-STU-'.str_pad((string)$r['id'], 3, '0', STR_PAD_LEFT); ?></td>
                     <td><?= htmlspecialchars($r['student_id'] ?? ''); ?></td>
                     <td><?= htmlspecialchars($fullName ?: ''); ?></td>
-                  <td><?= htmlspecialchars($courseYear ?: ''); ?></td>
+                    <td><?= htmlspecialchars($courseYear ?: ''); ?></td>
                     <td><?= htmlspecialchars($r['type']); ?></td>
                     <td><?= htmlspecialchars($requestDate); ?></td>
+                    <td><?= htmlspecialchars(!empty($r['scheduled_at']) ? date('Y-m-d', strtotime($r['scheduled_at'])) : '--'); ?></td>
+                    <td><?= htmlspecialchars(!empty($r['released_at']) ? date('Y-m-d', strtotime($r['released_at'])) : '--'); ?></td>
                     <td><span class="status-chip <?= $statusClass; ?>"><?= ucfirst($r['status']); ?></span></td>
                     <td class="actions">
                       <div class="action-buttons">
@@ -249,22 +246,21 @@ foreach ($editRequests as $r) {
                             <input type="hidden" name="action" value="docreq_update">
                             <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
                             <input type="hidden" name="status" value="scheduled">
-                            <input type="hidden" name="scheduled_at" value="">
+                            <input type="date" name="scheduled_at" required>
                             <input type="hidden" name="released_at" value="">
                             <button type="submit" class="btn-pill primary">Set Pickup</button>
                           </form>
                         <?php elseif ($r['status'] === 'scheduled' || $r['status'] === 'ready'): ?>
-                          <span class="btn-pill neutral">View Schedule</span>
                           <form method="post">
                             <input type="hidden" name="action" value="docreq_update">
                             <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
-                            <input type="hidden" name="status" value="completed">
+                            <input type="hidden" name="status" value="released">
                             <input type="hidden" name="scheduled_at" value="<?= $r['scheduled_at'] ? htmlspecialchars($r['scheduled_at']) : ''; ?>">
                             <input type="hidden" name="released_at" value="<?= htmlspecialchars(date('Y-m-d\TH:i')); ?>">
                             <button type="submit" class="btn-pill primary" style="background:#16a34a;border-color:#16a34a;">Complete</button>
                           </form>
                         <?php else: ?>
-                          <span class="btn-pill neutral">View Details</span>
+                          <!-- <span class="btn-pill neutral">View Details</span> -->
                         <?php endif; ?>
                       </div>
                     </td>
@@ -320,9 +316,9 @@ foreach ($editRequests as $r) {
         </div>
 
         <script>
-          document.querySelectorAll('.tab-btn').forEach(function(btn) {
+          document.querySelectorAll('#request-tabs .tab-link').forEach(function(btn) {
             btn.addEventListener('click', function() {
-              document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+              document.querySelectorAll('#request-tabs .tab-link').forEach(function(b){ b.classList.remove('active'); });
               document.querySelectorAll('.tab-pane').forEach(function(p){ p.style.display = 'none'; });
               btn.classList.add('active');
               var tab = btn.dataset.tab;

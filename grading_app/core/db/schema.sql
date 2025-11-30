@@ -483,3 +483,10 @@ ALTER TABLE notifications
 ALTER TABLE notifications
   ADD CONSTRAINT fk_notifications_user
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;
+
+UPDATE users
+SET first_name='Carlo'
+WHERE id = 3;
+
+ALTER TABLE document_requests
+  ADD COLUMN created_at DATETIME NULL AFTER status;

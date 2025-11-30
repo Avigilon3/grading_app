@@ -58,12 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $purpose = $purposeParts ? implode(' | ', $purposeParts) : null;
 
-            $insert = $pdo->prepare('INSERT INTO document_requests (student_id, type, purpose, status) VALUES (:sid, :type, :purpose, :status)');
+            $insert = $pdo->prepare('INSERT INTO document_requests (student_id, type, purpose, status, created_at) VALUES (:sid, :type, :purpose, :status, :created_at)');
             $insert->execute([
                 ':sid' => $studentId,
                 ':type' => $requestType,
                 ':purpose' => $purpose,
                 ':status' => 'pending',
+                ':created_at' => date('Y-m-d H:i:s'),
             ]);
             header('Location: requests.php?submitted=1');
             exit;
