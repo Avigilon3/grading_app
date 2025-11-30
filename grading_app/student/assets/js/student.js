@@ -70,10 +70,28 @@
 		});
 	}
 
+  function displayTodayDate() {
+    const today = new Date(); 
+    const formattedDate = today.toLocaleDateString('en-US',{
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const topDateElement =document.getElementById('reportDateTop');
+    const bottomDateElement =document.getElementById('generationDate');
+
+    if (topDateElement) {
+      topDateElement.textContent = formattedDate;
+    }
+    if (bottomDateElement) {
+      bottomDateElement.textContent = formattedDate;
+    }
+  }
 	function init() {
 		highlightNav();
 		wireLogoutConfirm();
 		initUserDropdowns();
+    displayTodayDate();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
 		// tryFetchCounts();
 
