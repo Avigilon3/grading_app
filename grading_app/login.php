@@ -72,24 +72,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Online Grading System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-green: #145a32;
+            --primary-yellow: #FFD700;
             --hero-green: #0e5130;
             --accent-blue: #1bb8d1;
             --highlight-yellow: #ffd43b;
             --border-muted: #dfe6eb;
             --text-dark: #162125;
             --text-muted: #5f6b74;
+            --text-base: #F9F9F9;
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: 'Poppins', Arial, sans-serif;
+            font-family: 'Arimo', Arial, sans-serif;
             background: #f0f3f6;
             color: var(--text-dark);
         }
@@ -101,8 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .hero {
             position: relative;
             padding: 56px 16px 90px;
-            background: linear-gradient(115deg, rgba(10, 84, 58, 0.96), rgba(6, 94, 83, 0.82)),
-                url('admin/assets/images/ptc.jpg') center/cover no-repeat;
+            backdrop-filter: blur(3px);
+            background: 
+            linear-gradient(120deg, rgba(6, 64, 42, 0.92), rgba(6, 98, 80, 0.7)),
+            linear-gradient(180deg, rgba(0, 56, 32, 0.75), rgba(10, 104, 72, 0.65)),
+                url('admin/assets/images/background.jpg') center/cover no-repeat;
+            mix-blend-mode: multiply;
+            
             color: #fff;
             text-align: center;
         }
@@ -113,10 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             right: 0;
             bottom: 0;
             height: 18px;
-            background:
-                linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.18)),
-                linear-gradient(90deg, #ffd43b 0%, #f9c440 60%, #ffd43b 100%);
-            border-top: 4px solid var(--accent-blue);
+            width: 100%;
+            height: 27px;
+            background: linear-gradient(180deg, #FFD700 25.96%, #998100 99.98%, #A08700 99.99%);
+            align-items: bottom;
+
+
         }
         .hero-inner {
             position: relative;
@@ -125,32 +132,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0 auto;
         }
         .hero-logo {
-            width: 105px;
+            /* width: 105px;
             height: 105px;
             object-fit: contain;
             margin-bottom: 12px;
-            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35)); */
+            width: 110px;
+            height: 110px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            aspect-ratio: 54/55;
+            border: 10px solid rgba(255, 255, 255, 0.20);
+            border-radius: 50%;
         }
         .hero h1 {
-            text-transform: uppercase;
+            /* text-transform: uppercase;
             letter-spacing: 2.5px;
             font-size: clamp(1.3rem, 4vw, 1.8rem);
-            margin: 0;
+            margin: 0; */
+            color: var(--text-base);
+            text-align: center;
+            font-family: Bayon;
+            font-size: 35px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 35px;
         }
         .hero h2 {
-            margin: 12px 0 0;
-            font-size: clamp(2rem, 4.8vw, 3rem);
-            color: var(--highlight-yellow);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            text-align: center;
+            color: var(--primary-yellow);
+            margin: 0;
+            text-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
         }
         .hero p {
-            margin: 8px 0 0;
-            color: rgba(255, 255, 255, 0.85);
+          color: var(--text-base);
+          font-family: Arimo;
+          font-size: 18px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 28px;
         }
         .auth-area {
             flex: 1;
             background:
-                linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.98)),
-                url('admin/assets/images/background4.jpg') center/cover fixed;
+              linear-gradient(180deg, rgba(255, 255, 255, 0.47) 0%, rgba(255, 255, 255, 0.95) 50.96%),
+              url('admin/assets/images/ptcfront.png') center/cover no-repeat;
             padding: 48px 16px 56px;
             display: flex;
             justify-content: center;
@@ -291,7 +322,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <section class="hero">
             <div class="hero-inner">
                 <img src="admin/assets/images/logo-ptc.png" alt="PTC Logo" class="hero-logo">
-                <p class="hero-kicker">Pateros Technological College</p>
                 <h1>PATEROS TECHNOLOGICAL COLLEGE</h1>
                 <p>Gearing the way to your future!</p>
                 <h2>Online Grading System</h2>

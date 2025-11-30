@@ -5,5 +5,8 @@
 
 3. Student portal - the rog should be only generated once the grading sheet was past the deadline set 
 
-
 4. No option to edit name under users table once the user registered (prof and student) 
+
+5. No decline option for the admins in the document requests from students -- they need to pick schedule or just ignore the request completely 
+
+ 
