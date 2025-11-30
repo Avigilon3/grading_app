@@ -76,6 +76,11 @@ WHERE s.is_active = 1
 ORDER BY s.section_name;
 
 
-
+--get all the subjects related to the student user 
+SELECT 
+	s.subject_title,
+	CONCAT(p.first_name,' ',p.last_name) AS "Professor Name"
+FROM subjects s
+JOIN professors p
 
 

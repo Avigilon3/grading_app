@@ -3,3 +3,6 @@
 
 2. confirmation of assignment ng prof sa section - create selection if more than 1 prof is teaching for that section 
 
+3. Student portal - the rog should be only generated once the grading sheet was past the deadline set 
+
+

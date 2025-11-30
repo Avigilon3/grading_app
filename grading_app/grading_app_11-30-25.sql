@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2025 at 04:59 PM
+-- Generation Time: Nov 30, 2025 at 09:57 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -130,7 +130,12 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `create
 (87, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0011', '::1', '2025-11-22 14:45:33'),
 (88, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0010', '::1', '2025-11-22 14:45:35'),
 (89, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0006', '::1', '2025-11-22 14:45:38'),
-(90, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0001', '::1', '2025-11-22 14:45:42');
+(90, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0001', '::1', '2025-11-22 14:45:42'),
+(91, 1, 'SET_DEADLINE', 'Grading sheet #7 deadline updated.', '::1', '2025-11-23 09:14:33'),
+(92, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 1 -> scheduled', '::1', '2025-11-23 10:26:53'),
+(93, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 1 -> completed', '::1', '2025-11-30 06:47:46'),
+(94, 1, 'UPDATE_TERM', 'Updated term: 2nd Semester 2025-2026', '::1', '2025-11-30 06:48:48'),
+(95, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 4 -> scheduled', '::1', '2025-11-30 08:16:07');
 
 -- --------------------------------------------------------
 
@@ -167,10 +172,18 @@ CREATE TABLE `document_requests` (
   `student_id` int(11) NOT NULL,
   `type` enum('report','certificate') NOT NULL,
   `purpose` varchar(190) DEFAULT NULL,
-  `status` enum('pending','scheduled','ready','released') DEFAULT 'pending',
+  `status` enum('pending','scheduled','ready','released','cancelled') DEFAULT 'pending',
   `scheduled_at` datetime DEFAULT NULL,
   `released_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `document_requests`
+--
+
+INSERT INTO `document_requests` (`id`, `student_id`, `type`, `purpose`, `status`, `scheduled_at`, `released_at`) VALUES
+(3, 7, 'report', 'Year Level: 2nd Year | Semester: 1st Semester', 'cancelled', NULL, NULL),
+(4, 7, 'report', 'Year Level: 2nd Year | Semester: 1st Semester', 'scheduled', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -263,7 +276,23 @@ INSERT INTO `grading_sheets` (`id`, `section_subject_id`, `section_id`, `profess
 (4, 6, 11, 20, 'draft', NULL, NULL),
 (5, 5, 11, 19, 'draft', NULL, NULL),
 (6, 1, 11, 15, 'draft', NULL, NULL),
-(7, 10, 11, 1, 'draft', NULL, NULL);
+(7, 10, 11, 1, 'draft', '2025-12-30 00:00:00', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `type` varchar(50) DEFAULT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `read_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -490,7 +519,7 @@ INSERT INTO `terms` (`id`, `semester`, `term_name`, `school_year`, `start_date`,
 (2, '1', '1st Semester 2025-2026', '2025-2026', '2026-01-10', '2026-05-15', 1, '2025-11-02 15:47:11', '2025-11-08 22:08:10'),
 (4, '1', '1st Semester 2021-2022', '2021-2022', '2025-11-02', '2025-11-03', 0, '2025-11-02 16:36:38', '2025-11-08 22:08:10'),
 (5, '1', '1st Semester 2024-2025', '2024-2025', '2024-08-04', '2024-12-08', 0, '2025-11-02 16:46:07', '2025-11-08 22:08:10'),
-(6, '2', '2nd Semester 2025-2026', '2025-2026', '2026-01-01', '2026-05-31', 1, '2025-11-17 20:33:17', '2025-11-17 20:33:17');
+(6, '2', '2nd Semester 2025-2026', '2025-2026', '2026-01-01', '2026-05-31', 0, '2025-11-17 20:33:17', '2025-11-30 14:48:48');
 
 -- --------------------------------------------------------
 
@@ -583,6 +612,14 @@ ALTER TABLE `grading_sheets`
   ADD KEY `professor_id` (`professor_id`);
 
 --
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `idx_notifications_user_unread` (`user_id`,`is_read`);
+
+--
 -- Indexes for table `professors`
 --
 ALTER TABLE `professors`
@@ -657,7 +694,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -669,7 +706,7 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `document_requests`
 --
 ALTER TABLE `document_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `edit_requests`
@@ -700,6 +737,12 @@ ALTER TABLE `grade_items`
 --
 ALTER TABLE `grading_sheets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `professors`
@@ -798,6 +841,12 @@ ALTER TABLE `grading_sheets`
   ADD CONSTRAINT `fk_grading_sheets_section_subject` FOREIGN KEY (`section_subject_id`) REFERENCES `section_subjects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `grading_sheets_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `grading_sheets_ibfk_2` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `professors`
