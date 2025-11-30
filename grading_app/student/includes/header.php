@@ -1,4 +1,64 @@
-<?php  ?>
+<?php
+if (!function_exists('student_time_ago')) {
+    function student_time_ago(?string $datetime): string
+    {
+        if (!$datetime) {
+            return '';
+        }
+        try {
+            $ts = strtotime($datetime);
+            if (!$ts) {
+                return '';
+            }
+            $diff = time() - $ts;
+            if ($diff < 60) {
+                return 'Just now';
+            }
+            $mins = floor($diff / 60);
+            if ($mins < 60) {
+                return $mins . ' minute' . ($mins === 1 ? '' : 's') . ' ago';
+            }
+            $hours = floor($mins / 60);
+            if ($hours < 24) {
+                return $hours . ' hour' . ($hours === 1 ? '' : 's') . ' ago';
+            }
+            $days = floor($hours / 24);
+            return $days . ' day' . ($days === 1 ? '' : 's') . ' ago';
+        } catch (Throwable $e) {
+            return '';
+        }
+    }
+}
+
+$studentNotifications = [];
+$studentUnreadCount = 0;
+
+if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
+    $currentUserId = $_SESSION['user']['id'] ?? null;
+    if ($currentUserId) {
+        try {
+            $notifStmt = $pdo->prepare(
+                "SELECT id, type, message, is_read, created_at
+                   FROM notifications
+                  WHERE user_id = :uid
+                  ORDER BY created_at DESC
+                  LIMIT 10"
+            );
+            $notifStmt->execute([':uid' => $currentUserId]);
+            $studentNotifications = $notifStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            foreach ($studentNotifications as $n) {
+                if (isset($n['is_read']) && (int)$n['is_read'] === 0) {
+                    $studentUnreadCount++;
+                }
+            }
+        } catch (Throwable $e) {
+            $studentNotifications = [];
+            $studentUnreadCount = 0;
+        }
+    }
+}
+?>
 <header>
   <div class="left-header">
     <div class="logo">
@@ -8,11 +68,57 @@
   </div>
 
   <div class="right-header">
-    <div class="notifications">
-      <a href="#" class="badge">
+    <div class="notifications" data-notifications-dropdown>
+      <button type="button" class="notif-trigger" data-notif-trigger aria-haspopup="true" aria-expanded="false">
         <span class="material-symbols-rounded">notifications</span>
-      </a>
+        <?php if ($studentUnreadCount > 0): ?>
+          <span class="notif-count"><?php echo (int)$studentUnreadCount; ?></span>
+        <?php endif; ?>
+      </button>
+      <div class="notif-menu" role="menu">
+        <div class="notif-header">
+          <span class="notif-title">
+            <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
+            Notifications
+          </span>
+          <div class="notif-header-right">
+            <?php if ($studentUnreadCount > 0): ?>
+              <span class="notif-total"><?php echo (int)$studentUnreadCount; ?></span>
+            <?php endif; ?>
+            <?php if ($studentUnreadCount > 0): ?>
+              <form method="post" action="../includes/notifications_mark_read.php">
+                <button type="submit" class="notif-mark-all">Mark all as read</button>
+              </form>
+            <?php endif; ?>
+          </div>
+        </div>
+        <div class="notif-list">
+          <?php if (empty($studentNotifications)): ?>
+            <div class="notif-empty">You're all caught up. No new notifications.</div>
+          <?php else: ?>
+            <?php foreach ($studentNotifications as $note): ?>
+              <?php
+                $isUnread = (int)($note['is_read'] ?? 0) === 0;
+                $createdText = student_time_ago($note['created_at'] ?? null);
+              ?>
+              <div class="notif-item<?php echo $isUnread ? ' notif-unread' : ''; ?>">
+                <div class="notif-main">
+                  <p class="notif-message"><?php echo htmlspecialchars($note['message'] ?? ''); ?></p>
+                  <?php if ($createdText !== ''): ?>
+                    <p class="notif-time"><?php echo htmlspecialchars($createdText); ?></p>
+                  <?php endif; ?>
+                </div>
+                <?php if ($isUnread): ?>
+                  <span class="notif-dot" aria-hidden="true"></span>
+                <?php endif; ?>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
     </div>
+
+    
     <div class="user">
       <?php if (isLoggedIn()): ?>
         <div class="user-dropdown" data-user-dropdown>

@@ -77,6 +77,34 @@ try {
 $me = $_SESSION['user'] ?? [];
 $firstName = $me['first_name'] ?? '';
 $lastName  = $me['last_name'] ?? '';
+$email     = $me['email'] ?? '';
+
+try {
+    $uid = (int)($me['id'] ?? 0);
+    if ($uid > 0) {
+        $stmt = $pdo->prepare('SELECT first_name, last_name, email FROM users WHERE id = ? LIMIT 1');
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            if (!empty($row['first_name'])) {
+                $firstName = $row['first_name'];
+            }
+            if (!empty($row['last_name'])) {
+                $lastName = $row['last_name'];
+            }
+            if (!empty($row['email'])) {
+                $email = $row['email'];
+            }
+        }
+    }
+} catch (Exception $e) {
+  
+}
+
+$fullName = trim($firstName . ' ' . $lastName);
+if ($fullName === '') {
+    $fullName = $me['name'] ?? ($email ?: 'Admin');
+}
 ?>
 
 <!doctype html>
@@ -85,6 +113,7 @@ $lastName  = $me['last_name'] ?? '';
     <meta charset="utf-8">
     <title>Settings</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   </head>
   <body>
     <?php include '../includes/header.php'; ?>
@@ -98,7 +127,7 @@ $lastName  = $me['last_name'] ?? '';
           <p class="text-muted">Manage portal preferences and your account.</p>
         </div>
 
-        <div class="row-grid cols-2">
+        <div class="row-grid cols-1">
           <div class="form-box">
             <h3>General</h3>
             <p class="muted">Select the active term used across the portal.</p>
@@ -119,24 +148,29 @@ $lastName  = $me['last_name'] ?? '';
           </div>
 
           <div class="form-box">
-            <h3>Profile</h3>
-            <p class="muted">Update your display information.</p>
-            <form method="post">
-              <input type="hidden" name="action" value="update_profile">
-              <label>First Name</label>
-              <input class="form-control" type="text" name="first_name" value="<?= htmlspecialchars($firstName) ?>">
-              <label>Last Name</label>
-              <input class="form-control" type="text" name="last_name" value="<?= htmlspecialchars($lastName) ?>">
-              <div class="form-actions" style="margin-top:12px">
-                <button type="submit">Update Profile</button>
+            <div class="page-header icon">
+              <span class="material-symbols-rounded">account_circle</span>
+              <h3>Profile Information</h3>
+            </div>
+            <div class="row-grid cols-2">
+              <div>
+                <label>Full Name</label>
+                <input class="form-control" type="text" value="<?= htmlspecialchars($fullName ?: 'Not set'); ?>" readonly>
               </div>
-            </form>
+              <div>
+                <label>Email Address</label>
+                <input class="form-control" type="email" value="<?= htmlspecialchars($email ?: ''); ?>" readonly>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="row-grid cols-1">
           <div class="form-box">
-            <h3>Change Password</h3>
+            <div class="page-header icon">
+              <span class="material-symbols-rounded">settings</span>
+              <h3>Change Password</h3>
+            </div>
             <form method="post">
               <input type="hidden" name="action" value="change_password">
               <label>Current Password</label>
@@ -151,8 +185,8 @@ $lastName  = $me['last_name'] ?? '';
             </form>
           </div>
         </div>
-
       </main>
     </div>
   </body>
+  <script src="../assets/js/admin.js"></script>
 </html>

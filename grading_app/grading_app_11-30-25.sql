@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 30, 2025 at 09:57 AM
+-- Generation Time: Nov 30, 2025 at 12:51 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -135,7 +135,13 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `create
 (92, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 1 -> scheduled', '::1', '2025-11-23 10:26:53'),
 (93, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 1 -> completed', '::1', '2025-11-30 06:47:46'),
 (94, 1, 'UPDATE_TERM', 'Updated term: 2nd Semester 2025-2026', '::1', '2025-11-30 06:48:48'),
-(95, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 4 -> scheduled', '::1', '2025-11-30 08:16:07');
+(95, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 4 -> scheduled', '::1', '2025-11-30 08:16:07'),
+(96, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 5 -> scheduled', '::1', '2025-11-30 09:16:49'),
+(97, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 6 -> scheduled', '::1', '2025-11-30 11:35:23'),
+(98, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 5 -> completed', '::1', '2025-11-30 11:39:47'),
+(99, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 4 -> completed', '::1', '2025-11-30 11:39:48'),
+(100, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 7 -> scheduled', '::1', '2025-11-30 11:49:51'),
+(101, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 7 -> released', '::1', '2025-11-30 11:49:55');
 
 -- --------------------------------------------------------
 
@@ -173,6 +179,7 @@ CREATE TABLE `document_requests` (
   `type` enum('report','certificate') NOT NULL,
   `purpose` varchar(190) DEFAULT NULL,
   `status` enum('pending','scheduled','ready','released','cancelled') DEFAULT 'pending',
+  `created_at` datetime DEFAULT NULL,
   `scheduled_at` datetime DEFAULT NULL,
   `released_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -181,9 +188,9 @@ CREATE TABLE `document_requests` (
 -- Dumping data for table `document_requests`
 --
 
-INSERT INTO `document_requests` (`id`, `student_id`, `type`, `purpose`, `status`, `scheduled_at`, `released_at`) VALUES
-(3, 7, 'report', 'Year Level: 2nd Year | Semester: 1st Semester', 'cancelled', NULL, NULL),
-(4, 7, 'report', 'Year Level: 2nd Year | Semester: 1st Semester', 'scheduled', NULL, NULL);
+INSERT INTO `document_requests` (`id`, `student_id`, `type`, `purpose`, `status`, `created_at`, `scheduled_at`, `released_at`) VALUES
+(6, 7, 'certificate', 'Year Level: 1st Year | Semester: 1st Semester', 'scheduled', '2025-11-30 12:11:48', '2025-12-17 00:00:00', NULL),
+(7, 7, 'certificate', 'Year Level: 3rd Year | Semester: 2nd Semester', 'released', '2025-11-30 12:49:14', '2025-12-04 00:00:00', '2025-11-30 12:49:00');
 
 -- --------------------------------------------------------
 
@@ -293,6 +300,14 @@ CREATE TABLE `notifications` (
   `created_at` datetime DEFAULT current_timestamp(),
   `read_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `is_read`, `created_at`, `read_at`) VALUES
+(1, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 1, '2025-11-30 19:35:23', '2025-11-30 19:49:20'),
+(2, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 0, '2025-11-30 19:49:51', NULL);
 
 -- --------------------------------------------------------
 
@@ -545,7 +560,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `first_name`, `last_name`, `status`, `created_at`) VALUES
 (1, 'jqtumamak@paterostechnologicalcollege.edu.ph', '$2y$10$Y4tMPwhtLW1Hku2iYAFT7uqoW9wToz4pYSRoGnuW1NNt69T0WeB3q', 'admin', 'Jerick', 'Tumamak', 'ACTIVE', '2025-10-27 16:29:29'),
 (2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', 'professor', 'Joshua', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
-(3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', 'student', 'Cris', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
+(3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', 'student', 'Carlo', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
 
 --
 -- Indexes for dumped tables
@@ -694,7 +709,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -706,7 +721,7 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `document_requests`
 --
 ALTER TABLE `document_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `edit_requests`
@@ -742,7 +757,7 @@ ALTER TABLE `grading_sheets`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `professors`
