@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 30, 2025 at 12:51 PM
+-- Generation Time: Dec 06, 2025 at 02:40 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -546,6 +546,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `email` varchar(190) NOT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
+  `verify_code` varchar(50) DEFAULT NULL,
   `role` enum('admin','registrar','professor','student') NOT NULL DEFAULT 'student',
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
@@ -557,10 +558,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `first_name`, `last_name`, `status`, `created_at`) VALUES
-(1, 'jqtumamak@paterostechnologicalcollege.edu.ph', '$2y$10$Y4tMPwhtLW1Hku2iYAFT7uqoW9wToz4pYSRoGnuW1NNt69T0WeB3q', 'admin', 'Jerick', 'Tumamak', 'ACTIVE', '2025-10-27 16:29:29'),
-(2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', 'professor', 'Joshua', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
-(3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', 'student', 'Carlo', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `verify_code`, `role`, `first_name`, `last_name`, `status`, `created_at`) VALUES
+(1, 'jqtumamak@paterostechnologicalcollege.edu.ph', '$2y$10$Y4tMPwhtLW1Hku2iYAFT7uqoW9wToz4pYSRoGnuW1NNt69T0WeB3q', NULL, 'admin', 'Jerick', 'Tumamak', 'ACTIVE', '2025-10-27 16:29:29'),
+(2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', NULL, 'professor', 'Joshua', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
+(3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', NULL, 'student', 'Carlo', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
 
 --
 -- Indexes for dumped tables

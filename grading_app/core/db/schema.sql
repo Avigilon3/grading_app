@@ -490,3 +490,13 @@ WHERE id = 3;
 
 ALTER TABLE document_requests
   ADD COLUMN created_at DATETIME NULL AFTER status;
+
+--
+--
+--
+-- --------added by bethel on december 6 at 8:48pm: update database for registration authentication code-------------
+--
+-- 
+
+ALTER TABLE users 
+  ADD COLUMN verify_code VARCHAR(50) NULL AFTER password_hash;

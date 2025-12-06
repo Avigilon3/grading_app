@@ -72,7 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Online Grading System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root {
             --primary-green: #145a32;
@@ -218,12 +219,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #fff;
         }
         .welcome-text h3 {
+            color: #618A61;
             margin: 0;
             font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .welcome-text p {
             margin: 4px 0 18px;
             color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .alert {
             background: #fdecea;
@@ -348,9 +356,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="input-field">
                         <label for="email">Email Address</label>
                         <div class="field-box">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M2 5c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V5zm2 0v.01L12 11l8-5.99V5H4zm16 4.24-7.44 5.57c-.98.73-2.14.73-3.12 0L2 9.24V19h18V9.24z" />
-                            </svg>
+                            <span class="material-symbols-rounded">mail</span>
                             <input type="email" id="email" name="email" placeholder="you@paterostechnologicalcollege.edu.ph" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
                         </div>
                     </div>
@@ -358,13 +364,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="input-field">
                         <label for="password">Password</label>
                         <div class="field-box">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M17 8V7a5 5 0 10-10 0v1H5v14h14V8h-2zm-8 0V7a3 3 0 016 0v1H9zm3 5c.83 0 1.5.67 1.5 1.5 0 .59-.34 1.1-.84 1.35V18h-1.32v-2.15A1.49 1.49 0 0110.5 14.5c0-.83.67-1.5 1.5-1.5z" />
-                            </svg>
+                          <span class="material-symbols-rounded">lock</span>
                             <input type="password" id="password" name="password" placeholder="••••••••" required>
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M12 5c-5 0-9.27 3.11-11 7 1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-2a3 3 0 100-6 3 3 0 000 6z" />
-                            </svg>
+                          <span class="material-symbols-rounded">visibility</span>
                         </div>
                     </div>
 
