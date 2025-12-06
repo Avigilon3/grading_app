@@ -9,12 +9,20 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   else {
     require_once 'core/db/connection.php';
     // Must already exist from MIS preload
-    $check = $pdo->prepare('SELECT email FROM users WHERE email=? LIMIT 1');
+    $check = $pdo->prepare('SELECT email, first_name, last_name, role FROM users WHERE email=? LIMIT 1');
     $check->execute([$email]);
-    if(!$check->fetch()){
+    $user = $check->fetch(PDO::FETCH_ASSOC);
+    if(!$user){
       $err='No record found for this PTC email. Please contact MIS/Registrar.';
     } else {
-      $_SESSION['pending_reg'] = ['email'=>$email,'password'=>$pass,'code'=>strval(rand(100000,999999))];
+      $_SESSION['pending_reg'] = [
+        'email'=>$email,
+        'password'=>$pass,
+        'code'=>strval(rand(100000,999999)),
+        'first_name'=>$user['first_name'] ?? '',
+        'last_name'=>$user['last_name'] ?? '',
+        'role'=>$user['role'] ?? 'student',
+      ];
       $msg='We sent a verification code to your email. (Demo code: '.$_SESSION['pending_reg']['code'].')';
     }
   }

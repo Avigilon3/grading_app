@@ -7,8 +7,8 @@ $msg = $err = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $role  = trim($_POST['role'] ?? '');
-    $first = trim($_POST['name_first'] ?? '');
-    $last  = trim($_POST['name_last'] ?? '');
+    $first = trim($_POST['first_name'] ?? '');
+    $last  = trim($_POST['last_name'] ?? '');
     $status = strtoupper(trim($_POST['status'] ?? 'ACTIVE'));
 
     if (!$email || !$role) {
@@ -22,14 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($exists) {
                 // Update basic fields; do not overwrite password here
-                $upd = $pdo->prepare('UPDATE users SET role = ?, name_first = ?, name_last = ?, status = ? WHERE id = ?');
+                $upd = $pdo->prepare('UPDATE users SET role = ?, first_name = ?, last_name = ?, status = ? WHERE id = ?');
                 $upd->execute([$role, $first, $last, $status, $exists]);
 
                 add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'UPDATE_USER', 'Updated user '.$email);
                 $msg = 'User updated successfully.';
             } else {
                 // Insert placeholder; password will be set by public verification flow
-                $ins = $pdo->prepare('INSERT INTO users (email, role, name_first, name_last, status) VALUES (?, ?, ?, ?, ?)');
+                $ins = $pdo->prepare('INSERT INTO users (email, role, first_name, last_name, status) VALUES (?, ?, ?, ?, ?)');
                 $ins->execute([$email, $role, $first, $last, $status]);
 
                 add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'ADD_USER', 'Added user '.$email);
@@ -91,11 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="row-grid cols-2">
                 <div class="form-group">
                   <label>First Name</label>
-                  <input type="text" name="name_first" class="form-control">
+                  <input type="text" name="first_name" class="form-control">
                 </div>
                 <div class="form-group">
                   <label>Last Name</label>
-                  <input type="text" name="name_last" class="form-control">
+                  <input type="text" name="last_name" class="form-control">
                 </div>
               </div>
 
