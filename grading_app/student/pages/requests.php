@@ -66,6 +66,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':status' => 'pending',
                 ':created_at' => date('Y-m-d H:i:s'),
             ]);
+
+            try {
+                $studentName = '';
+                $profileStmt = $pdo->prepare(
+                    'SELECT first_name, middle_name, last_name
+                       FROM students
+                      WHERE id = :sid
+                      LIMIT 1'
+                );
+                $profileStmt->execute([':sid' => $studentId]);
+                if ($row = $profileStmt->fetch(PDO::FETCH_ASSOC)) {
+                    $nameParts = [];
+                    foreach (['first_name', 'middle_name', 'last_name'] as $key) {
+                        $value = trim((string)($row[$key] ?? ''));
+                        if ($value !== '') {
+                            $nameParts[] = $value;
+                        }
+                    }
+                    $studentName = $nameParts ? implode(' ', $nameParts) : '';
+                }
+
+                if ($studentName === '' && !empty($_SESSION['user']['name'])) {
+                    $studentName = $_SESSION['user']['name'];
+                } elseif ($studentName === '' && !empty($_SESSION['user']['email'])) {
+                    $studentName = $_SESSION['user']['email'];
+                }
+                if ($studentName === '') {
+                    $studentName = 'A student';
+                }
+
+                // Human-friendly document type label
+                $docLabel = ($requestType === 'certificate')
+                    ? 'Certificate of Grades'
+                    : 'Report of Grades';
+
+                $message = sprintf('%s is requesting for %s', $studentName, $docLabel);
+
+                // Notify all admin-type users
+                $adminStmt = $pdo->query(
+                    "SELECT id
+                       FROM users
+                      WHERE role IN ('admin','registrar','mis','super_admin')
+                        AND status = 'ACTIVE'"
+                );
+                $adminIds = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                if ($adminIds) {
+                    $notifStmt = $pdo->prepare(
+                        'INSERT INTO notifications (user_id, type, message, is_read)
+                         VALUES (:uid, :type, :message, 0)'
+                    );
+                    foreach ($adminIds as $adminUserId) {
+                        $notifStmt->execute([
+                            ':uid' => (int)$adminUserId,
+                            ':type' => 'document_request',
+                            ':message' => $message,
+                        ]);
+                    }
+                }
+            } catch (Throwable $e) {
+            }
+
             header('Location: requests.php?submitted=1');
             exit;
         } else {

@@ -328,7 +328,7 @@ if ($displaySemesterLabel || $displaySchoolYear) {
                   </label>
                 </div>
                 <div class="action-buttons">
-                  <a class="btn solid download-btn" href="#" onclick="window.print(); return false;">
+                  <a class="btn solid download-btn" id="download-jpeg-btn" href="#">
                     <span class="material-symbols-rounded" aria-hidden="true">file_download</span>
                     Download as JPEG
                   </a>
@@ -440,5 +440,85 @@ if ($displaySemesterLabel || $displaySchoolYear) {
         </main>
     </div>
 </body>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  function downloadReportAsJpeg() {
+    var paper = document.querySelector('.report-paper');
+    if (!paper) {
+      window.print();
+      return;
+    }
+
+    if (typeof html2canvas === 'undefined') {
+      window.print();
+      return;
+    }
+
+    html2canvas(paper, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    }).then(function (canvas) {
+      if (!canvas) {
+        window.print();
+        return;
+      }
+
+      if (canvas.toBlob) {
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            triggerDownload(canvas.toDataURL('image/jpeg', 0.95));
+            return;
+          }
+          var url = URL.createObjectURL(blob);
+          triggerDownload(url, true);
+        }, 'image/jpeg', 0.95);
+      } else {
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        triggerDownload(dataUrl);
+      }
+    }).catch(function () {
+      window.print();
+    });
+  }
+
+  function triggerDownload(url, isObjectUrl) {
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = 'report-of-grades.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (isObjectUrl) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (e) {}
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.getElementById('download-jpeg-btn');
+      if (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          downloadReportAsJpeg();
+        });
+      }
+    });
+  } else {
+    var btn = document.getElementById('download-jpeg-btn');
+    if (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        downloadReportAsJpeg();
+      });
+    }
+  }
+})();
+</script>
 <script src="../assets/js/student.js"></script>
 </html>

@@ -99,7 +99,33 @@
 
   }
 
+	function initNotificationDropdowns() {
+		var dropdown = safeQuery('[data-notifications-dropdown]');
+		if (!dropdown) return;
 
+		var trigger = safeQuery('[data-notif-trigger]', dropdown);
+		if (!trigger) return;
+
+		function closeDropdown(event) {
+			if (event && dropdown.contains(event.target)) return;
+			dropdown.classList.remove('open');
+			trigger.setAttribute('aria-expanded', 'false');
+			document.removeEventListener('click', closeDropdown);
+		}
+
+		trigger.addEventListener('click', function (event) {
+			event.stopPropagation();
+			var isOpen = dropdown.classList.toggle('open');
+			trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+			document.removeEventListener('click', closeDropdown);
+			if (isOpen) {
+				setTimeout(function () {
+					document.addEventListener('click', closeDropdown);
+				}, 0);
+			}
+		});
+	}
 
 
 	function init() {
@@ -107,6 +133,7 @@
 		wireLogoutConfirm();
 		initUserDropdowns();
     initSidebarDropdowns();
+		initNotificationDropdowns();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
 		// tryFetchCounts();
 
