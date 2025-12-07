@@ -841,6 +841,24 @@ ALTER TABLE `students`
 ALTER TABLE `subjects`
   ADD CONSTRAINT `fk_subjects_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_subjects_term` FOREIGN KEY (`term_id`) REFERENCES `terms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Email verification support
+ALTER TABLE `users`
+  ADD COLUMN `email_verified_at` DATETIME NULL AFTER `status`;
+
+CREATE TABLE IF NOT EXISTS `user_verification_codes` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `code_hash` varchar(255) NOT NULL,
+  `new_password_hash` varchar(255) DEFAULT NULL,
+  `purpose` varchar(50) NOT NULL,
+  `attempts` int NOT NULL DEFAULT 0,
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_uvc_user_purpose` (`user_id`, `purpose`),
+  CONSTRAINT `fk_uvc_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

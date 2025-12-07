@@ -95,3 +95,7 @@ Developed by Tumamak jerick, San Pascual Phillip  for PROF. JC CODILAN
 
 ---
 ADDED BY BETHEL FOR TESTING Nov 2
+
+## two step verification process from student to teacher 
+ 
+  basta pogi naglagay neto maam

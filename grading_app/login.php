@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email && $pass) {
         require_once 'core/db/connection.php';
 
-        $stmt = $pdo->prepare('SELECT id, email, password_hash, role, first_name, last_name, status FROM users WHERE email = ? LIMIT 1');
+        $stmt = $pdo->prepare('SELECT id, email, password_hash, role, first_name, last_name, status, email_verified_at FROM users WHERE email = ? LIMIT 1');
         $stmt->execute([$email]);
         $u = $stmt->fetch();
 
@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // block inactive accounts
             if (isset($u['status']) && strtoupper($u['status']) !== 'ACTIVE') {
                 $err = 'Your account is inactive.';
+            } elseif ($u['role'] === 'student' && empty($u['email_verified_at'])) {
+                $err = 'Please verify your institutional email before logging in.';
             } else {
                 // unified session for all roles
                 $_SESSION['user'] = [
