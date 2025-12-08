@@ -44,6 +44,10 @@ if (!$sheet) {
     $redirectWithMessage('Selected grading sheet is not available.');
 }
 
+$sheetStatus = $sheet['status'] ?? 'draft';
+$isEditable = in_array($sheetStatus, ['draft', 'reopened'], true);
+$submittedAt = $sheet['submitted_at'] ? new DateTimeImmutable($sheet['submitted_at']) : null;
+
 $sectionId = (int)$sheet['section_id'];
 
 $componentsStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE section_id = ? ORDER BY id');
@@ -108,12 +112,20 @@ if ($studentIds && $componentIds) {
     }
 }
 
-$isLocked = $sheet['status'] === 'locked';
+$isLocked = !$isEditable;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!$isEditable) {
+        set_flash('error', 'This grading sheet is already submitted or locked. Please request a reopen to make changes.');
+        header('Location: ./grading_sheet.php?sheet_id=' . $sheetId);
+        exit;
+    }
+
     $gradesInput = $_POST['grades'] ?? [];
     $action = $_POST['action'] ?? 'save';
-    $newStatus = $action === 'submit' ? 'submitted' : 'draft';
+    $newStatus = $action === 'submit'
+        ? 'submitted'
+        : ($sheetStatus === 'reopened' ? 'reopened' : 'draft');
 
     $insertStmt = $pdo->prepare('INSERT INTO grades (grade_item_id, student_id, score) VALUES (?, ?, ?)');
     $updateStmt = $pdo->prepare('UPDATE grades SET score = ? WHERE id = ?');
@@ -188,7 +200,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
         <?php show_flash(); ?>
 
         <?php if ($isLocked): ?>
-            <div class="alert alert-warning">This grading sheet is locked by the registrar. You can view grades but cannot make changes.</div>
+            <div class="alert alert-warning">
+                <?php if ($sheetStatus === 'submitted'): ?>
+                    This grading sheet was submitted<?= $submittedAt ? ' on ' . htmlspecialchars($submittedAt->format('M j, Y g:i A')) : ''; ?> and can no longer be edited. Submit an edit request if you need changes.
+                <?php else: ?>
+                    This grading sheet is locked by the registrar. You can view grades but cannot make changes.
+                <?php endif; ?>
+            </div>
+        <?php elseif ($sheetStatus === 'reopened'): ?>
+            <div class="alert alert-info">This grading sheet has been reopened. Please make changes and resubmit.</div>
         <?php endif; ?>
 
         <?php if (empty($components) || empty($students) || !$hasGradeItems): ?>
@@ -228,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
                                                 name="grades[<?= (int)$student['id']; ?>][<?= (int)$item['id']; ?>]"
                                                 value="<?= htmlspecialchars($grade); ?>"
                                                 step="0.01"
-                                                <?= $isLocked ? 'readonly' : ''; ?>
+                                                <?= $isEditable ? '' : 'readonly'; ?>
                                             >
                                         </td>
                                     <?php endforeach; ?>
@@ -239,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
                     </table>
                 </div>
 
-                <?php if (!$isLocked): ?>
+                <?php if ($isEditable): ?>
                     <div class="form-actions">
                         <button type="submit" name="action" value="save">Save Draft</button>
                         <button type="submit" name="action" value="submit">Submit</button>
