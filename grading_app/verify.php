@@ -52,16 +52,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Notify admins about the new verified user (non-blocking)
     try {
-        $adminStmt = $pdo->query("SELECT id FROM users WHERE role IN ('admin','super_admin','registrar','mis')");
-        $adminIds = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
+        $adminStmt = $pdo->query("SELECT id, email FROM users WHERE role IN ('admin','super_admin','registrar','mis')");
+        $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
+        $adminIds = array_column($admins, 'id');
         if ($adminIds) {
             $notif = $pdo->prepare('INSERT INTO notifications (user_id, type, message, is_read) VALUES (?, ?, ?, 0)');
-            foreach ($adminIds as $adminId) {
+            foreach ($admins as $admin) {
+                $adminId = $admin['id'];
                 $notif->execute([
                     $adminId,
                     'new_user',
                     'New user registered: ' . $email . ' (' . ucfirst($role) . ')'
                 ]);
+
+                // Optional email alert; ignore failures
+                if (!empty($admin['email'])) {
+                    try {
+                        $subject = 'New user verified';
+                        $body = "A new user just verified their account:\n\nEmail: {$email}\nRole: " . ucfirst($role) . "\n\nYou can review this user in the admin portal.";
+                        @mail($admin['email'], $subject, $body);
+                    } catch (Exception $e) {
+                        // ignore mail failures
+                    }
+                }
             }
         }
     } catch (Exception $e) {
