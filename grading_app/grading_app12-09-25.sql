@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2025 at 11:05 AM
+-- Generation Time: Dec 09, 2025 at 02:21 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -222,8 +222,17 @@ CREATE TABLE `grades` (
   `id` int(11) NOT NULL,
   `grade_item_id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `score` decimal(7,2) NOT NULL
+  `score` int(7) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `grades`
+--
+
+INSERT INTO `grades` (`id`, `grade_item_id`, `student_id`, `score`) VALUES
+(46, 33, 4, 10),
+(47, 33, 5, 10),
+(48, 33, 7, 10);
 
 -- --------------------------------------------------------
 
@@ -258,8 +267,15 @@ CREATE TABLE `grade_items` (
   `id` int(11) NOT NULL,
   `component_id` int(11) NOT NULL,
   `title` varchar(100) NOT NULL,
-  `total_points` decimal(7,2) NOT NULL
+  `total_points` int(7) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `grade_items`
+--
+
+INSERT INTO `grade_items` (`id`, `component_id`, `title`, `total_points`) VALUES
+(33, 18, 'Activity 1', 20);
 
 -- --------------------------------------------------------
 
@@ -738,7 +754,7 @@ ALTER TABLE `edit_requests`
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `grade_components`
@@ -750,7 +766,7 @@ ALTER TABLE `grade_components`
 -- AUTO_INCREMENT for table `grade_items`
 --
 ALTER TABLE `grade_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `grading_sheets`
