@@ -5,8 +5,10 @@
 
 3. Student portal - the rog should be only generated once the grading sheet was past the deadline set 
 
-4. No option to edit name under users table once the user registered (prof and student) 
+4. No option to edit name under users table once the user registered (prof and student) It should be initiated by the Admin, so sa registration siguro email lang need di na need ng name? tapos iinsert ng lang ng database yun from the prof/student table?
 
 5. No decline option for the admins in the document requests from students -- they need to pick schedule or just ignore the request completely 
+
+6. 
 
  

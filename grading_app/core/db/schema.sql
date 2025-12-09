@@ -524,3 +524,10 @@ VALUES
   (7, 'Exam', 40.00),
   (7, 'Quizzes', 10.00),
   (7, 'Attendance', 10.00);
+
+
+ALTER TABLE grades
+  MODIFY COLUMN score INT(7) UNSIGNED NOT NULL;
+
+ALTER TABLE grade_items
+  MODIFY COLUMN total_points INT(7) UNSIGNED NOT NULL;
