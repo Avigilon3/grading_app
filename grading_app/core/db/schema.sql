@@ -500,3 +500,27 @@ ALTER TABLE document_requests
 
 ALTER TABLE users 
   ADD COLUMN verify_code VARCHAR(50) NULL AFTER password_hash;
+
+--
+--
+--
+-- --------added by bethel on december 9 at 5:18pm: update database for registration authentication code-------------
+--
+-- 
+
+ALTER TABLE grade_components
+  ADD COLUMN grading_sheet_id INT NOT NULL AFTER id;
+
+DELETE from grade_components; 
+
+ALTER TABLE grade_components
+  ADD CONSTRAINT fk_gc_sheet
+    FOREIGN KEY (grading_sheet_id) REFERENCES grading_sheets(id)
+    ON DELETE CASCADE;
+
+INSERT INTO grade_components (grading_sheet_id, name, weight)
+VALUES
+  (7, 'Activity', 40.00),
+  (7, 'Exam', 40.00),
+  (7, 'Quizzes', 10.00),
+  (7, 'Attendance', 10.00);
