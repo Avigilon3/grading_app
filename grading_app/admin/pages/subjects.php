@@ -2,6 +2,10 @@
 require_once '../includes/init.php';
 requireAdmin();
 
+if (function_exists('syncSubjectStatusesWithTerms')) {
+  syncSubjectStatusesWithTerms($pdo);
+}
+
 $stmt = $pdo->query("SELECT s.*,
                              t.term_name,
                              t.is_active AS term_is_active

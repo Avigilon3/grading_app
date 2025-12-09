@@ -61,7 +61,8 @@ $archived_subjects = [];
 
 foreach ($all_subjects as $subject) {
     $subjectIsActive = isset($subject['subject_is_active']) ? (int)$subject['subject_is_active'] === 1 : true;
-    $termIsActive = isset($subject['term_is_active']) ? (int)$subject['term_is_active'] === 1 : false;
+    $termFlag = $subject['term_is_active'] ?? null;
+    $termIsActive = $termFlag === null ? true : ((int)$termFlag === 1);
 
     if ($subjectIsActive && $termIsActive) {
         $enrolled_subjects[] = $subject;

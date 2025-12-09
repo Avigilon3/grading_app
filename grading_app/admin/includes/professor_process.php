@@ -12,8 +12,7 @@ if (!function_exists('assignProfessorToSubjectSections')) {
         $stmt = $pdo->prepare(
             'UPDATE section_subjects
                 SET professor_id = :professor_id
-              WHERE subject_id = :subject_id
-                AND professor_id IS NULL'
+              WHERE subject_id = :subject_id'
         );
         $stmt->execute([
             ':professor_id' => $professorId,

@@ -35,6 +35,8 @@ try {
 
         $stmt = $pdo->prepare("INSERT INTO terms (semester, term_name, school_year, start_date, end_date, is_active) VALUES (?,?,?,?,?,?)");
         $stmt->execute([$semester, $term_name, $school_year, $start_date ?: null, $end_date ?: null, $is_active]);
+        $newTermId = (int)$pdo->lastInsertId();
+        syncSubjectStatusesWithTerms($pdo, $newTermId);
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'ADD_TERM', 'Added term: ' . $term_name);
@@ -69,6 +71,7 @@ try {
 
         $stmt = $pdo->prepare("UPDATE terms SET semester=?, term_name=?, school_year=?, start_date=?, end_date=?, is_active=? WHERE id=?");
         $stmt->execute([$semester, $term_name, $school_year, $start_date ?: null, $end_date ?: null, $is_active, $id]);
+        syncSubjectStatusesWithTerms($pdo, $id);
 
         $userId = $_SESSION['user']['id'] ?? null;
         add_activity_log($pdo, $userId, 'UPDATE_TERM', 'Updated term: ' . $term_name);
@@ -79,6 +82,8 @@ try {
 
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
+        $subjectReset = $pdo->prepare("UPDATE subjects SET term_id = NULL, is_active = 0 WHERE term_id = ?");
+        $subjectReset->execute([$id]);
         $stmt = $pdo->prepare("DELETE FROM terms WHERE id = ?");
         $stmt->execute([$id]);
 

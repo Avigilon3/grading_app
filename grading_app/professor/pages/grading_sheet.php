@@ -193,21 +193,27 @@ foreach ($students as $student) {
     }
 
     if ($finalGradeDisplayTotal > 0) {
-        $studentSummaries[$studentId]['final_grade_display'] = round($finalGradeDisplayTotal, 2);
+        $studentSummaries[$studentId]['final_grade_display'] = (int)round($finalGradeDisplayTotal);
     }
 
     if ($weightAccumulated > 0) {
-        $finalGrade = round($finalGradeTotal, 2);
+        $finalGrade = (int)round($finalGradeTotal);
         $studentSummaries[$studentId]['final_grade'] = $finalGrade;
     } elseif ($finalGradeDisplayTotal > 0) {
-        $studentSummaries[$studentId]['final_grade'] = round($finalGradeDisplayTotal, 2);
+        $studentSummaries[$studentId]['final_grade'] = (int)round($finalGradeDisplayTotal);
     }
 
     $gradeForEquivalent = $studentSummaries[$studentId]['final_grade_display']
         ?? $studentSummaries[$studentId]['final_grade']
         ?? null;
     if ($gradeForEquivalent !== null) {
-        $studentSummaries[$studentId]['equivalent'] = convertRawGradeToEquivalent($gradeForEquivalent);
+        $equivalentBase = (float)$gradeForEquivalent;
+        if ($equivalentBase < 0) {
+            $equivalentBase = 0;
+        } elseif ($equivalentBase > 100) {
+            $equivalentBase = 100;
+        }
+        $studentSummaries[$studentId]['equivalent'] = convertRawGradeToEquivalent($equivalentBase);
     }
 }
 
@@ -223,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gradesInput = $_POST['grades'] ?? [];
     $action = $_POST['action'] ?? 'save';
     $newStatus = $action === 'submit'
-        ? 'submitted'
+        ? ($sheetStatus === 'reopened' ? 'locked' : 'submitted')
         : ($sheetStatus === 'reopened' ? 'reopened' : 'draft');
 
     $insertStmt = $pdo->prepare('INSERT INTO grades (grade_item_id, student_id, score) VALUES (?, ?, ?)');
@@ -253,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new RuntimeException('Scores must be numeric values.');
                     }
 
-                    $score = (float)$scoreRaw;
+                    $score = (int)round((float)$scoreRaw);
                     if ($existing) {
                         $updateStmt->execute([$score, $existing['id']]);
                     } else {
@@ -391,9 +397,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ?>
                                 <?php if ($componentItems): ?>
                                     <?php foreach ($componentItems as $item): ?>
+                                        <?php $itemPoints = (int)round((float)($item['total_points'] ?? 0)); ?>
                                         <th class="component-item-head">
                                             <span class="item-title"><?= htmlspecialchars($item['title']); ?></span>
-                                            <small><?= htmlspecialchars(number_format((float)$item['total_points'], 2)); ?> pts</small>
+                                            <small><?= htmlspecialchars(number_format($itemPoints, 0)); ?> pts</small>
                                             <?php if ($isEditable): ?>
                                                 <div class="item-actions">
                                                     <button
@@ -405,7 +412,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         data-component-id="<?= $componentId; ?>"
                                                         data-component-name="<?= htmlspecialchars($component['name']); ?>"
                                                         data-title="<?= htmlspecialchars($item['title']); ?>"
-                                                        data-total-points="<?= htmlspecialchars(number_format((float)$item['total_points'], 2, '.', '')); ?>"
+                                                        data-total-points="<?= htmlspecialchars(number_format($itemPoints, 0, '.', '')); ?>"
                                                     ><span class="material-symbols-rounded">edit</span></button>
                                                     <button
                                                         type="button"
@@ -448,13 +455,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <?php foreach ($componentItems as $item): ?>
                                             <?php
                                                 $grade = $gradeMap[$student['id']][$item['id']]['score'] ?? '';
+                                                $gradeDisplay = $grade;
+                                                if ($gradeDisplay !== '' && $gradeDisplay !== null) {
+                                                    $gradeDisplay = (string)(int)round((float)$gradeDisplay);
+                                                }
                                             ?>
                                             <td class="component-cell">
                                                 <input
                                                     type="number"
                                                     name="grades[<?= (int)$student['id']; ?>][<?= (int)$item['id']; ?>]"
-                                                    value="<?= htmlspecialchars($grade); ?>"
-                                                    step="0.01"
+                                                    value="<?= htmlspecialchars($gradeDisplay); ?>"
+                                                    step="1"
+                                                    min="0"
                                                     <?= $isEditable ? '' : 'readonly'; ?>
                                                     class="grade-input"
                                                 >
@@ -481,7 +493,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ?>
                                 <td class="final-grade-column">
                                     <div class="grade-value">
-                                        <?= $finalGradeDisplay !== null ? htmlspecialchars(number_format($finalGradeDisplay, 2)) : '&mdash;'; ?>
+                                        <?= $finalGradeDisplay !== null ? htmlspecialchars(number_format((float)$finalGradeDisplay, 0)) : '&mdash;'; ?>
                                     </div>
                                 </td>
                                 <td class="equivalent-grade-column">
@@ -534,7 +546,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group">
                     <label for="grade-item-points">Total Points</label>
-                    <input type="number" id="grade-item-points" name="total_points" min="0.01" step="0.01" required>
+                    <input type="number" id="grade-item-points" name="total_points" min="1" step="1" required>
                 </div>
                 <div class="grade-item-modal__actions">
                     <button type="button" data-grade-item-cancel>Cancel</button>
