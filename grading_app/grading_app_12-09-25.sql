@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 06, 2025 at 02:40 PM
+-- Generation Time: Dec 09, 2025 at 11:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -141,7 +141,8 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `create
 (98, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 5 -> completed', '::1', '2025-11-30 11:39:47'),
 (99, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 4 -> completed', '::1', '2025-11-30 11:39:48'),
 (100, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 7 -> scheduled', '::1', '2025-11-30 11:49:51'),
-(101, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 7 -> released', '::1', '2025-11-30 11:49:55');
+(101, 1, 'UPDATE_DOC_REQUEST', 'Updated document request id: 7 -> released', '::1', '2025-11-30 11:49:55'),
+(102, 1, 'ADD_STUDENT', 'Added student: 2022-8196', '::1', '2025-12-07 09:37:55');
 
 -- --------------------------------------------------------
 
@@ -190,7 +191,10 @@ CREATE TABLE `document_requests` (
 
 INSERT INTO `document_requests` (`id`, `student_id`, `type`, `purpose`, `status`, `created_at`, `scheduled_at`, `released_at`) VALUES
 (6, 7, 'certificate', 'Year Level: 1st Year | Semester: 1st Semester', 'scheduled', '2025-11-30 12:11:48', '2025-12-17 00:00:00', NULL),
-(7, 7, 'certificate', 'Year Level: 3rd Year | Semester: 2nd Semester', 'released', '2025-11-30 12:49:14', '2025-12-04 00:00:00', '2025-11-30 12:49:00');
+(7, 7, 'certificate', 'Year Level: 3rd Year | Semester: 2nd Semester', 'released', '2025-11-30 12:49:14', '2025-12-04 00:00:00', '2025-11-30 12:49:00'),
+(8, 7, 'report', NULL, 'cancelled', '2025-12-06 14:55:55', NULL, NULL),
+(9, 7, 'report', 'Year Level: 1st Year | Semester: 1st Semester', 'pending', '2025-12-06 15:02:27', NULL, NULL),
+(10, 7, 'certificate', 'Year Level: 4th Year | Semester: 2nd Semester', 'pending', '2025-12-06 15:12:00', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -229,7 +233,7 @@ CREATE TABLE `grades` (
 
 CREATE TABLE `grade_components` (
   `id` int(11) NOT NULL,
-  `section_id` int(11) NOT NULL,
+  `grading_sheet_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `weight` decimal(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -238,12 +242,11 @@ CREATE TABLE `grade_components` (
 -- Dumping data for table `grade_components`
 --
 
-INSERT INTO `grade_components` (`id`, `section_id`, `name`, `weight`) VALUES
-(1, 1, 'Exams', 30.00),
-(2, 1, 'Quizzes', 25.00),
-(3, 1, 'Activities', 20.00),
-(4, 1, 'Recitation', 15.00),
-(5, 1, 'Attendance', 10.00);
+INSERT INTO `grade_components` (`id`, `grading_sheet_id`, `name`, `weight`) VALUES
+(18, 7, 'Activity', 40.00),
+(19, 7, 'Exam', 40.00),
+(20, 7, 'Quizzes', 10.00),
+(21, 7, 'Attendance', 10.00);
 
 -- --------------------------------------------------------
 
@@ -307,7 +310,8 @@ CREATE TABLE `notifications` (
 
 INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `is_read`, `created_at`, `read_at`) VALUES
 (1, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 1, '2025-11-30 19:35:23', '2025-11-30 19:49:20'),
-(2, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 0, '2025-11-30 19:49:51', NULL);
+(2, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 0, '2025-11-30 19:49:51', NULL),
+(3, 1, 'document_request', 'Carlo Guzman Baldemor is requesting for Certificate of Grades', 0, '2025-12-06 22:12:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -609,7 +613,7 @@ ALTER TABLE `grades`
 --
 ALTER TABLE `grade_components`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `section_id` (`section_id`);
+  ADD KEY `fk_gc_sheet` (`grading_sheet_id`);
 
 --
 -- Indexes for table `grade_items`
@@ -710,7 +714,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -722,7 +726,7 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `document_requests`
 --
 ALTER TABLE `document_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `edit_requests`
@@ -740,7 +744,7 @@ ALTER TABLE `grades`
 -- AUTO_INCREMENT for table `grade_components`
 --
 ALTER TABLE `grade_components`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `grade_items`
@@ -758,7 +762,7 @@ ALTER TABLE `grading_sheets`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `professors`
@@ -776,7 +780,7 @@ ALTER TABLE `sections`
 -- AUTO_INCREMENT for table `section_students`
 --
 ALTER TABLE `section_students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `section_subjects`
@@ -788,7 +792,7 @@ ALTER TABLE `section_subjects`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `subjects`
@@ -842,7 +846,7 @@ ALTER TABLE `grades`
 -- Constraints for table `grade_components`
 --
 ALTER TABLE `grade_components`
-  ADD CONSTRAINT `grade_components_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_gc_sheet` FOREIGN KEY (`grading_sheet_id`) REFERENCES `grading_sheets` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `grade_items`
