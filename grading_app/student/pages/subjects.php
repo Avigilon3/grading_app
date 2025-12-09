@@ -15,50 +15,27 @@ if (!$student_id) {
 // 2. Function to get the student's subjects (Enrolled and Archived)
 function getStudentSubjects(PDO $pdo, int $student_id): array
 {
-    // This is the core SQL query. It joins many tables to get all the required details:
-    // 1. students -> section_students (to link student to their sections)
-    // 2. section_students -> sections (to get section details like term_id)
-    // 3. sections -> terms (to check if the term is active)
-    // 4. sections -> section_subjects (to link section to its subjects)
-    // 5. section_subjects -> subjects (to get subject details)
-    // 6. section_subjects -> professors (to get professor's name)
+
     $sql = "
         SELECT
             t.term_name,
             t.is_active AS term_is_active,
             s.subject_code,
             s.subject_title,
+            s.is_active AS subject_is_active,
             sec.section_name,
+            sec.id AS section_id,
+            ssub.id AS section_subject_id,
             CONCAT(p.first_name, ' ', p.last_name) AS professor_name
         FROM
             section_students ss
+        INNER JOIN section_subjects ssub ON ss.section_id = ssub.section_id
         INNER JOIN sections sec ON ss.section_id = sec.id
-        INNER JOIN section_subjects ssub ON sec.id = ssub.section_id
         INNER JOIN subjects s ON ssub.subject_id = s.id
-        LEFT JOIN terms t ON sec.term_id = t.id -- Join with sections' term (primary term)
+        LEFT JOIN terms t ON ssub.term_id = t.id
         LEFT JOIN professors p ON ssub.professor_id = p.id
         WHERE
             ss.student_id = :student_id
-        
-        -- OR conditions to include subjects linked directly to a term in section_subjects
-        UNION
-        
-        SELECT
-            t2.term_name,
-            t2.is_active AS term_is_active,
-            s2.subject_code,
-            s2.subject_title,
-            sec2.section_name,
-            CONCAT(p2.first_name, ' ', p2.last_name) AS professor_name
-        FROM
-            section_students ss2
-        INNER JOIN section_subjects ssub2 ON ss2.section_id = ssub2.section_id
-        INNER JOIN sections sec2 ON ss2.section_id = sec2.id
-        INNER JOIN subjects s2 ON ssub2.subject_id = s2.id
-        LEFT JOIN terms t2 ON ssub2.term_id = t2.id -- Join with subject's specific term
-        LEFT JOIN professors p2 ON ssub2.professor_id = p2.id
-        WHERE
-            ss2.student_id = :student_id
     ";
 
     $stmt = $pdo->prepare($sql);
@@ -83,23 +60,14 @@ $enrolled_subjects = [];
 $archived_subjects = [];
 
 foreach ($all_subjects as $subject) {
-    // The condition for 'Currently Enrolled' is: 
-    // The subject belongs to a term that is currently active (term_is_active = 1)
-    if ($subject['term_is_active'] == 1) {
+    $subjectIsActive = isset($subject['subject_is_active']) ? (int)$subject['subject_is_active'] === 1 : true;
+    $termIsActive = isset($subject['term_is_active']) ? (int)$subject['term_is_active'] === 1 : false;
+
+    if ($subjectIsActive && $termIsActive) {
         $enrolled_subjects[] = $subject;
     } else {
         $archived_subjects[] = $subject;
     }
-}
-
-// Function to calculate final grade (for display - currently placeholder)
-function getFinalGrade($student_id, $subject_code) {
-    // NOTE: Implementing this correctly is complex and involves:
-    // 1. Getting all grade_items for the subject's section/grading_sheet.
-    // 2. Getting all grades for the student for those items.
-    // 3. Calculating weighted average based on grade_components.
-    // For now, we'll use a placeholder.
-    return 'N/A'; // Placeholder for the actual grade calculation
 }
 
 ?>
@@ -153,10 +121,26 @@ function getFinalGrade($student_id, $subject_code) {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($enrolled_subjects as $subject): ?>
+                        <?php
+                            $sectionId = isset($subject['section_id']) ? (int)$subject['section_id'] : 0;
+                            $sectionSubjectId = isset($subject['section_subject_id']) ? (int)$subject['section_subject_id'] : 0;
+                            $gradeInfo = $sectionId ? computeStudentGradeForSection($pdo, $student_id, $sectionId, $sectionSubjectId ?: null) : null;
+                            if ($gradeInfo) {
+                                if (!empty($gradeInfo['equivalent'])) {
+                                    $gradeDisplay = $gradeInfo['equivalent'];
+                                } elseif ($gradeInfo['final_grade_display'] !== null) {
+                                    $gradeDisplay = number_format((float)$gradeInfo['final_grade_display'], 2) . '%';
+                                } else {
+                                    $gradeDisplay = 'Pending';
+                                }
+                            } else {
+                                $gradeDisplay = 'Pending';
+                            }
+                        ?>
                         <tr>
                             <td><?php echo htmlspecialchars($subject['subject_title']); ?></td>
                             <td><?php echo htmlspecialchars($subject['professor_name'] ?: 'TBA'); ?></td>
-                            <td><?php echo htmlspecialchars(getFinalGrade($student_id, $subject['subject_code'])); ?></td>
+                            <td><?php echo htmlspecialchars($gradeDisplay); ?></td>
                             <td><a href="#" class="action-link">View</a></td>
                         </tr>
                         <?php endforeach; ?>
@@ -186,10 +170,26 @@ function getFinalGrade($student_id, $subject_code) {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($archived_subjects as $subject): ?>
+                        <?php
+                            $sectionId = isset($subject['section_id']) ? (int)$subject['section_id'] : 0;
+                            $sectionSubjectId = isset($subject['section_subject_id']) ? (int)$subject['section_subject_id'] : 0;
+                            $gradeInfo = $sectionId ? computeStudentGradeForSection($pdo, $student_id, $sectionId, $sectionSubjectId ?: null) : null;
+                            if ($gradeInfo) {
+                                if (!empty($gradeInfo['equivalent'])) {
+                                    $gradeDisplay = $gradeInfo['equivalent'];
+                                } elseif ($gradeInfo['final_grade_display'] !== null) {
+                                    $gradeDisplay = number_format((float)$gradeInfo['final_grade_display'], 2) . '%';
+                                } else {
+                                    $gradeDisplay = 'Pending';
+                                }
+                            } else {
+                                $gradeDisplay = 'Pending';
+                            }
+                        ?>
                         <tr>
                             <td><?php echo htmlspecialchars($subject['subject_title']); ?></td>
                             <td><?php echo htmlspecialchars($subject['professor_name'] ?: 'TBA'); ?></td>
-                            <td><?php echo htmlspecialchars(getFinalGrade($student_id, $subject['subject_code'])); ?></td>
+                            <td><?php echo htmlspecialchars($gradeDisplay); ?></td>
                             <td><a href="#" class="action-link">View</a></td>
                         </tr>
                         <?php endforeach; ?>

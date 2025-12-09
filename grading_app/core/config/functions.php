@@ -158,6 +158,8 @@ if (!function_exists('removeProfessorFromGradingSheet')) {
             return;
         }
 
+        ensureGradingSheetProfessorNullable($pdo);
+
         $stmt = $pdo->prepare(
             "UPDATE grading_sheets
                 SET professor_id = NULL,
@@ -167,6 +169,44 @@ if (!function_exists('removeProfessorFromGradingSheet')) {
                 AND professor_id = ?"
         );
         $stmt->execute([$sectionId, $professorId]);
+
+        $sectionSubjectStmt = $pdo->prepare(
+            "UPDATE section_subjects
+                SET professor_id = NULL
+              WHERE section_id = ?
+                AND professor_id = ?"
+        );
+        $sectionSubjectStmt->execute([$sectionId, $professorId]);
+    }
+}
+
+if (!function_exists('ensureGradingSheetProfessorNullable')) {
+    function ensureGradingSheetProfessorNullable(PDO $pdo): void
+    {
+        static $checked = false;
+        if ($checked) {
+            return;
+        }
+
+        $checked = true;
+
+        try {
+            $stmt = $pdo->prepare(
+                "SELECT IS_NULLABLE
+                   FROM INFORMATION_SCHEMA.COLUMNS
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'grading_sheets'
+                    AND COLUMN_NAME = 'professor_id'
+                  LIMIT 1"
+            );
+            $stmt->execute();
+            $isNullable = $stmt->fetchColumn();
+            if ($isNullable === 'NO') {
+                $pdo->exec('ALTER TABLE grading_sheets MODIFY professor_id INT NULL');
+            }
+        } catch (Throwable $e) {
+            // If the metadata lookup or ALTER fails, swallow silently to avoid blocking main flow.
+        }
     }
 }
 
@@ -299,5 +339,179 @@ if (!function_exists('syncDefaultGradeComponentsForSheet')) {
                 $deleteStmt->execute([$gradingSheetId, ...$removeIds]);
             }
         }
+    }
+}
+
+if (!function_exists('convertRawGradeToEquivalent')) {
+    function convertRawGradeToEquivalent(float $grade): string
+    {
+        if ($grade >= 97) {
+            return '1.00';
+        }
+        if ($grade >= 94) {
+            return '1.25';
+        }
+        if ($grade >= 91) {
+            return '1.50';
+        }
+        if ($grade >= 88) {
+            return '1.75';
+        }
+        if ($grade >= 85) {
+            return '2.00';
+        }
+        if ($grade >= 82) {
+            return '2.25';
+        }
+        if ($grade >= 79) {
+            return '2.50';
+        }
+        if ($grade >= 76) {
+            return '2.75';
+        }
+        if ($grade >= 75) {
+            return '3.00';
+        }
+
+        return '5.00';
+    }
+}
+
+if (!function_exists('computeStudentGradeForSection')) {
+    function computeStudentGradeForSection(PDO $pdo, int $studentId, int $sectionId, ?int $sectionSubjectId = null): ?array
+    {
+        static $cache = [];
+        $key = $studentId . ':' . $sectionId . ':' . ($sectionSubjectId ?? 0);
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        if ($studentId <= 0 || $sectionId <= 0) {
+            $cache[$key] = null;
+            return null;
+        }
+
+        if ($sectionSubjectId) {
+            $sheetStmt = $pdo->prepare("SELECT id FROM grading_sheets WHERE section_subject_id = ? AND status = 'locked' ORDER BY id DESC LIMIT 1");
+            $sheetStmt->execute([$sectionSubjectId]);
+        } else {
+            $sheetStmt = $pdo->prepare("SELECT id FROM grading_sheets WHERE section_id = ? AND status = 'locked' ORDER BY id DESC LIMIT 1");
+            $sheetStmt->execute([$sectionId]);
+        }
+        $sheetId = (int)($sheetStmt->fetchColumn() ?: 0);
+        if (!$sheetId) {
+            $cache[$key] = null;
+            return null;
+        }
+
+        $componentStmt = $pdo->prepare('SELECT id, weight FROM grade_components WHERE grading_sheet_id = ? ORDER BY id');
+        $componentStmt->execute([$sheetId]);
+        $components = $componentStmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$components) {
+            $cache[$key] = null;
+            return null;
+        }
+
+        $componentIds = array_column($components, 'id');
+        if (!$componentIds) {
+            $cache[$key] = null;
+            return null;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($componentIds), '?'));
+        $itemStmt = $pdo->prepare("SELECT id, component_id, total_points FROM grade_items WHERE component_id IN ($placeholders) ORDER BY component_id, id");
+        $itemStmt->execute($componentIds);
+
+        $items = [];
+        $componentTotals = [];
+        while ($row = $itemStmt->fetch(PDO::FETCH_ASSOC)) {
+            $componentId = (int)$row['component_id'];
+            $items[$componentId][] = [
+                'id' => (int)$row['id'],
+                'total_points' => (float)$row['total_points'],
+            ];
+            $componentTotals[$componentId] = ($componentTotals[$componentId] ?? 0) + (float)$row['total_points'];
+        }
+        foreach ($componentIds as $cid) {
+            if (!isset($componentTotals[$cid])) {
+                $componentTotals[$cid] = 0.0;
+            }
+        }
+
+        $gradeItemIds = [];
+        foreach ($items as $componentItems) {
+            foreach ($componentItems as $item) {
+                $gradeItemIds[] = $item['id'];
+            }
+        }
+
+        $gradeMap = [];
+        if ($gradeItemIds) {
+            $gradePlaceholders = implode(',', array_fill(0, count($gradeItemIds), '?'));
+            $gradeStmt = $pdo->prepare("SELECT grade_item_id, score FROM grades WHERE student_id = ? AND grade_item_id IN ($gradePlaceholders)");
+            $gradeStmt->execute(array_merge([$studentId], $gradeItemIds));
+            while ($row = $gradeStmt->fetch(PDO::FETCH_ASSOC)) {
+                $gradeMap[(int)$row['grade_item_id']] = $row['score'];
+            }
+        }
+
+        $finalGradeTotal = 0.0;
+        $weightAccumulated = 0.0;
+        $finalGradeDisplayTotal = 0.0;
+
+        foreach ($components as $component) {
+            $componentId = (int)$component['id'];
+            $componentWeight = (float)$component['weight'];
+            $componentItems = $items[$componentId] ?? [];
+
+            $earned = 0.0;
+            foreach ($componentItems as $item) {
+                $itemId = $item['id'];
+                if (isset($gradeMap[$itemId]) && $gradeMap[$itemId] !== '' && $gradeMap[$itemId] !== null) {
+                    $earned += (float)$gradeMap[$itemId];
+                }
+            }
+
+            $possible = $componentTotals[$componentId] ?? 0.0;
+            $percent = $possible > 0 ? ($earned / $possible) : null;
+            $finalPercent = $percent !== null ? $percent * $componentWeight : null;
+            $finalPercentDisplay = $finalPercent;
+            if ($finalPercentDisplay === null && empty($componentItems)) {
+                $finalPercentDisplay = $componentWeight;
+            }
+
+            if ($finalPercent !== null) {
+                $finalGradeTotal += $finalPercent;
+                $weightAccumulated += $componentWeight;
+            }
+            if ($finalPercentDisplay !== null) {
+                $finalGradeDisplayTotal += $finalPercentDisplay;
+            }
+        }
+
+        $finalGradeDisplay = $finalGradeDisplayTotal > 0 ? round($finalGradeDisplayTotal, 2) : null;
+        $finalGrade = null;
+        if ($weightAccumulated > 0) {
+            $finalGrade = round($finalGradeTotal, 2);
+        } elseif ($finalGradeDisplay !== null) {
+            $finalGrade = $finalGradeDisplay;
+        }
+
+        if ($finalGradeDisplay === null && $finalGrade === null) {
+            $cache[$key] = null;
+            return null;
+        }
+
+        $gradeForEquivalent = $finalGradeDisplay ?? $finalGrade;
+        $equivalent = $gradeForEquivalent !== null ? convertRawGradeToEquivalent($gradeForEquivalent) : null;
+
+        $cache[$key] = [
+            'sheet_id' => $sheetId,
+            'final_grade' => $finalGrade,
+            'final_grade_display' => $finalGradeDisplay,
+            'equivalent' => $equivalent,
+        ];
+
+        return $cache[$key];
     }
 }
