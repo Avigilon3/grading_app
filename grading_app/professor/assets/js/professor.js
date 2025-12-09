@@ -74,6 +74,7 @@
 		highlightNav();
 		wireLogoutConfirm();
 		initUserDropdowns();
+		initGradeItemActions();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
 		// tryFetchCounts();
 
@@ -81,6 +82,205 @@
 		window.admin = window.admin || {};
 		window.admin.updateCounts = updateCounts;
 		window.admin.highlightNav = highlightNav;
+	}
+
+	function initGradeItemActions() {
+		var body = document.body;
+		if (!body) return;
+		if ((body.getAttribute('data-sheet-editable') || '') !== '1') return;
+
+		var addButtons = safeQueryAll('[data-add-grade-item]');
+		var editButtons = safeQueryAll('[data-edit-grade-item]');
+		var deleteButtons = safeQueryAll('[data-delete-grade-item]');
+		if (!addButtons.length && !editButtons.length && !deleteButtons.length) return;
+
+		var modal = safeQuery('[data-grade-item-modal]');
+		var form = modal ? safeQuery('[data-grade-item-form]', modal) : null;
+		var titleInput = form ? form.querySelector('#grade-item-name') : null;
+		var pointsInput = form ? form.querySelector('#grade-item-points') : null;
+		var componentLabel = modal ? safeQuery('[data-grade-item-modal-component]', modal) : null;
+		var submitBtn = form ? safeQuery('[data-grade-item-submit]', form) : null;
+		var defaultSubmitText = submitBtn ? submitBtn.textContent : '';
+		var activeItemId = null;
+
+		function closeModal() {
+			if (!modal) return;
+			modal.setAttribute('hidden', 'hidden');
+			modal.classList.remove('open');
+			if (form) {
+				form.reset();
+			}
+			if (submitBtn) {
+				submitBtn.disabled = false;
+				submitBtn.textContent = defaultSubmitText || 'Save Changes';
+			}
+			if (componentLabel) {
+				componentLabel.textContent = '';
+			}
+			activeItemId = null;
+		}
+
+		function openModal(button) {
+			if (!modal || !form || !titleInput || !pointsInput) return;
+			activeItemId = button.getAttribute('data-grade-item-id');
+			titleInput.value = button.getAttribute('data-title') || '';
+			pointsInput.value = button.getAttribute('data-total-points') || '';
+			if (componentLabel) {
+				var comp = button.getAttribute('data-component-name') || '';
+				componentLabel.textContent = comp ? ('Component: ' + comp) : '';
+			}
+			modal.removeAttribute('hidden');
+			modal.classList.add('open');
+			setTimeout(function () {
+				titleInput.focus();
+				titleInput.select();
+			}, 50);
+		}
+
+		addButtons.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				var componentId = btn.getAttribute('data-component-id');
+				var componentName = btn.getAttribute('data-component-name') || 'this component';
+				if (!componentId) return;
+
+				var originalLabel = btn.textContent;
+				btn.disabled = true;
+				btn.textContent = '...';
+
+				sendGradeItemRequest({
+					action: 'create',
+					component_id: componentId
+				}).then(function () {
+					window.location.reload();
+				}).catch(function (err) {
+					alert('Unable to add grade item for ' + componentName + ': ' + (err.message || 'Please try again.'));
+					btn.disabled = false;
+					btn.textContent = originalLabel;
+				});
+			});
+		});
+
+		editButtons.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				openModal(btn);
+			});
+		});
+
+		deleteButtons.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				var title = btn.getAttribute('data-title') || 'this item';
+				var componentName = btn.getAttribute('data-component-name') || '';
+				var message = 'Delete "' + title + '"';
+				if (componentName) {
+					message += ' under ' + componentName;
+				}
+				message += '? This will remove all recorded scores for this activity.';
+				if (!confirm(message)) {
+					return;
+				}
+
+				var gradeItemId = btn.getAttribute('data-grade-item-id');
+				if (!gradeItemId) return;
+
+				sendGradeItemRequest({
+					action: 'delete',
+					grade_item_id: gradeItemId
+				}).then(function () {
+					window.location.reload();
+				}).catch(function (err) {
+					alert(err.message || 'Unable to delete grade item at this time.');
+				});
+			});
+		});
+
+		if (form && titleInput && pointsInput) {
+			form.addEventListener('submit', function (event) {
+				event.preventDefault();
+				if (!activeItemId) return;
+
+				var title = titleInput.value.trim();
+				var totalPoints = pointsInput.value.trim();
+				if (!title) {
+					alert('Please provide a name for the grade item.');
+					return;
+				}
+				if (!totalPoints) {
+					alert('Please enter the total points for this grade item.');
+					return;
+				}
+
+				if (submitBtn) {
+					submitBtn.disabled = true;
+					submitBtn.textContent = 'Saving...';
+				}
+
+				sendGradeItemRequest({
+					action: 'update',
+					grade_item_id: activeItemId,
+					title: title,
+					total_points: totalPoints
+				}).then(function () {
+					window.location.reload();
+				}).catch(function (err) {
+					alert(err.message || 'Unable to update grade item.');
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.textContent = defaultSubmitText || 'Save Changes';
+					}
+				});
+			});
+		}
+
+		if (modal) {
+			modal.addEventListener('click', function (event) {
+				if (event.target === modal) {
+					closeModal();
+				}
+			});
+			var closeButtons = safeQueryAll('[data-grade-item-close]', modal).concat(
+				safeQueryAll('[data-grade-item-cancel]', modal)
+			);
+			closeButtons.forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					closeModal();
+				});
+			});
+			document.addEventListener('keydown', function (event) {
+				if (event.key === 'Escape' && !modal.hasAttribute('hidden')) {
+					closeModal();
+				}
+			});
+		}
+	}
+
+	function sendGradeItemRequest(payload) {
+		var formData = new FormData();
+		Object.keys(payload || {}).forEach(function (key) {
+			if (payload[key] !== undefined && payload[key] !== null) {
+				formData.append(key, payload[key]);
+			}
+		});
+
+		return fetch('../includes/grade_item_actions.php', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest'
+			},
+			body: formData
+		})
+			.then(function (response) {
+				if (!response.ok) {
+					throw new Error('Request failed. Please try again.');
+				}
+				return response.json();
+			})
+			.then(function (data) {
+				if (!data || data.success !== true) {
+					throw new Error((data && data.message) || 'Action could not be completed.');
+				}
+				return data;
+			});
 	}
 
 	function initUserDropdowns() {

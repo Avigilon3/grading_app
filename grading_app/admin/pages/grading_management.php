@@ -82,9 +82,15 @@ $templateComponents = [];
 $templateItems = [];
 $templateStudents = [];
 if ($templateSectionId) {
-    $componentStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE section_id = ? ORDER BY id');
-    $componentStmt->execute([$templateSectionId]);
-    $templateComponents = $componentStmt->fetchAll(PDO::FETCH_ASSOC);
+    $templateSheetStmt = $pdo->prepare('SELECT id FROM grading_sheets WHERE section_id = ? ORDER BY deadline_at IS NULL, deadline_at, id LIMIT 1');
+    $templateSheetStmt->execute([$templateSectionId]);
+    $templateSheetId = (int)($templateSheetStmt->fetchColumn() ?: 0);
+
+    if ($templateSheetId) {
+        $componentStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE grading_sheet_id = ? ORDER BY id');
+        $componentStmt->execute([$templateSheetId]);
+        $templateComponents = $componentStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     if ($templateComponents) {
         $componentIds = array_column($templateComponents, 'id');
