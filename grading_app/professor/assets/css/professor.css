@@ -350,17 +350,17 @@ h3 {
     font-weight: 600;
 }
 
-.grading-sheet-table th:first-child,
+/* .grading-sheet-table th:first-child,
 .grading-sheet-table td:first-child {
     text-align: left;
     width: 140px;
-}
+} */
 
-.grading-sheet-table th:nth-child(2),
+/* .grading-sheet-table th:nth-child(2),
 .grading-sheet-table td:nth-child(2) {
     text-align: left;
     width: 180px;
-}
+} */
 
 .grading-sheet-table .component-header {
     position: relative;
@@ -380,6 +380,9 @@ h3 {
 
 .component-actions {
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     top: 8px;
     right: 8px;
     width: 28px;
@@ -402,6 +405,7 @@ h3 {
     font-weight: 600;
     background: #fff;
     position: relative;
+    padding-right: 40px;
 }
 .component-item-head small {
     display: block;
@@ -414,10 +418,16 @@ h3 {
     top: 4px;
     right: 4px;
     display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
     gap: 4px;
 }
 .item-action {
     border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: rgba(0,0,0,0.05);
     width: 20px;
     height: 20px;

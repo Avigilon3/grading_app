@@ -2,6 +2,119 @@
 require_once '../includes/init.php';
 requireAdmin();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+
+    try {
+        if ($action === 'add_default_component') {
+            $name = trim((string)($_POST['name'] ?? ''));
+            $weightRaw = trim((string)($_POST['weight'] ?? ''));
+            if ($name === '') {
+                throw new RuntimeException('Component name is required.');
+            }
+            if (strlen($name) > 100) {
+                throw new RuntimeException('Component name must be 100 characters or fewer.');
+            }
+            if (!is_numeric($weightRaw)) {
+                throw new RuntimeException('Weight must be a numeric value.');
+            }
+            $weight = (float)$weightRaw;
+            if ($weight <= 0) {
+                throw new RuntimeException('Weight must be greater than zero.');
+            }
+
+            ensureDefaultGradeTemplateStorage($pdo);
+            $sortOrder = (int)$pdo->query('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM default_grade_components')->fetchColumn();
+            $insert = $pdo->prepare('INSERT INTO default_grade_components (name, weight, sort_order) VALUES (?, ?, ?)');
+            $insert->execute([$name, $weight, $sortOrder]);
+            set_flash('success', 'New grade component added to the default template.');
+        } elseif ($action === 'update_default_component') {
+            $componentId = (int)($_POST['component_id'] ?? 0);
+            $name = trim((string)($_POST['name'] ?? ''));
+            $weightRaw = trim((string)($_POST['weight'] ?? ''));
+            if ($componentId <= 0) {
+                throw new RuntimeException('Invalid grade component selected.');
+            }
+            if ($name === '') {
+                throw new RuntimeException('Component name is required.');
+            }
+            if (strlen($name) > 100) {
+                throw new RuntimeException('Component name must be 100 characters or fewer.');
+            }
+            if (!is_numeric($weightRaw)) {
+                throw new RuntimeException('Weight must be a numeric value.');
+            }
+            $weight = (float)$weightRaw;
+            if ($weight <= 0) {
+                throw new RuntimeException('Weight must be greater than zero.');
+            }
+
+            $update = $pdo->prepare('UPDATE default_grade_components SET name = ?, weight = ? WHERE id = ?');
+            $update->execute([$name, $weight, $componentId]);
+            set_flash('success', 'Grade component updated.');
+        } elseif ($action === 'delete_default_component') {
+            $componentId = (int)($_POST['component_id'] ?? 0);
+            if ($componentId <= 0) {
+                throw new RuntimeException('Invalid grade component selected.');
+            }
+            $delete = $pdo->prepare('DELETE FROM default_grade_components WHERE id = ?');
+            $delete->execute([$componentId]);
+            set_flash('success', 'Grade component removed from the default template.');
+        } elseif ($action === 'apply_default_template') {
+            $template = defaultGradeComponentsTemplate($pdo);
+            if (!$template) {
+                throw new RuntimeException('No default template found.');
+            }
+            $total = 0.0;
+            foreach ($template as $tempComponent) {
+                $total += (float)$tempComponent['weight'];
+            }
+            if (abs($total - 100.0) > 0.01) {
+                throw new RuntimeException('Total component weight must equal 100% before applying the template.');
+            }
+
+            $scope = $_POST['apply_scope'] ?? 'single';
+            if ($scope === 'all') {
+                $sheetIds = $pdo->query('SELECT id FROM grading_sheets')->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($sheetIds as $sheetId) {
+                    syncDefaultGradeComponentsForSheet($pdo, (int)$sheetId, $template, true);
+                }
+                set_flash('success', 'Default template applied to all grading sheets.');
+            } else {
+                $targetSheetId = (int)($_POST['target_sheet_id'] ?? 0);
+                if ($targetSheetId <= 0) {
+                    throw new RuntimeException('Select a grading sheet to apply the template.');
+                }
+                syncDefaultGradeComponentsForSheet($pdo, $targetSheetId, $template, true);
+                set_flash('success', 'Default template applied to the selected grading sheet.');
+            }
+        }
+    } catch (Throwable $e) {
+        set_flash('error', $e->getMessage());
+    }
+
+    $redirectQuery = $_SERVER['QUERY_STRING'] ?? '';
+    $redirectUrl = './grading_management.php' . ($redirectQuery ? '?' . $redirectQuery : '');
+    header('Location: ' . $redirectUrl);
+    exit;
+}
+
+$defaultGradeTemplate = defaultGradeComponentsTemplate($pdo);
+$defaultTemplateTotalWeight = 0.0;
+foreach ($defaultGradeTemplate as $component) {
+    $defaultTemplateTotalWeight += (float)($component['weight'] ?? 0);
+}
+$defaultTemplateTotalWeight = round($defaultTemplateTotalWeight, 2);
+$defaultTemplateNeedsWarning = abs($defaultTemplateTotalWeight - 100.0) > 0.01;
+$defaultWeightsDisplay = implode(', ', array_map(function ($component) {
+    $weight = rtrim(rtrim(number_format((float)$component['weight'], 2), '0'), '.');
+    return sprintf('%s: %s%%', $component['name'], $weight);
+}, $defaultGradeTemplate));
+$defaultTemplateStudents = [
+    ['student_id' => '2025-0001', 'name' => 'Garcia, Ana'],
+    ['student_id' => '2025-0002', 'name' => 'Santos, Mark'],
+];
+
 $err = $_GET['err'] ?? null;
 $msg = $_GET['msg'] ?? null;
 
@@ -76,6 +189,19 @@ $sheetsStmt = $pdo->prepare(
 $sheetsStmt->execute($params);
 $gradingSheets = $sheetsStmt->fetchAll(PDO::FETCH_ASSOC);
 
+$applySheetsStmt = $pdo->query(
+    "SELECT gs.id,
+            sec.section_name,
+            sub.subject_code,
+            sub.subject_title
+       FROM grading_sheets gs
+  LEFT JOIN sections sec ON sec.id = gs.section_id
+  LEFT JOIN section_subjects ss ON ss.id = gs.section_subject_id
+  LEFT JOIN subjects sub ON sub.id = ss.subject_id
+   ORDER BY sec.section_name, sub.subject_title"
+);
+$applyTemplateOptions = $applySheetsStmt->fetchAll(PDO::FETCH_ASSOC);
+
 $templateSections = $sections;
 $templateSectionId = $templateSectionId ?: ($templateSections[0]['id'] ?? 0);
 $templateComponents = [];
@@ -126,6 +252,102 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
     <meta charset="utf-8">
     <title>Grading Sheets Management</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <style>
+        .default-template-editor {
+            border: 1px solid #e1e6ef;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            background: #fdfefe;
+        }
+        .default-template-editor .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .component-add-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid #c0cadb;
+            background: #fff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .component-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .component-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            border: 1px solid #e6e9f0;
+            border-radius: 10px;
+            padding: 12px;
+            background: #fff;
+        }
+        .component-row .form-group {
+            flex: 1 1 220px;
+            margin: 0;
+        }
+        .component-row .form-group label {
+            font-size: 13px;
+            color: #4d5565;
+        }
+        .component-row .form-group input {
+            width: 100%;
+        }
+        .component-row .form-group.narrow {
+            flex: 0 0 140px;
+        }
+        .component-row .row-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .component-row .row-actions button {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccd5e0;
+            background: #f5f7fb;
+            cursor: pointer;
+        }
+        .component-row .row-actions button.danger {
+            border-color: #e88a8a;
+            background: #ffecec;
+            color: #b42318;
+        }
+        .component-row.add-row {
+            border-style: dashed;
+        }
+        .apply-template-form {
+            margin-top: 20px;
+            border: 1px solid #e6e9f0;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fbfcff;
+        }
+        .apply-template-form .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .apply-template-form .form-actions button {
+            border-radius: 8px;
+            padding: 10px 16px;
+            border: 1px solid #ccd5e0;
+            background: #fff;
+            cursor: pointer;
+        }
+        .apply-template-form .form-actions button.danger {
+            border-color: #f5b3b3;
+            background: #ffe9e9;
+            color: #91261f;
+        }
+    </style>
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -283,6 +505,112 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
                 </section>
 
                 <section class="tab-pane" data-pane="template">
+                    <div class="card default-template-card">
+                        <div class="card-body">
+                            <h3>Default Grading Sheet Template</h3>
+                            <p class="text-muted">Current weights: <?= htmlspecialchars($defaultWeightsDisplay); ?></p>
+                            <div class="default-template-editor">
+                                <div class="editor-header">
+                                    <h4>Grade Components</h4>
+                                    <button type="button" class="component-add-btn" data-toggle-default-component-form title="Add grade component">+</button>
+                                </div>
+                                <?php if ($defaultTemplateNeedsWarning): ?>
+                                    <div class="alert alert-warning">
+                                        Component weights currently total <?= htmlspecialchars(number_format($defaultTemplateTotalWeight, 2)); ?>%. Please adjust to reach exactly 100%.
+                                    </div>
+                                <?php endif; ?>
+                                <div class="component-list">
+                                    <?php foreach ($defaultGradeTemplate as $component): ?>
+                                        <form method="post" class="component-row">
+                                            <input type="hidden" name="component_id" value="<?= (int)$component['id']; ?>">
+                                            <div class="form-group">
+                                                <label>Component Name</label>
+                                                <input type="text" name="name" value="<?= htmlspecialchars($component['name']); ?>" maxlength="100" required>
+                                            </div>
+                                            <div class="form-group narrow">
+                                                <label>Weight (%)</label>
+                                                <input type="number" name="weight" step="0.01" min="0.01" value="<?= htmlspecialchars(number_format((float)$component['weight'], 2, '.', '')); ?>" required>
+                                            </div>
+                                            <div class="row-actions">
+                                                <button type="submit" name="action" value="update_default_component">Save</button>
+                                                <button type="submit" name="action" value="delete_default_component" class="danger" onclick="return confirm('Remove <?= htmlspecialchars($component['name'], ENT_QUOTES); ?> from the default template?');">Delete</button>
+                                            </div>
+                                        </form>
+                                    <?php endforeach; ?>
+                                </div>
+                                <form method="post" class="component-row add-row" data-default-component-add-form hidden>
+                                    <input type="hidden" name="action" value="add_default_component">
+                                    <div class="form-group">
+                                        <label>Component Name</label>
+                                        <input type="text" name="name" maxlength="100" placeholder="e.g. Projects" required>
+                                    </div>
+                                    <div class="form-group narrow">
+                                        <label>Weight (%)</label>
+                                        <input type="number" name="weight" min="0.01" step="0.01" placeholder="e.g. 10" required>
+                                    </div>
+                                    <div class="row-actions">
+                                        <button type="submit">Add Component</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <table class="table table-bordered template-table">
+                                <thead>
+                                <tr>
+                                    <th class="template-head">Student ID</th>
+                                    <th class="template-head">Student Name</th>
+                                    <?php foreach ($defaultGradeTemplate as $component): ?>
+                                        <th class="template-head">
+                                            <?= htmlspecialchars($component['name']); ?>
+                                            <br><small><?= rtrim(rtrim(number_format((float)$component['weight'], 2), '0'), '.'); ?>%</small>
+                                        </th>
+                                    <?php endforeach; ?>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <?php foreach ($defaultGradeTemplate as $component): ?>
+                                        <th>Score</th>
+                                    <?php endforeach; ?>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($defaultTemplateStudents as $student): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($student['student_id']); ?></td>
+                                        <td><?= htmlspecialchars($student['name']); ?></td>
+                                        <?php foreach ($defaultGradeTemplate as $component): ?>
+                                            <td>--</td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                            <form method="post" class="apply-template-form">
+                                <input type="hidden" name="action" value="apply_default_template">
+                                <div class="form-group">
+                                    <label>Apply template to specific grading sheet</label>
+                                    <select name="target_sheet_id" class="form-control">
+                                        <option value="0">-- Select grading sheet --</option>
+                                        <?php foreach ($applyTemplateOptions as $sheet): ?>
+                                            <option value="<?= (int)$sheet['id']; ?>">
+                                                <?= htmlspecialchars(trim(($sheet['section_name'] ?? 'Unnamed Section') . ' - ' . ($sheet['subject_code'] ?? ($sheet['subject_title'] ?? 'Subject')))); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="alert alert-warning info-note">
+                                    Applying the template will overwrite the grade components of the selected grading sheet. Use the button below to copy the template to all sheets if needed.
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" name="apply_scope" value="single">Apply to Selected Sheet</button>
+                                    <button type="submit" name="apply_scope" value="all" class="danger" onclick="return confirm('Apply the default template to ALL grading sheets? This will replace their existing grade components.');">Apply to All Sheets</button>
+                                </div>
+                            </form>
+                            <div class="alert alert-info info-note">
+                                This template is automatically applied to every grading sheet that is created, ensuring the same Activity, Exam, Quizzes, and Attendance weights.
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-box form-box-inline">
                         <h3>Manage Template</h3>
                         <div class="form-group narrow">
@@ -303,7 +631,7 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
                     <?php else: ?>
                         <div class="card">
                             <div class="card-body">
-                                <h3>Default Grading Sheet</h3>
+                                <h3>Section Template Preview</h3>
                                 <?php if (!$templateComponents): ?>
                                     <p>No grading template configured for this section.</p>
                                 <?php else: ?>
@@ -354,7 +682,7 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
                                     </table>
                                 <?php endif; ?>
                                 <div class="alert alert-info info-note">
-                                    Adjust grade components and items from the academic settings to update this template for all assigned professors.
+                                    Sections inherit the default template above. Adjust academic settings only if a section requires additional customization.
                                 </div>
                             </div>
                         </div>
@@ -429,12 +757,32 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
             });
         }
 
+        function initDefaultComponentFormToggle() {
+            var toggle = document.querySelector('[data-toggle-default-component-form]');
+            var form = document.querySelector('[data-default-component-add-form]');
+            if (!toggle || !form) return;
+            toggle.addEventListener('click', function(){
+                var hidden = form.hasAttribute('hidden');
+                if (hidden) {
+                    form.removeAttribute('hidden');
+                    var input = form.querySelector('input[name="name"]');
+                    if (input) {
+                        input.focus();
+                        input.select();
+                    }
+                } else {
+                    form.setAttribute('hidden', 'hidden');
+                }
+            });
+        }
+
         function init() {
             document.querySelectorAll('#grading-tabs .tab-link').forEach(function(btn){
                 btn.addEventListener('click', function(){
                     activateTab(btn.dataset.tab);
                 });
             });
+            initDefaultComponentFormToggle();
         }
 
         if (document.readyState === 'loading') {
