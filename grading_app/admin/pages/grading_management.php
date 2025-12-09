@@ -82,7 +82,14 @@ $templateComponents = [];
 $templateItems = [];
 $templateStudents = [];
 if ($templateSectionId) {
-    $componentStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE section_id = ? ORDER BY id');
+    // grade_components now ties to grading_sheets via grading_sheet_id, so join to resolve by section
+    $componentStmt = $pdo->prepare(
+        'SELECT gc.id, gc.name, gc.weight
+           FROM grade_components gc
+           JOIN grading_sheets gs ON gs.id = gc.grading_sheet_id
+          WHERE gs.section_id = ?
+       ORDER BY gc.id'
+    );
     $componentStmt->execute([$templateSectionId]);
     $templateComponents = $componentStmt->fetchAll(PDO::FETCH_ASSOC);
 

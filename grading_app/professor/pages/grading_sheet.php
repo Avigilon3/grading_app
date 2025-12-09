@@ -46,8 +46,8 @@ if (!$sheet) {
 
 $sectionId = (int)$sheet['section_id'];
 
-$componentsStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE section_id = ? ORDER BY id');
-$componentsStmt->execute([$sectionId]);
+$componentsStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE grading_sheet_id = ? ORDER BY id');
+$componentsStmt->execute([$sheetId]);
 $components = $componentsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $componentIds = array_column($components, 'id');
