@@ -206,7 +206,52 @@ if (!function_exists('ensureGradingSheetProfessorNullable')) {
             }
         } catch (Throwable $e) {
             // If the metadata lookup or ALTER fails, swallow silently to avoid blocking main flow.
+            try {
+                $pdo->exec('ALTER TABLE grading_sheets MODIFY professor_id INT NULL');
+            } catch (Throwable $ignored) {
+            }
         }
+    }
+}
+
+if (!function_exists('deriveSubjectStatusFromTerm')) {
+    function deriveSubjectStatusFromTerm(PDO $pdo, ?int $termId, int $defaultStatus): int
+    {
+        if ($termId === null) {
+            return $defaultStatus;
+        }
+
+        $stmt = $pdo->prepare('SELECT is_active FROM terms WHERE id = ? LIMIT 1');
+        $stmt->execute([$termId]);
+        $termStatus = $stmt->fetchColumn();
+        if ($termStatus === false || $termStatus === null) {
+            return $defaultStatus;
+        }
+
+        return (int)$termStatus === 1 ? 1 : 0;
+    }
+}
+
+if (!function_exists('syncSubjectStatusesWithTerms')) {
+    function syncSubjectStatusesWithTerms(PDO $pdo, ?int $termId = null): void
+    {
+        if ($termId) {
+            $stmt = $pdo->prepare(
+                "UPDATE subjects s
+                    JOIN terms t ON t.id = s.term_id
+                   SET s.is_active = t.is_active
+                 WHERE s.term_id = ?"
+            );
+            $stmt->execute([$termId]);
+            return;
+        }
+
+        $pdo->exec(
+            "UPDATE subjects s
+                JOIN terms t ON t.id = s.term_id
+               SET s.is_active = t.is_active
+             WHERE s.term_id IS NOT NULL"
+        );
     }
 }
 

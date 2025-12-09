@@ -68,6 +68,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       $stmt = $pdo->prepare('UPDATE edit_requests SET status=?, decided_by=?, decided_at=NOW() WHERE id=?');
       $stmt->execute([$decision, ($_SESSION['user']['id'] ?? null), $id]);
+
+      $sheetId = 0;
+      $targetUserId = 0;
+      try {
+        $infoStmt = $pdo->prepare(
+          "SELECT er.grading_sheet_id, er.professor_id, prof.user_id
+             FROM edit_requests er
+             LEFT JOIN professors prof ON prof.id = er.professor_id
+            WHERE er.id = ?
+            LIMIT 1"
+        );
+        $infoStmt->execute([$id]);
+        $info = $infoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $sheetId = isset($info['grading_sheet_id']) ? (int)$info['grading_sheet_id'] : 0;
+        $targetUserId = isset($info['user_id']) ? (int)$info['user_id'] : 0;
+      } catch (Throwable $ignored) {
+        $sheetId = 0;
+        $targetUserId = 0;
+      }
+
+      if ($decision === 'approved' && $sheetId > 0) {
+        $reopenStmt = $pdo->prepare("UPDATE grading_sheets SET status = 'reopened', submitted_at = NULL WHERE id = ?");
+        $reopenStmt->execute([$sheetId]);
+      }
+
+      if ($targetUserId > 0) {
+        try {
+          $sheetLabel = $sheetId ?: 0;
+          $message = sprintf(
+            'The admin has a decision to your edit request for grading sheet #%d. Status: %s.',
+            $sheetLabel,
+            ucfirst($decision)
+          );
+          $notifStmt = $pdo->prepare(
+            'INSERT INTO notifications (user_id, type, message, is_read) VALUES (?, ?, ?, 0)'
+          );
+          $notifStmt->execute([$targetUserId, 'edit_request_decision', $message]);
+        } catch (Throwable $notificationError) {
+          // ignore notification failure
+        }
+      }
+
       add_activity_log($pdo, $_SESSION['user']['id'] ?? null, 'DECIDE_EDIT_REQUEST', strtoupper($decision).' edit request id: '.$id);
       $msg = 'Edit request '.$decision.'.';
     }
@@ -94,15 +136,20 @@ LEFT JOIN professors p ON p.id = er.professor_id
  ORDER BY er.id DESC LIMIT 100"
 )->fetchAll();
 
-$search = trim($_GET['q'] ?? '');
-$statusFilter = $_GET['status'] ?? 'all';
+$docSearch = trim($_GET['doc_q'] ?? '');
+$docStatus = $_GET['doc_status'] ?? 'all';
+$profSearch = trim($_GET['prof_q'] ?? '');
+$profStatus = $_GET['prof_status'] ?? 'all';
+$docStatus = in_array($docStatus, ['all','pending','scheduled','ready','released'], true) ? $docStatus : 'all';
+$profStatus = in_array($profStatus, ['all','pending','approved','denied'], true) ? $profStatus : 'all';
 
-$docFiltered = array_values(array_filter($docRequests, static function ($r) use ($search, $statusFilter) {
-  $matchesStatus = ($statusFilter === 'all') || ($r['status'] === $statusFilter);
+$docFiltered = array_values(array_filter($docRequests, static function ($r) use ($docSearch, $docStatus) {
+  $statusValue = strtolower((string)($r['status'] ?? ''));
+  $matchesStatus = ($docStatus === 'all') || ($statusValue === strtolower($docStatus));
   if (!$matchesStatus) {
     return false;
   }
-  if ($search === '') {
+  if ($docSearch === '') {
     return true;
   }
   $haystack = strtolower(
@@ -110,9 +157,30 @@ $docFiltered = array_values(array_filter($docRequests, static function ($r) use 
     ($r['first_name'] ?? '') . ' ' .
     ($r['middle_name'] ?? '') . ' ' .
     ($r['last_name'] ?? '') . ' ' .
+    ($r['id'] ?? '') . ' ' .
+    ($r['type'] ?? '')
+  );
+  return strpos($haystack, strtolower($docSearch)) !== false;
+}));
+
+$editFiltered = array_values(array_filter($editRequests, static function ($r) use ($profSearch, $profStatus) {
+  $statusValue = strtolower((string)($r['status'] ?? ''));
+  $matchesStatus = ($profStatus === 'all') || ($statusValue === strtolower($profStatus));
+  if (!$matchesStatus) {
+    return false;
+  }
+  if ($profSearch === '') {
+    return true;
+  }
+  $haystack = strtolower(
+    ($r['first_name'] ?? '') . ' ' .
+    ($r['middle_name'] ?? '') . ' ' .
+    ($r['last_name'] ?? '') . ' ' .
+    ($r['reason'] ?? '') . ' ' .
+    ($r['grading_sheet_id'] ?? '') . ' ' .
     ($r['id'] ?? '')
   );
-  return strpos($haystack, strtolower($search)) !== false;
+  return strpos($haystack, strtolower($profSearch)) !== false;
 }));
 
 $counts = [
@@ -186,21 +254,21 @@ foreach ($editRequests as $r) {
             <button type="button" class="tab-link" data-tab="prof">Professor Re-opening Requests</button>
           </div>
 
-          <form class="filters-row" method="get" action="">
-            <div class="search-box">
-              <input type="text" name="q" value="<?= htmlspecialchars($search); ?>" placeholder="Search by student ID or name...">
-            </div>
-            <div>
-              <select class="status-filter" name="status" onchange="this.form.submit()">
-                <?php foreach (['all' => 'All', 'pending' => 'Pending', 'scheduled' => 'Scheduled', 'ready' => 'Ready', 'released' => 'Released'] as $val => $label): ?>
-                  <option value="<?= $val; ?>" <?= $statusFilter === $val ? 'selected' : ''; ?>><?= $label; ?></option>
-                <?php endforeach; ?>
-              </select>
-              <?php if ($search): ?><input type="hidden" name="q" value="<?= htmlspecialchars($search); ?>"><?php endif; ?>
-            </div>
-          </form>
-
           <div id="tab-student" class="tab-pane" style="display:block;">
+            <form class="filters-row" method="get" action="" style="grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:12px;">
+              <div class="search-box">
+                <input type="text" name="doc_q" value="<?= htmlspecialchars($docSearch); ?>" placeholder="Search by student ID, name, or document...">
+              </div>
+              <div>
+                <select class="status-filter" name="doc_status" onchange="this.form.submit()">
+                  <?php foreach (['all' => 'All', 'pending' => 'Pending', 'scheduled' => 'Scheduled', 'ready' => 'Ready', 'released' => 'Released'] as $val => $label): ?>
+                    <option value="<?= $val; ?>" <?= $docStatus === $val ? 'selected' : ''; ?>><?= $label; ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <?php if ($profSearch !== ''): ?><input type="hidden" name="prof_q" value="<?= htmlspecialchars($profSearch); ?>"><?php endif; ?>
+                <?php if ($profStatus !== 'all'): ?><input type="hidden" name="prof_status" value="<?= htmlspecialchars($profStatus); ?>"><?php endif; ?>
+              </div>
+            </form>
             <table class="requests-table">
               <thead>
                 <tr>
@@ -271,6 +339,20 @@ foreach ($editRequests as $r) {
           </div>
 
           <div id="tab-prof" class="tab-pane" style="display:none;">
+            <form class="filters-row" method="get" action="" style="grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:12px;">
+              <div class="search-box">
+                <input type="text" name="prof_q" value="<?= htmlspecialchars($profSearch); ?>" placeholder="Search by professor, grading sheet, or reason...">
+              </div>
+              <div>
+                <select class="status-filter" name="prof_status" onchange="this.form.submit()">
+                  <?php foreach (['all' => 'All', 'pending' => 'Pending', 'approved' => 'Approved', 'denied' => 'Denied'] as $val => $label): ?>
+                    <option value="<?= $val; ?>" <?= $profStatus === $val ? 'selected' : ''; ?>><?= $label; ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <?php if ($docSearch !== ''): ?><input type="hidden" name="doc_q" value="<?= htmlspecialchars($docSearch); ?>"><?php endif; ?>
+                <?php if ($docStatus !== 'all'): ?><input type="hidden" name="doc_status" value="<?= htmlspecialchars($docStatus); ?>"><?php endif; ?>
+              </div>
+            </form>
             <table class="requests-table">
               <thead>
                 <tr>
@@ -283,16 +365,20 @@ foreach ($editRequests as $r) {
                 </tr>
               </thead>
               <tbody>
-                <?php if (!$editRequests): ?>
+                <?php if (!$editFiltered): ?>
                   <tr><td colspan="6">No edit requests.</td></tr>
-                <?php else: foreach ($editRequests as $r): ?>
+                <?php else: foreach ($editFiltered as $r): ?>
                   <?php $profName = trim(($r['last_name'] ?? '').', '.($r['first_name'] ?? '').' '.($r['middle_name'] ?? '')); ?>
                   <tr>
                     <td><?= 'REQ-PROF-'.str_pad((string)$r['id'], 3, '0', STR_PAD_LEFT); ?></td>
                     <td><?= htmlspecialchars($profName); ?></td>
                     <td>#<?= htmlspecialchars($r['grading_sheet_id']); ?></td>
                     <td><?= htmlspecialchars($r['reason']); ?></td>
-                    <td><span class="status-chip <?= $r['status']==='pending'?'pending':'ready'; ?>"><?= ucfirst($r['status']); ?></span></td>
+                    <?php
+                      $statusLower = strtolower((string)($r['status'] ?? ''));
+                      $statusClass = $statusLower === 'approved' ? 'ready' : ($statusLower === 'denied' ? 'released' : 'pending');
+                    ?>
+                    <td><span class="status-chip <?= $statusClass; ?>"><?= ucfirst($statusLower); ?></span></td>
                     <td>
                       <?php if ($r['status']==='pending'): ?>
                         <div class="action-buttons">

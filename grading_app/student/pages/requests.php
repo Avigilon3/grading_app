@@ -158,6 +158,7 @@ if ($studentId) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Requests</title>
     <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 
 <body>
@@ -185,11 +186,7 @@ if ($studentId) {
                 <form class="new-request-card" method="post">
                   <input type="hidden" name="request_type" value="report">
                   <div class="request-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6">
-                      <path d="M7 3h10l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" />
-                      <path d="M17 3v4h4" stroke="currentColor" />
-                      <path d="M12 9v6M9 12h6" stroke="currentColor" />
-                    </svg>
+                   <span class="material-symbols-rounded">add_notes</span>
                   </div>
                   <p class="new-request-title">Report of Grades</p>
                   <p class="new-request-sub">Official grade report with school dry seal</p>
@@ -214,9 +211,7 @@ if ($studentId) {
                     </label>
                   </div>
                   <button type="submit" class="new-request-action">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 5v14M5 12h14" />
-                    </svg>
+                    <span class="material-symbols-rounded">add</span>
                     Submit Request
                   </button>
                 </form>

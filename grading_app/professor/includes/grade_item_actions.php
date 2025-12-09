@@ -55,7 +55,7 @@ function handleCreateGradeItem(PDO $pdo, int $professorId): void
     }
     $defaultTitle = trim($baseName . ' ' . $nextNumber);
 
-    $defaultPoints = 10.0;
+    $defaultPoints = 10;
     $pdo->beginTransaction();
     try {
         $insertStmt = $pdo->prepare('INSERT INTO grade_items (component_id, title, total_points) VALUES (?, ?, ?)');
@@ -111,7 +111,7 @@ function handleUpdateGradeItem(PDO $pdo, int $professorId): void
     if (!is_numeric($pointsRaw)) {
         throw new RuntimeException('Total points must be a numeric value.');
     }
-    $totalPoints = (float)$pointsRaw;
+    $totalPoints = (int)round((float)$pointsRaw);
     if ($totalPoints <= 0) {
         throw new RuntimeException('Total points must be greater than zero.');
     }

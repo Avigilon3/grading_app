@@ -19,6 +19,7 @@ try {
         $year_level    = isset($_POST['year_level']) && $_POST['year_level'] !== '' ? trim($_POST['year_level']) : null;
         $term_id       = isset($_POST['term_id']) && $_POST['term_id'] !== '' ? (int)$_POST['term_id'] : null;
         $is_active     = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
+        $is_active     = deriveSubjectStatusFromTerm($pdo, $term_id, $is_active);
 
         $check = $pdo->prepare("SELECT id FROM subjects WHERE subject_code = ? LIMIT 1");
         $check->execute([$subject_code]);
@@ -47,6 +48,7 @@ try {
         $year_level    = isset($_POST['year_level']) && $_POST['year_level'] !== '' ? trim($_POST['year_level']) : null;
         $term_id       = isset($_POST['term_id']) && $_POST['term_id'] !== '' ? (int)$_POST['term_id'] : null;
         $is_active     = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
+        $is_active     = deriveSubjectStatusFromTerm($pdo, $term_id, $is_active);
 
         $check = $pdo->prepare("SELECT id FROM subjects WHERE subject_code = ? AND id != ? LIMIT 1");
         $check->execute([$subject_code, $id]);
