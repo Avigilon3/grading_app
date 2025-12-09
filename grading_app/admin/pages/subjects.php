@@ -3,10 +3,11 @@ require_once '../includes/init.php';
 requireAdmin();
 
 $stmt = $pdo->query("SELECT s.*,
-                             t.term_name
+                             t.term_name,
+                             t.is_active AS term_is_active
                       FROM subjects s
                       LEFT JOIN terms t
-                      ON t.id = s.term_id
+                        ON t.id = s.term_id
                       ORDER BY s.subject_code");
 $result = $stmt->fetchAll();
 
@@ -434,6 +435,24 @@ $yearLevels = [
             </thead>
             <tbody>
             <?php $i=1; foreach ($result as $row): ?>
+              <?php
+                $termIsActive = null;
+                if (!empty($row['term_id'])) {
+                  if ($row['term_is_active'] === null) {
+                    $termIsActive = null;
+                  } else {
+                    $termIsActive = (int)$row['term_is_active'];
+                  }
+                }
+                $derivedActive = null;
+                if ($row['term_id']) {
+                  $derivedActive = ($termIsActive === null) ? null : ($termIsActive === 1);
+                }
+                if ($derivedActive === null) {
+                  $derivedActive = (int)$row['is_active'] === 1;
+                }
+                $derivedActiveInt = $derivedActive ? 1 : 0;
+              ?>
               <tr>
                 <td><?= $i++; ?></td>
                 <td><?= htmlspecialchars($row['subject_code']); ?></td>
@@ -442,7 +461,7 @@ $yearLevels = [
                 <td><?= htmlspecialchars($yearLevels[$row['year_level']] ?? $row['year_level'] ?? '--'); ?></td>
                 <td><?= htmlspecialchars($row['term_name'] ?? '--'); ?></td>
                 <td><?= htmlspecialchars($row['units']); ?></td>
-                <td><?= ($row['is_active'] ? 'Active' : 'Inactive'); ?></td>
+                <td><?= $derivedActive ? 'Active' : 'Inactive'; ?></td>
                 <td class="actions">
                   <button
                     class="btn btn-sm btn-warning btn-edit"
@@ -454,7 +473,7 @@ $yearLevels = [
                     data-course_id="<?= htmlspecialchars($row['course_id'] ?? ''); ?>"
                     data-year_level="<?= htmlspecialchars($row['year_level'] ?? ''); ?>"
                     data-term_id="<?= htmlspecialchars($row['term_id'] ?? ''); ?>"
-                    data-is_active="<?= htmlspecialchars($row['is_active']); ?>"
+                    data-is_active="<?= $derivedActiveInt; ?>"
                   >Edit</button>
 
                   <form action="../includes/subject_process.php" method="POST" onsubmit="return confirm('Delete this subject?');">

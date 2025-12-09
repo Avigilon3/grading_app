@@ -83,7 +83,8 @@ function loadSubjectsForSectionsReport(PDO $pdo, array $sectionIds): array
             t.school_year,
             sub.subject_code,
             sub.subject_title,
-            COALESCE(sub.units, 0) AS units
+            COALESCE(sub.units, 0) AS units,
+            secsub.id AS section_subject_id
         FROM sections sec
         JOIN section_subjects secsub ON secsub.section_id = sec.id
         JOIN subjects sub ON sub.id = secsub.subject_id
@@ -126,6 +127,27 @@ function formatSemesterLabel(?string $semesterCode): ?string
 function formatUnitsForDisplay(float $value): string
 {
     return (abs($value - round($value)) < 0.01) ? (string)round($value) : number_format($value, 1);
+}
+
+function deriveGradeDisplayAndRemarks(?array $gradeInfo): array
+{
+    $gradeDisplay = 'Pending';
+    $remarks = 'In Progress';
+
+    if ($gradeInfo) {
+        if (!empty($gradeInfo['equivalent'])) {
+            $gradeDisplay = $gradeInfo['equivalent'];
+        } elseif ($gradeInfo['final_grade_display'] !== null) {
+            $gradeDisplay = number_format((float)$gradeInfo['final_grade_display'], 2) . '%';
+        }
+
+        $gradeValue = $gradeInfo['final_grade_display'] ?? $gradeInfo['final_grade'];
+        if ($gradeValue !== null) {
+            $remarks = $gradeValue >= 75 ? 'Passed' : 'Failed';
+        }
+    }
+
+    return [$gradeDisplay, $remarks];
 }
 
 $currentUserId = isset($_SESSION['user']['id']) ? (int)$_SESSION['user']['id'] : null;
@@ -389,12 +411,21 @@ if ($displaySemesterLabel || $displaySchoolYear) {
                     <tbody>
                       <?php if ($filteredSubjects): ?>
                         <?php foreach ($filteredSubjects as $row): ?>
+                          <?php
+                            $sectionId = isset($row['section_id']) ? (int)$row['section_id'] : 0;
+                            $sectionSubjectId = isset($row['section_subject_id']) ? (int)$row['section_subject_id'] : 0;
+                            $studentIdForGrades = $studentProfile['id'] ?? 0;
+                            $gradeInfo = ($sectionId && $studentIdForGrades)
+                                ? computeStudentGradeForSection($pdo, (int)$studentIdForGrades, $sectionId, $sectionSubjectId ?: null)
+                                : null;
+                            [$gradeDisplay, $gradeRemarks] = deriveGradeDisplayAndRemarks($gradeInfo);
+                          ?>
                           <tr>
                             <td><?php echo htmlspecialchars($row['subject_code'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($row['subject_title'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars(formatUnitsForDisplay((float)($row['units'] ?? 0))); ?></td>
-                            <td></td>
-                            <td></td>
+                            <td><?php echo htmlspecialchars($gradeDisplay); ?></td>
+                            <td><?php echo htmlspecialchars($gradeRemarks); ?></td>
                           </tr>
                         <?php endforeach; ?>
                       <?php else: ?>

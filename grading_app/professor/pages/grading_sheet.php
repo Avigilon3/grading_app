@@ -46,8 +46,17 @@ if (!$sheet) {
 }
 
 $sheetStatus = $sheet['status'] ?? 'draft';
-$isEditable = in_array($sheetStatus, ['draft', 'reopened'], true);
 $submittedAt = $sheet['submitted_at'] ? new DateTimeImmutable($sheet['submitted_at']) : null;
+$deadlineAt = $sheet['deadline_at'] ? new DateTimeImmutable($sheet['deadline_at']) : null;
+$currentTime = new DateTimeImmutable('now');
+$canSelfEditSubmitted = $sheetStatus === 'submitted' && $deadlineAt && $currentTime <= $deadlineAt;
+$editModeRequested = isset($_GET['edit']) && $_GET['edit'] === '1';
+$isEditable = in_array($sheetStatus, ['draft', 'reopened'], true);
+$editModeActive = false;
+if (!$isEditable && $canSelfEditSubmitted && $editModeRequested) {
+    $isEditable = true;
+    $editModeActive = true;
+}
 
 $sectionId = (int)$sheet['section_id'];
 
@@ -269,7 +278,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_flash('error', 'Unable to save grades: ' . $e->getMessage());
     }
 
-    header('Location: ./grading_sheet.php?sheet_id=' . $sheetId);
+    $redirectUrl = './grading_sheet.php?sheet_id=' . $sheetId;
+    if (isset($_GET['edit']) && $_GET['edit'] === '1') {
+        $redirectUrl .= '&edit=1';
+    }
+    header('Location: ' . $redirectUrl);
     exit;
 }
 ?>
@@ -298,6 +311,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php else: ?>
                 <div class="header-actions">
                     <a class="btn secondary" href="./grading_sheet_export.php?sheet_id=<?= $sheetId; ?>">Export</a>
+                    <?php if ($canSelfEditSubmitted): ?>
+                        <a class="btn" href="./grading_sheet.php?sheet_id=<?= $sheetId; ?>&edit=1">Edit</a>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>
@@ -306,13 +322,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($isLocked): ?>
             <div class="alert alert-warning">
                 <?php if ($sheetStatus === 'submitted'): ?>
-                    This grading sheet was submitted<?= $submittedAt ? ' on ' . htmlspecialchars($submittedAt->format('M j, Y g:i A')) : ''; ?> and can no longer be edited. Submit an edit request if you need changes.
+                    <?php if ($canSelfEditSubmitted): ?>
+                        This grading sheet was submitted<?= $submittedAt ? ' on ' . htmlspecialchars($submittedAt->format('M j, Y g:i A')) : ''; ?>. You can still make changes before the deadline<?= $deadlineAt ? ' (' . htmlspecialchars($deadlineAt->format('M j, Y g:i A')) . ')' : ''; ?> by clicking the Edit button above.
+                    <?php else: ?>
+                        This grading sheet was submitted<?= $submittedAt ? ' on ' . htmlspecialchars($submittedAt->format('M j, Y g:i A')) : ''; ?> and can no longer be edited. Submit an edit request if you need changes.
+                    <?php endif; ?>
                 <?php else: ?>
                     This grading sheet is locked by the registrar. You can view grades but cannot make changes.
                 <?php endif; ?>
             </div>
         <?php elseif ($sheetStatus === 'reopened'): ?>
             <div class="alert alert-info">This grading sheet has been reopened. Please make changes and resubmit.</div>
+        <?php elseif ($editModeActive && $canSelfEditSubmitted): ?>
+            <div class="alert alert-info">
+                You are editing a submitted grading sheet before the deadline<?= $deadlineAt ? ' (' . htmlspecialchars($deadlineAt->format('M j, Y g:i A')) . ')' : ''; ?>. Remember to resubmit once you finish your updates.
+            </div>
         <?php endif; ?>
 
         <?php if (empty($components) || empty($students)): ?>

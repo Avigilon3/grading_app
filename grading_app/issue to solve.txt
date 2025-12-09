@@ -1,4 +1,6 @@
 
+Kulang: 
+
 1. Error handling if student is already under a section for that term and year_level (or hindi kasi may mga irregular student na merong more than 1 section?)
 
 2. confirmation of assignment ng prof sa section - create selection if more than 1 prof is teaching for that section 
@@ -7,8 +9,11 @@
 
 4. No option to edit name under users table once the user registered (prof and student) It should be initiated by the Admin, so sa registration siguro email lang need di na need ng name? tapos iinsert ng lang ng database yun from the prof/student table?
 
-5. No decline option for the admins in the document requests from students -- they need to pick schedule or just ignore the request completely 
+5. To get the locked final grade, we should have final_grade table which will also avoid having to use php file to compute the grades from the grades table
 
-6. 
 
- 
+ Butas: 
+1. No decline option for the admins in the document requests from students -- they need to pick schedule or just ignore the request completely 
+
+2. Term and school year should in separate table. Since term and school year is merged into one data, it means that the admin needs to recreate the subjects every year so that it would be registered to a student for the new school year. 
+Answer: kung anong active term sa terms table yun din yung active sa subjects table
