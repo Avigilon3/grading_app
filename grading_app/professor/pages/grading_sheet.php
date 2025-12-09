@@ -57,7 +57,7 @@ $components = $componentsStmt->fetchAll(PDO::FETCH_ASSOC);
 $componentStyles = [];
 if ($components) {
     $palette = [
-        ['bg' => '#FFE8B5', 'border' => '#F3D487', 'text' => '#7A4B00', 'muted' => '#FFF6DC'],
+        ['bg' => '#FFEAA7', 'border' => '#F3D487', 'text' => '#7A4B00', 'muted' => '#FFF6DC'],
         ['bg' => '#FFD6D6', 'border' => '#F1AAAA', 'text' => '#8B1A1A', 'muted' => '#FFECEC'],
         ['bg' => '#E0D7FF', 'border' => '#C3B4FF', 'text' => '#412678', 'muted' => '#F0EDFF'],
         ['bg' => '#CFE9FF', 'border' => '#A1D4FF', 'text' => '#0D3A61', 'muted' => '#E7F4FF'],
@@ -190,10 +190,15 @@ foreach ($students as $student) {
     if ($weightAccumulated > 0) {
         $finalGrade = round($finalGradeTotal, 2);
         $studentSummaries[$studentId]['final_grade'] = $finalGrade;
-        $studentSummaries[$studentId]['equivalent'] = convertRawGradeToEquivalent($finalGrade);
     } elseif ($finalGradeDisplayTotal > 0) {
         $studentSummaries[$studentId]['final_grade'] = round($finalGradeDisplayTotal, 2);
-        $studentSummaries[$studentId]['equivalent'] = convertRawGradeToEquivalent($studentSummaries[$studentId]['final_grade']);
+    }
+
+    $gradeForEquivalent = $studentSummaries[$studentId]['final_grade_display']
+        ?? $studentSummaries[$studentId]['final_grade']
+        ?? null;
+    if ($gradeForEquivalent !== null) {
+        $studentSummaries[$studentId]['equivalent'] = convertRawGradeToEquivalent($gradeForEquivalent);
     }
 }
 
@@ -275,6 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grading Sheet</title>
     <link rel="stylesheet" href="../assets/css/professor.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body data-sheet-id="<?= $sheetId; ?>" data-sheet-editable="<?= $isEditable ? '1' : '0'; ?>">
 <?php include '../includes/header.php'; ?>
@@ -346,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             data-add-grade-item
                                             data-component-id="<?= $componentId; ?>"
                                             data-component-name="<?= htmlspecialchars($component['name']); ?>"
-                                        >+</button>
+                                        ><span class="material-symbols-rounded">add</span></button>
                                     <?php endif; ?>
                                 </th>
                             <?php endforeach; ?>
@@ -376,7 +382,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         data-component-name="<?= htmlspecialchars($component['name']); ?>"
                                                         data-title="<?= htmlspecialchars($item['title']); ?>"
                                                         data-total-points="<?= htmlspecialchars(number_format((float)$item['total_points'], 2, '.', '')); ?>"
-                                                    >&#9998;</button>
+                                                    ><span class="material-symbols-rounded">edit</span></button>
                                                     <button
                                                         type="button"
                                                         class="item-action delete"
@@ -385,7 +391,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         data-grade-item-id="<?= (int)$item['id']; ?>"
                                                         data-component-name="<?= htmlspecialchars($component['name']); ?>"
                                                         data-title="<?= htmlspecialchars($item['title']); ?>"
-                                                    >&times;</button>
+                                                    ><span class="material-symbols-rounded">close_small</span></button>
                                                 </div>
                                             <?php endif; ?>
                                         </th>

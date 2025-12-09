@@ -136,6 +136,8 @@ if (!function_exists('ensureGradingSheetForSectionSubject')) {
                  VALUES (?, ?, 'draft', NULL, NULL, ?)"
             );
             $insert->execute([$sectionId, $professorId, $sectionSubjectId]);
+            $newSheetId = (int)$pdo->lastInsertId();
+            syncDefaultGradeComponentsForSheet($pdo, $newSheetId);
             return;
         }
 
@@ -144,6 +146,8 @@ if (!function_exists('ensureGradingSheetForSectionSubject')) {
             $update = $pdo->prepare('UPDATE grading_sheets SET professor_id = ? WHERE id = ?');
             $update->execute([$professorId, $gradingSheet['id']]);
         }
+
+        syncDefaultGradeComponentsForSheet($pdo, (int)$gradingSheet['id']);
     }
 }
 
@@ -163,5 +167,137 @@ if (!function_exists('removeProfessorFromGradingSheet')) {
                 AND professor_id = ?"
         );
         $stmt->execute([$sectionId, $professorId]);
+    }
+}
+
+if (!function_exists('ensureDefaultGradeTemplateStorage')) {
+    function ensureDefaultGradeTemplateStorage(PDO $pdo): void
+    {
+        static $ensured = false;
+        if ($ensured) {
+            return;
+        }
+
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS default_grade_components (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                weight DECIMAL(5,2) NOT NULL,
+                sort_order INT NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+        );
+
+        $count = (int)$pdo->query('SELECT COUNT(*) FROM default_grade_components')->fetchColumn();
+        if ($count === 0) {
+            $defaults = [
+                ['Activity', 40.0, 1],
+                ['Exam', 40.0, 2],
+                ['Quizzes', 10.0, 3],
+                ['Attendance', 10.0, 4],
+            ];
+            $insert = $pdo->prepare('INSERT INTO default_grade_components (name, weight, sort_order) VALUES (?, ?, ?)');
+            foreach ($defaults as $row) {
+                $insert->execute([$row[0], $row[1], $row[2]]);
+            }
+        }
+
+        $ensured = true;
+    }
+}
+
+if (!function_exists('defaultGradeComponentsTemplate')) {
+    function defaultGradeComponentsTemplate(PDO $pdo): array
+    {
+        ensureDefaultGradeTemplateStorage($pdo);
+        $stmt = $pdo->query('SELECT id, name, weight, sort_order FROM default_grade_components ORDER BY sort_order, id');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
+
+if (!function_exists('normalizeGradeComponentNameKey')) {
+    function normalizeGradeComponentNameKey(string $name): string
+    {
+        $normalized = strtolower(trim($name));
+        $normalized = preg_replace('/[^a-z]/', '', $normalized ?? '');
+
+        if (substr($normalized, -3) === 'ies') {
+            $normalized = substr($normalized, 0, -3) . 'y';
+        } elseif (substr($normalized, -2) === 'es') {
+            $normalized = substr($normalized, 0, -2);
+        } elseif (substr($normalized, -1) === 's') {
+            $normalized = substr($normalized, 0, -1);
+        }
+
+        return $normalized;
+    }
+}
+
+if (!function_exists('syncDefaultGradeComponentsForSheet')) {
+    function syncDefaultGradeComponentsForSheet(PDO $pdo, int $gradingSheetId, ?array $template = null, bool $removeMissing = false): void
+    {
+        if ($gradingSheetId <= 0) {
+            return;
+        }
+
+        $template = $template ?: defaultGradeComponentsTemplate($pdo);
+        if (!$template) {
+            return;
+        }
+
+        $existingStmt = $pdo->prepare('SELECT id, name, weight FROM grade_components WHERE grading_sheet_id = ?');
+        $existingStmt->execute([$gradingSheetId]);
+        $existingRows = $existingStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $existingMap = [];
+        foreach ($existingRows as $row) {
+            $key = normalizeGradeComponentNameKey((string)$row['name']);
+            $existingMap[$key] = $row;
+        }
+
+        $keptIds = [];
+        $updateStmt = $pdo->prepare('UPDATE grade_components SET name = ?, weight = ? WHERE id = ?');
+        $insertStmt = $pdo->prepare('INSERT INTO grade_components (grading_sheet_id, name, weight) VALUES (?, ?, ?)');
+
+        foreach ($template as $component) {
+            $name = $component['name'] ?? ($component[0] ?? null);
+            $weight = $component['weight'] ?? ($component[1] ?? null);
+            if ($name === null || $weight === null) {
+                continue;
+            }
+
+            $weight = (float)$weight;
+            $key = normalizeGradeComponentNameKey((string)$name);
+            $existing = $existingMap[$key] ?? null;
+
+            if ($existing) {
+                $needsUpdate = false;
+                if ($existing['name'] !== $name) {
+                    $needsUpdate = true;
+                }
+                if ((float)$existing['weight'] !== $weight) {
+                    $needsUpdate = true;
+                }
+
+                if ($needsUpdate) {
+                    $updateStmt->execute([$name, $weight, $existing['id']]);
+                }
+                $keptIds[] = (int)$existing['id'];
+                continue;
+            }
+
+            $insertStmt->execute([$gradingSheetId, $name, $weight]);
+            $keptIds[] = (int)$pdo->lastInsertId();
+        }
+
+        if ($removeMissing && $existingRows) {
+            $existingIds = array_map('intval', array_column($existingRows, 'id'));
+            $removeIds = array_diff($existingIds, $keptIds);
+            if ($removeIds) {
+                $placeholders = implode(',', array_fill(0, count($removeIds), '?'));
+                $deleteStmt = $pdo->prepare("DELETE FROM grade_components WHERE grading_sheet_id = ? AND id IN ($placeholders)");
+                $deleteStmt->execute([$gradingSheetId, ...$removeIds]);
+            }
+        }
     }
 }
