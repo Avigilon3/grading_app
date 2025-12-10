@@ -17,3 +17,7 @@ Kulang:
 
 2. Term and school year should in separate table. Since term and school year is merged into one data, it means that the admin needs to recreate the subjects every year so that it would be registered to a student for the new school year. 
 Answer: kung anong active term sa terms table yun din yung active sa subjects table
+
+3. For students, what are the restrictions or limitations for requesting a hard copy of the grade and downloading the grade as jpeg? they can do it anytime kahit di pa tapos yung grades? 
+
+4. No watermarks when downloading jpeg 

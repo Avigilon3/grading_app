@@ -730,6 +730,262 @@ button{
   font-size: 12px;
 }
 
+.class-standing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.standing-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.standing-box h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.standing-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.standing-table th,
+.standing-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.standing-table th:last-child,
+.standing-table td:last-child {
+  text-align: right;
+}
+
+.standing-table-wrapper {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.rank-label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.rank-empty {
+  color: #9ca3af;
+}
+
+.standing-chart-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.standing-chart-legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.dot-you {
+  background: #34d399;
+}
+
+.dot-class {
+  background: #93c5fd;
+}
+
+.standing-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  min-height: 200px;
+  padding: 6px 4px 0;
+  overflow-x: auto;
+}
+
+.subject-bars {
+  flex: 1;
+  min-width: 60px;
+  text-align: center;
+}
+
+.bar-track {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  justify-content: center;
+  height: 160px;
+}
+
+.bar-col {
+  width: 14px;
+  border-radius: 999px 999px 0 0;
+  background: #93c5fd;
+}
+
+.bar-col.you {
+  background: #34d399;
+}
+
+.bar-col.empty {
+  background: #e5e7eb;
+}
+
+.bar-caption {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+@media (max-width: 900px) {
+  .class-standing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grade-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 4000;
+  padding: 20px;
+}
+
+.grade-modal[hidden] {
+  display: none;
+}
+
+.grade-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.grade-modal__dialog {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  width: min(900px, 100%);
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.grade-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 24px 10px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.grade-modal__header h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.grade-modal__professor {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.grade-modal__close {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 1;
+  color: #6b7280;
+}
+
+.grade-modal__body {
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+}
+
+.grade-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.grade-breakdown-table th,
+.grade-breakdown-table td {
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.grade-breakdown-table thead th {
+  background: #fef3c7;
+}
+
+.grade-component-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.grade-component-card__header {
+  background: #f9fafb;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.grade-component-card__body {
+  padding: 0 16px 16px;
+}
+
+.grade-component-summary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #4b5563;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.grade-modal-info {
+  background: #eef6ff;
+  border: 1px solid #cfe0ff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.grade-modal-info strong {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.grade-modal__body .loading {
+  padding: 40px 0;
+  text-align: center;
+  color: #6b7280;
+}
+
 /* Section masterlist */
 .section-meta-grid {
   display: grid;
