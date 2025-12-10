@@ -2,6 +2,16 @@
 require_once '../includes/init.php';
 requireAdmin();
 
+function adminTableExists(PDO $pdo, string $table): bool
+{
+    try {
+        $pdo->query("SELECT 1 FROM {$table} LIMIT 1");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
 // Simple CSV export handler (students, professors, sections, subjects, activity_logs)
 function csv_out(array $rows, array $headers, string $filename) {
   header('Content-Type: text/csv');
@@ -41,19 +51,109 @@ if ($export) {
   }
 }
 
-// Summary widgets
-$summary = [
-  'students'   => (int)$pdo->query('SELECT COUNT(*) FROM students')->fetchColumn(),
-  'professors' => (int)$pdo->query('SELECT COUNT(*) FROM professors')->fetchColumn(),
-  'sections'   => (int)$pdo->query('SELECT COUNT(*) FROM sections')->fetchColumn(),
-  'subjects'   => (int)$pdo->query('SELECT COUNT(*) FROM subjects')->fetchColumn(),
-];
+$courseFilter = isset($_GET['course']) ? (int)$_GET['course'] : 0;
+$yearFilter = isset($_GET['year_level']) ? trim($_GET['year_level']) : '';
+$sectionFilter = isset($_GET['section']) ? (int)$_GET['section'] : 0;
+$termFilter = isset($_GET['term']) ? (int)$_GET['term'] : 0;
+$searchQuery = trim($_GET['search'] ?? '');
 
-// Recent activities
-$logs = $pdo->query('SELECT a.id, a.action, a.details, a.ip, a.created_at, u.email AS user_email
-                      FROM activity_logs a
-                 LEFT JOIN users u ON u.id = a.user_id
-                  ORDER BY a.id DESC LIMIT 20')->fetchAll();
+$courseOptions = $pdo->query('SELECT id, code, title FROM courses ORDER BY code')->fetchAll(PDO::FETCH_ASSOC);
+$yearOptions = $pdo->query('SELECT DISTINCT year_level FROM students WHERE year_level IS NOT NULL ORDER BY year_level')->fetchAll(PDO::FETCH_COLUMN);
+$sectionOptions = $pdo->query('SELECT id, section_name FROM sections ORDER BY section_name')->fetchAll(PDO::FETCH_ASSOC);
+$termOptions = $pdo->query('SELECT id, term_name FROM terms ORDER BY start_date DESC')->fetchAll(PDO::FETCH_ASSOC);
+
+$reportParams = [];
+$gradeReports = [];
+$reportTableExists = adminTableExists($pdo, 'report_of_grades');
+
+if ($reportTableExists) {
+    $reportSql = "
+      SELECT st.student_id,
+             CONCAT(st.last_name, ', ', st.first_name) AS student_name,
+             c.code AS course_code,
+             st.year_level,
+             sec.section_name,
+             t.term_name,
+             COALESCE(ro.grade_average, 0) AS gwa,
+             ro.status
+        FROM report_of_grades ro
+        JOIN students st ON st.id = ro.student_id
+        LEFT JOIN sections sec ON sec.id = ro.section_id
+        LEFT JOIN courses c ON c.id = sec.course_id
+        LEFT JOIN terms t ON t.id = ro.term_id
+       WHERE 1=1";
+
+    if ($courseFilter > 0) {
+        $reportSql .= ' AND st.course_id = :course';
+        $reportParams[':course'] = $courseFilter;
+    }
+    if ($yearFilter !== '') {
+        $reportSql .= ' AND st.year_level = :year_level';
+        $reportParams[':year_level'] = $yearFilter;
+    }
+    if ($sectionFilter > 0) {
+        $reportSql .= ' AND ro.section_id = :section';
+        $reportParams[':section'] = $sectionFilter;
+    }
+    if ($termFilter > 0) {
+        $reportSql .= ' AND ro.term_id = :term';
+        $reportParams[':term'] = $termFilter;
+    }
+    if ($searchQuery !== '') {
+        $reportSql .= ' AND (st.student_id LIKE :search OR CONCAT(st.last_name, ", ", st.first_name) LIKE :search)';
+        $reportParams[':search'] = '%' . $searchQuery . '%';
+    }
+
+    $reportSql .= ' ORDER BY st.last_name, st.first_name';
+    $reportStmt = $pdo->prepare($reportSql);
+    $reportStmt->execute($reportParams);
+    $gradeReports = $reportStmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $reportSql = "
+      SELECT st.student_id,
+             CONCAT(st.last_name, ', ', st.first_name) AS student_name,
+             c.code AS course_code,
+             st.year_level,
+             MAX(sec.section_name) AS section_name,
+             MAX(t.term_name) AS term_name,
+             NULL AS gwa,
+             NULL AS status
+        FROM students st
+   LEFT JOIN section_students ss ON ss.student_id = st.id
+   LEFT JOIN sections sec ON sec.id = ss.section_id
+   LEFT JOIN terms t ON t.id = sec.term_id
+   LEFT JOIN courses c ON c.id = sec.course_id
+       WHERE 1=1";
+
+    if ($courseFilter > 0) {
+        $reportSql .= ' AND sec.course_id = :course';
+        $reportParams[':course'] = $courseFilter;
+    }
+    if ($yearFilter !== '') {
+        $reportSql .= ' AND st.year_level = :year_level';
+        $reportParams[':year_level'] = $yearFilter;
+    }
+    if ($sectionFilter > 0) {
+        $reportSql .= ' AND sec.id = :section';
+        $reportParams[':section'] = $sectionFilter;
+    }
+    if ($termFilter > 0) {
+        $reportSql .= ' AND sec.term_id = :term';
+        $reportParams[':term'] = $termFilter;
+    }
+    if ($searchQuery !== '') {
+        $reportSql .= ' AND (st.student_id LIKE :search OR CONCAT(st.last_name, ", ", st.first_name) LIKE :search)';
+        $reportParams[':search'] = '%' . $searchQuery . '%';
+    }
+
+    $reportSql .= '
+        GROUP BY st.id, st.student_id, st.last_name, st.first_name, c.code, st.year_level
+        ORDER BY st.last_name, st.first_name';
+
+    $reportStmt = $pdo->prepare($reportSql);
+    $reportStmt->execute($reportParams);
+    $gradeReports = $reportStmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 
 <!doctype html>
@@ -75,57 +175,141 @@ $logs = $pdo->query('SELECT a.id, a.action, a.details, a.ip, a.created_at, u.ema
           <p class="text-muted">View and manage student grade reports by section and term</p>
         </div>
 
-        <div class="row-grid cols-4">
-          <div class="card"><div class="card-body"><strong>Students</strong><div><?= (int)$summary['students'] ?></div></div></div>
-          <div class="card"><div class="card-body"><strong>Professors</strong><div><?= (int)$summary['professors'] ?></div></div></div>
-          <div class="card"><div class="card-body"><strong>Sections</strong><div><?= (int)$summary['sections'] ?></div></div></div>
-          <div class="card"><div class="card-body"><strong>Subjects</strong><div><?= (int)$summary['subjects'] ?></div></div></div>
-        </div>
-
-        <div class="card">
+        <section class="reports-filter card">
           <div class="card-body">
-            <div class="page-header compact"><h2>Quick Exports</h2></div>
-            <div class="row-grid cols-1">
-              <a class="button" href="?export=students">Export Students CSV</a>
-              <a class="button" href="?export=professors">Export Professors CSV</a>
-              <a class="button" href="?export=sections">Export Sections CSV</a>
-              <a class="button" href="?export=subjects">Export Subjects CSV</a>
-              <a class="button" href="?export=activity">Export Activity Logs CSV</a>
+            <div class="section-header">
+              <div>
+                <h2>Filter Reports</h2>
+                <p class="text-muted">Refine grade reports by course, year level, section, and term.</p>
+              </div>
+              <a class="btn ghost" href="./reports.php">Clear All Filters</a>
+            </div>
+            <form method="get" class="filters-row">
+              <label>
+                <span>Course</span>
+                <select name="course">
+                  <option value="0">-- Select Course --</option>
+                  <?php foreach ($courseOptions as $course): ?>
+                    <?php $courseId = (int)$course['id']; ?>
+                    <option value="<?= $courseId; ?>" <?= $courseFilter === $courseId ? 'selected' : ''; ?>>
+                      <?= htmlspecialchars($course['code'] ?: $course['title']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </label>
+              <label>
+                <span>Year Level</span>
+                <select name="year_level">
+                  <option value="">-- Select Year --</option>
+                  <?php foreach ($yearOptions as $year): ?>
+                    <option value="<?= htmlspecialchars($year); ?>" <?= $yearFilter === $year ? 'selected' : ''; ?>>
+                      <?= htmlspecialchars($year); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </label>
+              <label>
+                <span>Section</span>
+                <select name="section">
+                  <option value="0">-- Select Section --</option>
+                  <?php foreach ($sectionOptions as $section): ?>
+                    <?php $secId = (int)$section['id']; ?>
+                    <option value="<?= $secId; ?>" <?= $sectionFilter === $secId ? 'selected' : ''; ?>>
+                      <?= htmlspecialchars($section['section_name']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </label>
+              <label>
+                <span>Term/Semester</span>
+                <select name="term">
+                  <option value="0">-- Select Term --</option>
+                  <?php foreach ($termOptions as $term): ?>
+                    <?php $termId = (int)$term['id']; ?>
+                    <option value="<?= $termId; ?>" <?= $termFilter === $termId ? 'selected' : ''; ?>>
+                      <?= htmlspecialchars($term['term_name']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </label>
+              <label>
+                <span>Search</span>
+                <input type="text" name="search" placeholder="Search student..." value="<?= htmlspecialchars($searchQuery); ?>">
+              </label>
+              <button type="submit">Apply Filters</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="reports-table card">
+          <div class="card-body">
+            <div class="section-header">
+              <div>
+                <h2>Student Grade Reports</h2>
+                <p class="text-muted">Latest grade submissions grouped by section and term.</p>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="reports-data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Course</th>
+                    <th>Year Level</th>
+                    <th>Section</th>
+                    <th>Term</th>
+                    <th>GWA</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php if (empty($gradeReports)): ?>
+                    <tr>
+                      <td colspan="10" class="empty-cell">No grade reports found for the selected filters.</td>
+                    </tr>
+                  <?php else: ?>
+                    <?php foreach ($gradeReports as $index => $report): ?>
+                      <?php
+                        $gwaValue = $report['gwa'];
+                        $gwaDisplay = $gwaValue !== null ? number_format((float)$gwaValue, 2) : '--';
+                        $statusRaw = strtolower((string)($report['status'] ?? ''));
+                        if ($statusRaw === 'fail' || $statusRaw === 'failed') {
+                            $statusLabel = 'Failed';
+                            $statusClass = 'status-failed';
+                        } elseif ($statusRaw === 'pass' || $statusRaw === 'passed') {
+                            $statusLabel = 'Passed';
+                            $statusClass = 'status-passed';
+                        } else {
+                            $statusLabel = 'Pending';
+                            $statusClass = 'status-pending';
+                        }
+                      ?>
+                      <tr>
+                        <td><?= $index + 1; ?></td>
+                        <td><?= htmlspecialchars($report['student_id']); ?></td>
+                        <td><?= htmlspecialchars($report['student_name']); ?></td>
+                        <td><?= htmlspecialchars($report['course_code'] ?? ''); ?></td>
+                        <td><?= htmlspecialchars($report['year_level'] ?? ''); ?></td>
+                        <td><?= htmlspecialchars($report['section_name'] ?? ''); ?></td>
+                        <td><?= htmlspecialchars($report['term_name'] ?? ''); ?></td>
+                        <td><?= htmlspecialchars($gwaDisplay); ?></td>
+                        <td><span class="status-pill <?= $statusClass; ?>"><?= htmlspecialchars($statusLabel); ?></span></td>
+                        <td class="actions">
+                          <a class="btn ghost" href="./report_view.php?student_id=<?= urlencode($report['student_id']); ?>">View</a>
+                          <a class="btn primary" href="./report_view.php?student_id=<?= urlencode($report['student_id']); ?>&download=1">Download</a>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="card">
-          <div class="card-body">
-            <div class="page-header compact"><h2>Recent Activity</h2></div>
-            <table class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>User</th>
-                  <th>Action</th>
-                  <th>Details</th>
-                  <th>IP</th>
-                  <th>When</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php if (!$logs): ?>
-                  <tr><td colspan="6">No activity yet.</td></tr>
-                <?php else: foreach ($logs as $row): ?>
-                  <tr>
-                    <td><?= (int)$row['id']; ?></td>
-                    <td><?= htmlspecialchars($row['user_email'] ?: 'N/A'); ?></td>
-                    <td><?= htmlspecialchars($row['action']); ?></td>
-                    <td><?= htmlspecialchars((string)$row['details']); ?></td>
-                    <td><?= htmlspecialchars((string)$row['ip']); ?></td>
-                    <td><?= htmlspecialchars($row['created_at']); ?></td>
-                  </tr>
-                <?php endforeach; endif; ?>
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         <script src="../assets/js/admin.js"></script>
       </main>
