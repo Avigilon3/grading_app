@@ -3,6 +3,8 @@ require_once 'core/config/config.php';
 require_once 'core/auth/session.php';
 
 $err = null;
+$flashError = get_flash('error');
+$flashSuccess = get_flash('success');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -348,6 +350,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Sign in to access your portal.</p>
                 </div>
 
+                <?php if ($flashError): ?>
+                    <div class="alert"><?= htmlspecialchars($flashError) ?></div>
+                <?php endif; ?>
+                <?php if ($flashSuccess): ?>
+                    <div class="alert" style="background:#e8f6ed;border-color:#b6e2c3;color:#1c6b34;">
+                        <?= htmlspecialchars($flashSuccess) ?>
+                    </div>
+                <?php endif; ?>
                 <?php if ($err): ?>
                     <div class="alert"><?= htmlspecialchars($err) ?></div>
                 <?php endif; ?>
