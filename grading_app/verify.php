@@ -3,48 +3,95 @@ require_once 'core/config/config.php';
 require_once 'core/auth/session.php';
 require_once 'core/db/connection.php';
 
-if($_SERVER['REQUEST_METHOD']!=='POST' || empty($_SESSION['pending_reg'])){ header('Location: register.php'); exit; }
-$code = trim($_POST['code'] ?? '');
-if($code !== ($_SESSION['pending_reg']['code'] ?? '')){ set_flash('error','Invalid code.'); header('Location: register.php'); exit; }
+$pending = $_SESSION['pending_reg'] ?? null;
+$err = get_flash('error');
+$msg = get_flash('success');
 
-$email = $_SESSION['pending_reg']['email'];
-$pass  = $_SESSION['pending_reg']['password'];
-unset($_SESSION['pending_reg']);
-
-$hash = password_hash($pass, PASSWORD_BCRYPT);
-
-// Expect user row exists (MIS preload). If not, fallback to student.
-$stmt = $pdo->prepare('SELECT id, role, first_name, last_name FROM users WHERE email=? LIMIT 1');
-$stmt->execute([$email]);
-$u = $stmt->fetch();
-if(!$u){
-  $ins = $pdo->prepare('INSERT INTO users(email,password_hash,role,first_name,last_name) VALUES(?,?,?,?,?)');
-  $ins->execute([
-    $email,
-    $hash,
-    $_SESSION['pending_reg']['role'] ?? 'student',
-    $_SESSION['pending_reg']['first_name'] ?? '',
-    $_SESSION['pending_reg']['last_name'] ?? ''
-  ]);
-  $u = [
-    'id'=>$pdo->lastInsertId(),
-    'role'=>$_SESSION['pending_reg']['role'] ?? 'student',
-    'first_name'=>$_SESSION['pending_reg']['first_name'] ?? '',
-    'last_name'=>$_SESSION['pending_reg']['last_name'] ?? '',
-  ];
-} else {
-  $upd = $pdo->prepare('UPDATE users SET password_hash=? WHERE id=?');
-  $upd->execute([$hash,$u['id']]);
+if (!$pending) {
+    set_flash('error', 'Please start your registration first.');
+    header('Location: ' . BASE_URL . '/register.php');
+    exit;
 }
 
-$_SESSION['user'] = [
-  'id'=>$u['id'],'email'=>$email,'role'=>$u['role'],
-  'name'=>trim(($u['first_name']??'').' '.($u['last_name']??'')),
-];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $code = trim($_POST['code'] ?? '');
+    $email = $pending['email'];
 
-if($u['role']==='admin' || $u['role']==='registrar'){ header('Location: admin/index.php'); exit; }
-if($u['role']==='professor'){ header('Location: professor/index.php'); exit; }
-header('Location: student/index.php'); exit;
+    if ($code === '') {
+        set_flash('error', 'Please enter the verification code.');
+        header('Location: ' . BASE_URL . '/verify.php');
+        exit;
+    }
+
+    $stmt = $pdo->prepare('SELECT id, email, role, first_name, last_name, verify_code FROM users WHERE email=? LIMIT 1');
+    $stmt->execute([$email]);
+    $u = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$u || ($u['verify_code'] ?? '') !== $code) {
+        set_flash('error', 'Invalid or expired verification code.');
+        header('Location: ' . BASE_URL . '/verify.php');
+        exit;
+    }
+
+    $hash = password_hash($pending['password'], PASSWORD_BCRYPT);
+    $first = $pending['first_name'] ?? ($u['first_name'] ?? '');
+    $last  = $pending['last_name'] ?? ($u['last_name'] ?? '');
+    $role  = $pending['role'] ?? ($u['role'] ?? 'student');
+
+    $upd = $pdo->prepare('UPDATE users SET password_hash=?, verify_code=NULL, first_name=?, last_name=?, role=?, status=? WHERE id=?');
+    $upd->execute([$hash, $first, $last, $role, 'ACTIVE', $u['id']]);
+
+    unset($_SESSION['pending_reg']);
+
+    $_SESSION['user'] = [
+        'id'    => $u['id'],
+        'email' => $email,
+        'role'  => $role,
+        'name'  => trim($first . ' ' . $last),
+    ];
+
+    // Notify admins about the new verified user (non-blocking)
+    try {
+        $adminStmt = $pdo->query("SELECT id, email FROM users WHERE role IN ('admin','super_admin','registrar','mis')");
+        $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
+        $adminIds = array_column($admins, 'id');
+        if ($adminIds) {
+            $notif = $pdo->prepare('INSERT INTO notifications (user_id, type, message, is_read) VALUES (?, ?, ?, 0)');
+            foreach ($admins as $admin) {
+                $adminId = $admin['id'];
+                $notif->execute([
+                    $adminId,
+                    'new_user',
+                    'New user registered: ' . $email . ' (' . ucfirst($role) . ')'
+                ]);
+
+                // Optional email alert; ignore failures
+                if (!empty($admin['email'])) {
+                    try {
+                        $subject = 'New user verified';
+                        $body = "A new user just verified their account:\n\nEmail: {$email}\nRole: " . ucfirst($role) . "\n\nYou can review this user in the admin portal.";
+                        @mail($admin['email'], $subject, $body);
+                    } catch (Exception $e) {
+                        // ignore mail failures
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // swallow notification errors to avoid blocking login
+    }
+
+    if (in_array($role, ['admin', 'registrar', 'mis', 'super_admin'], true)) {
+        header('Location: ' . BASE_URL . '/admin/index.php');
+        exit;
+    }
+    if ($role === 'professor') {
+        header('Location: ' . BASE_URL . '/professor/index.php');
+        exit;
+    }
+    header('Location: ' . BASE_URL . '/student/index.php');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -331,12 +378,17 @@ header('Location: student/index.php'); exit;
                     <p>Sign up using your PTC email address to access your portal.</p>
                 </div>
 
+                <?php if ($err): ?>
+                    <div class="alert"><?= htmlspecialchars($err) ?></div>
+                <?php endif; ?>
+                <?php if ($msg && !$err): ?>
+                    <div class="alert" style="background:#e8f6ed;border-color:#b6e2c3;color:#1c6b34;">
+                        <?= htmlspecialchars($msg) ?>
+                    </div>
+                <?php endif; ?>
+
                     <h2>Email Verification</h2>
                       <p>We sent a 6-digit code to <strong><?= htmlspecialchars($pending['email']) ?></strong>.</p>
-
-                      <?php if ($err): ?>
-                          <div style="color:#b00020;"><?= htmlspecialchars($err) ?></div>
-                      <?php endif; ?>
 
                       <form method="post">
                           <label>Verification Code</label><br>

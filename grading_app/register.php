@@ -1,31 +1,74 @@
 <?php
 require_once 'core/config/config.php';
 require_once 'core/auth/session.php';
-$msg = $err = null;
-if($_SERVER['REQUEST_METHOD']==='POST'){
-  $email = trim($_POST['email'] ?? '');
-  $pass  = trim($_POST['password'] ?? '');
-  if(!$email || !$pass){ $err='Please fill in all fields.'; }
-  else {
-    require_once 'core/db/connection.php';
-    // Must already exist from MIS preload
-    $check = $pdo->prepare('SELECT email, first_name, last_name, role FROM users WHERE email=? LIMIT 1');
-    $check->execute([$email]);
-    $user = $check->fetch(PDO::FETCH_ASSOC);
-    if(!$user){
-      $err='No record found for this PTC email. Please contact MIS/Registrar.';
-    } else {
-      $_SESSION['pending_reg'] = [
-        'email'=>$email,
-        'password'=>$pass,
-        'code'=>strval(rand(100000,999999)),
-        'first_name'=>$user['first_name'] ?? '',
-        'last_name'=>$user['last_name'] ?? '',
-        'role'=>$user['role'] ?? 'student',
-      ];
-      $msg='We sent a verification code to your email. (Demo code: '.$_SESSION['pending_reg']['code'].')';
+
+$err = get_flash('error');
+$msg = get_flash('success');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $first = trim($_POST['firstname'] ?? '');
+    $last  = trim($_POST['lastname'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $pass  = trim($_POST['password'] ?? '');
+    $confirm = trim($_POST['retype_password'] ?? '');
+    $roleChoice = trim($_POST['role'] ?? '');
+
+    $allowedRoles = ['student', 'professor'];
+
+    if (!$email || !$pass || !$confirm || !$roleChoice) {
+        $err = 'Please fill in all required fields.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $err = 'Please enter a valid email address.';
+    } elseif (!in_array($roleChoice, $allowedRoles, true)) {
+        $err = 'Please select a valid role.';
+    } elseif (strlen($pass) < 8) {
+        $err = 'Password must be at least 8 characters.';
+    } elseif ($pass !== $confirm) {
+        $err = 'Passwords do not match.';
     }
-  }
+
+    if (!$err) {
+        require_once 'core/db/connection.php';
+
+        // Require that MIS/Registrar has preloaded the account
+        $check = $pdo->prepare('SELECT id, email, password_hash, role, first_name, last_name, status FROM users WHERE email=? LIMIT 1');
+        $check->execute([$email]);
+        $user = $check->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            $err = 'No record found for this PTC email. Please contact MIS/Registrar.';
+        } elseif (!empty($user['password_hash'])) {
+            $err = 'This account is already registered. Please sign in instead.';
+        } else {
+            $code = strval(random_int(100000, 999999));
+
+            // only fill names if missing, keep role selected by the user
+            $upd = $pdo->prepare('UPDATE users SET verify_code = ?, first_name = COALESCE(NULLIF(?, \"\"), first_name), last_name = COALESCE(NULLIF(?, \"\"), last_name), role = ? WHERE id = ?');
+            $upd->execute([$code, $first, $last, $roleChoice, $user['id']]);
+
+            $_SESSION['pending_reg'] = [
+                'email'      => $email,
+                'password'   => $pass,
+                'code'       => $code,
+                'first_name' => $first ?: ($user['first_name'] ?? ''),
+                'last_name'  => $last ?: ($user['last_name'] ?? ''),
+                'role'       => $roleChoice ?: ($user['role'] ?? 'student'),
+            ];
+
+            // Try to send the code by email. If mail fails, do not block the flow.
+            try {
+                $subject = 'Your verification code';
+                $body = "Your verification code is: {$code}\n\nIf you did not request this, please ignore.";
+                @mail($email, $subject, $body);
+            } catch (Exception $e) {
+                // ignore mail failures
+            }
+
+            set_flash('success', 'We sent a 6-digit code to your email. (If not received, check spam or contact MIS.)');
+            header('Location: ' . BASE_URL . '/verify.php');
+            exit;
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -316,13 +359,18 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                 <?php if ($err): ?>
                     <div class="alert"><?= htmlspecialchars($err) ?></div>
                 <?php endif; ?>
+                <?php if ($msg && !$err): ?>
+                    <div class="alert" style="background:#e8f6ed;border-color:#b6e2c3;color:#1c6b34;">
+                        <?= htmlspecialchars($msg) ?>
+                    </div>
+                <?php endif; ?>
 
                 <form method="post" autocomplete="on">
                     <div class="input-field">
                         <label for="first_name">First Name</label>
                         <div class="field-box">
                             <span class="material-symbols-rounded">person</span>
-                            <input type="firstname" id="firstname" name="firstname" placeholder="Juan" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>" required>
+                            <input type="text" id="firstname" name="firstname" placeholder="Juan" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>">
                         </div>
                     </div>
 
@@ -330,7 +378,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                         <label for="last_name">Last Name</label>
                         <div class="field-box">
                             <span class="material-symbols-rounded">person</span>
-                            <input type="lastname" id="lastname" name="lastname" placeholder="Dela Cruz" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>" required>
+                            <input type="text" id="lastname" name="lastname" placeholder="Dela Cruz" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>">
                         </div>
                     </div>
                     <div class="input-field">
@@ -342,10 +390,22 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                     </div>
 
                     <div class="input-field">
+                        <label for="role">Role</label>
+                        <div class="field-box">
+                            <span class="material-symbols-rounded">badge</span>
+                            <select id="role" name="role" required style="border:none; background:transparent; width:100%; outline:none; font-size:1rem; color:var(--text-dark);">
+                                <option value="" disabled <?= empty($_POST['role']) ? 'selected' : '' ?>>Select role</option>
+                                <option value="student" <?= (($_POST['role'] ?? '') === 'student') ? 'selected' : '' ?>>Student</option>
+                                <option value="professor" <?= (($_POST['role'] ?? '') === 'professor') ? 'selected' : '' ?>>Professor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-field">
                         <label for="password">Password</label>
                         <div class="field-box">
                           <span class="material-symbols-rounded">lock</span>
-                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                            <input type="password" id="password" name="password" placeholder="********" required>
                           <span class="material-symbols-rounded">visibility</span>
                         </div>
                     </div>
@@ -354,7 +414,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                         <label for="retype-password">Reenter Password</label>
                         <div class="field-box">
                           <span class="material-symbols-rounded">lock</span>
-                            <input type="retype_password" id="retype_password" name="retype_password" placeholder="••••••••" required>
+                            <input type="password" id="retype_password" name="retype_password" placeholder="********" required>
                           <span class="material-symbols-rounded">visibility</span>
                         </div>
                     </div>
