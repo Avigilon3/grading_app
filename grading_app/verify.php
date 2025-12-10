@@ -3,6 +3,8 @@ require_once 'core/config/config.php';
 require_once 'core/auth/session.php';
 require_once 'core/db/connection.php';
 
+//need smtp settings from MIS SMTP host, SMTP port, Encryption, username pass. and t hen use PHPmailer sana
+
 $pending = $_SESSION['pending_reg'] ?? null;
 $err = get_flash('error');
 $msg = get_flash('success');

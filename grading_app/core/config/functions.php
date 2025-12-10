@@ -725,3 +725,41 @@ if (!function_exists('getStudentGradingSheetBreakdown')) {
         return $cache[$key];
     }
 }
+
+if (!function_exists('lookupDirectoryProfileByEmail')) {
+    function lookupDirectoryProfileByEmail(PDO $pdo, string $email): ?array
+    {
+        $needle = trim($email);
+        if ($needle === '') {
+            return null;
+        }
+
+        $profStmt = $pdo->prepare('SELECT id, first_name, last_name FROM professors WHERE LOWER(ptc_email) = LOWER(?) LIMIT 1');
+        $profStmt->execute([$needle]);
+        $professor = $profStmt->fetch(PDO::FETCH_ASSOC);
+        if ($professor) {
+            return [
+                'id' => (int)$professor['id'],
+                'first_name' => (string)$professor['first_name'],
+                'last_name' => (string)$professor['last_name'],
+                'role' => 'professor',
+                'table' => 'professors',
+            ];
+        }
+
+        $studentStmt = $pdo->prepare('SELECT id, first_name, last_name FROM students WHERE LOWER(ptc_email) = LOWER(?) LIMIT 1');
+        $studentStmt->execute([$needle]);
+        $student = $studentStmt->fetch(PDO::FETCH_ASSOC);
+        if ($student) {
+            return [
+                'id' => (int)$student['id'],
+                'first_name' => (string)$student['first_name'],
+                'last_name' => (string)$student['last_name'],
+                'role' => 'student',
+                'table' => 'students',
+            ];
+        }
+
+        return null;
+    }
+}

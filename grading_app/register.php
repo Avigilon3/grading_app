@@ -1,74 +1,122 @@
 <?php
 require_once 'core/config/config.php';
 require_once 'core/auth/session.php';
+require_once 'core/db/connection.php';
+require_once 'core/config/functions.php';
+
+$notFoundMessage = "Invalid email address. Your email address doesn't exist in the database. Contact Registrar or MIS for assistance.";
+$prefilledFirst = '';
+$prefilledLast = '';
+$detectedRole = '';
 
 $err = get_flash('error');
 $msg = get_flash('success');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $first = trim($_POST['firstname'] ?? '');
-    $last  = trim($_POST['lastname'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $pass  = trim($_POST['password'] ?? '');
     $confirm = trim($_POST['retype_password'] ?? '');
-    $roleChoice = trim($_POST['role'] ?? '');
+    $directoryProfile = null;
+    $first = '';
+    $last = '';
+    $roleChoice = '';
 
-    $allowedRoles = ['student', 'professor'];
-
-    if (!$email || !$pass || !$confirm || !$roleChoice) {
-        $err = 'Please fill in all required fields.';
+    if (!$email) {
+        $err = 'Please enter your PTC email address.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $err = 'Please enter a valid email address.';
-    } elseif (!in_array($roleChoice, $allowedRoles, true)) {
-        $err = 'Please select a valid role.';
-    } elseif (strlen($pass) < 8) {
+    }
+
+    if (!$err) {
+        $directoryProfile = lookupDirectoryProfileByEmail($pdo, $email);
+        if (!$directoryProfile) {
+            $err = $notFoundMessage;
+        } else {
+            $first = $directoryProfile['first_name'];
+            $last = $directoryProfile['last_name'];
+            $roleChoice = $directoryProfile['role'];
+            $prefilledFirst = $first;
+            $prefilledLast = $last;
+            $detectedRole = ucfirst($roleChoice);
+        }
+    }
+
+    if (!$err && (!$pass || !$confirm)) {
+        $err = 'Please fill in all required fields.';
+    } elseif (!$err && strlen($pass) < 8) {
         $err = 'Password must be at least 8 characters.';
-    } elseif ($pass !== $confirm) {
+    } elseif (!$err && $pass !== $confirm) {
         $err = 'Passwords do not match.';
     }
 
     if (!$err) {
-        require_once 'core/db/connection.php';
-
-        // Require that MIS/Registrar has preloaded the account
         $check = $pdo->prepare('SELECT id, email, password_hash, role, first_name, last_name, status FROM users WHERE email=? LIMIT 1');
         $check->execute([$email]);
         $user = $check->fetch(PDO::FETCH_ASSOC);
 
         if (!$user) {
-            $err = 'No record found for this PTC email. Please contact MIS/Registrar.';
-        } elseif (!empty($user['password_hash'])) {
-            $err = 'This account is already registered. Please sign in instead.';
-        } else {
-            $code = strval(random_int(100000, 999999));
-
-            // only fill names if missing, keep role selected by the user
-            $upd = $pdo->prepare('UPDATE users SET verify_code = ?, first_name = COALESCE(NULLIF(?, \"\"), first_name), last_name = COALESCE(NULLIF(?, \"\"), last_name), role = ? WHERE id = ?');
-            $upd->execute([$code, $first, $last, $roleChoice, $user['id']]);
-
-            $_SESSION['pending_reg'] = [
-                'email'      => $email,
-                'password'   => $pass,
-                'code'       => $code,
-                'first_name' => $first ?: ($user['first_name'] ?? ''),
-                'last_name'  => $last ?: ($user['last_name'] ?? ''),
-                'role'       => $roleChoice ?: ($user['role'] ?? 'student'),
+            $insert = $pdo->prepare('INSERT INTO users (email, role, first_name, last_name, status) VALUES (?, ?, ?, ?, ?)');
+            $insert->execute([$email, $roleChoice, $first, $last, 'INACTIVE']);
+            $userId = (int)$pdo->lastInsertId();
+            $user = [
+                'id' => $userId,
+                'password_hash' => null,
+                'role' => $roleChoice,
+                'first_name' => $first,
+                'last_name' => $last,
+                'status' => 'INACTIVE',
             ];
+        }
 
-            // Try to send the code by email. If mail fails, do not block the flow.
-            try {
-                $subject = 'Your verification code';
-                $body = "Your verification code is: {$code}\n\nIf you did not request this, please ignore.";
-                @mail($email, $subject, $body);
-            } catch (Exception $e) {
-                // ignore mail failures
-            }
-
-            set_flash('success', 'We sent a 6-digit code to your email. (If not received, check spam or contact MIS.)');
-            header('Location: ' . BASE_URL . '/verify.php');
-            exit;
+        if (!empty($user['password_hash'])) {
+            $err = 'This account is already registered. Please sign in instead.';
         }
     }
+
+    if (!$err) {
+        $code = strval(random_int(100000, 999999));
+        $userId = (int)$user['id'];
+
+        $upd = $pdo->prepare('UPDATE users SET verify_code = ?, first_name = ?, last_name = ?, role = ? WHERE id = ?');
+        $upd->execute([$code, $first, $last, $roleChoice, $userId]);
+
+        if ($directoryProfile['table'] === 'students') {
+            $link = $pdo->prepare('UPDATE students SET user_id = ? WHERE id = ?');
+            $link->execute([$userId, $directoryProfile['id']]);
+        } elseif ($directoryProfile['table'] === 'professors') {
+            $link = $pdo->prepare('UPDATE professors SET user_id = ? WHERE id = ?');
+            $link->execute([$userId, $directoryProfile['id']]);
+        }
+
+        $_SESSION['pending_reg'] = [
+            'email'      => $email,
+            'password'   => $pass,
+            'code'       => $code,
+            'first_name' => $first,
+            'last_name'  => $last,
+            'role'       => $roleChoice,
+        ];
+
+        try {
+            $subject = 'Your verification code';
+            $body = "Your verification code is: {$code}\n\nIf you did not request this, please ignore.";
+            @mail($email, $subject, $body);
+        } catch (Exception $e) {
+            // ignore mail failures
+        }
+
+        set_flash('success', 'We sent a 6-digit code to your email. (If not received, check spam or contact MIS.)');
+        header('Location: ' . BASE_URL . '/verify.php');
+        exit;
+    }
+}
+$canSetCredentials = $prefilledFirst !== '' && $prefilledLast !== '';
+$roleDisplayText = $detectedRole ? 'Detected role: ' . $detectedRole : '';
+$emailHelperMessage = '';
+if ($detectedRole) {
+    $emailHelperMessage = 'Email verified as ' . strtolower($detectedRole) . ' account.';
+} elseif ($err === $notFoundMessage) {
+    $emailHelperMessage = $notFoundMessage;
 }
 ?>
 <!DOCTYPE html>
@@ -273,6 +321,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid var(--border-muted);
             background: #f9fbfd;
         }
+        .field-with-button {
+            gap: 6px;
+        }
+        .btn-check {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            background: #e3f2e9;
+            color: #0f6b43;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .btn-check:hover:not(:disabled) {
+            background: #d6eadf;
+        }
+        .btn-check:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .helper-text {
+            margin: 6px 0 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-height: 1.2rem;
+        }
+        .helper-text.error {
+            color: #b00020;
+        }
+        .helper-text.success {
+            color: #0f6b43;
+        }
+        .role-note {
+            margin: 8px 0 0;
+            font-size: 0.9rem;
+            color: #0f6b43;
+        }
         .field-box input {
             border: none;
             background: transparent;
@@ -365,57 +450,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form method="post" autocomplete="on">
-                    <div class="input-field">
-                        <label for="first_name">First Name</label>
-                        <div class="field-box">
-                            <span class="material-symbols-rounded">person</span>
-                            <input type="text" id="firstname" name="firstname" placeholder="Juan" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>">
-                        </div>
-                    </div>
-
-                    <div class="input-field">
-                        <label for="last_name">Last Name</label>
-                        <div class="field-box">
-                            <span class="material-symbols-rounded">person</span>
-                            <input type="text" id="lastname" name="lastname" placeholder="Dela Cruz" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>">
-                        </div>
-                    </div>
+                <form method="post" autocomplete="on" id="registration-form" data-email-verified="<?= ($prefilledFirst && $prefilledLast) ? '1' : '0'; ?>">
                     <div class="input-field">
                         <label for="email">Email Address</label>
-                        <div class="field-box">
+                        <div class="field-box field-with-button">
                             <span class="material-symbols-rounded">mail</span>
                             <input type="email" id="email" name="email" placeholder="you@paterostechnologicalcollege.edu.ph" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                            <button type="button" class="btn-check" id="check-email">Check</button>
+                        </div>
+                        <p class="helper-text" data-email-helper><?= htmlspecialchars($emailHelperMessage); ?></p>
+                    </div>
+
+                    <input type="hidden" name="role" id="detected_role" value="<?= htmlspecialchars(strtolower($detectedRole)); ?>">
+
+                    <div class="input-field">
+                        <label for="firstname">First Name</label>
+                        <div class="field-box">
+                            <span class="material-symbols-rounded">person</span>
+                            <input type="text" id="firstname" name="firstname" placeholder="Juan" value="<?= htmlspecialchars($prefilledFirst); ?>" readonly>
                         </div>
                     </div>
 
                     <div class="input-field">
-                        <label for="role">Role</label>
+                        <label for="lastname">Last Name</label>
                         <div class="field-box">
-                            <span class="material-symbols-rounded">badge</span>
-                            <select id="role" name="role" required style="border:none; background:transparent; width:100%; outline:none; font-size:1rem; color:var(--text-dark);">
-                                <option value="" disabled <?= empty($_POST['role']) ? 'selected' : '' ?>>Select role</option>
-                                <option value="student" <?= (($_POST['role'] ?? '') === 'student') ? 'selected' : '' ?>>Student</option>
-                                <option value="professor" <?= (($_POST['role'] ?? '') === 'professor') ? 'selected' : '' ?>>Professor</option>
-                            </select>
+                            <span class="material-symbols-rounded">person</span>
+                            <input type="text" id="lastname" name="lastname" placeholder="Dela Cruz" value="<?= htmlspecialchars($prefilledLast); ?>" readonly>
                         </div>
+                        <p class="role-note" data-role-display><?= htmlspecialchars($roleDisplayText); ?></p>
                     </div>
 
                     <div class="input-field">
                         <label for="password">Password</label>
                         <div class="field-box">
-                          <span class="material-symbols-rounded">lock</span>
-                            <input type="password" id="password" name="password" placeholder="********" required>
-                          <span class="material-symbols-rounded">visibility</span>
+                            <span class="material-symbols-rounded">lock</span>
+                            <input type="password" id="password" name="password" placeholder="********" <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?> data-credential-input>
+                            <span class="material-symbols-rounded">visibility</span>
                         </div>
                     </div>
 
                     <div class="input-field">
                         <label for="retype-password">Reenter Password</label>
                         <div class="field-box">
-                          <span class="material-symbols-rounded">lock</span>
-                            <input type="password" id="retype_password" name="retype_password" placeholder="********" required>
-                          <span class="material-symbols-rounded">visibility</span>
+                            <span class="material-symbols-rounded">lock</span>
+                            <input type="password" id="retype_password" name="retype_password" placeholder="********" <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?> data-credential-input>
+                            <span class="material-symbols-rounded">visibility</span>
                         </div>
                     </div>
 
@@ -423,7 +502,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="login.php">I have an existing account.</a>
                     </div>
 
-                    <button type="submit" class="btn-submit">Sign Up</button>
+                    <button type="submit" class="btn-submit" <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?> data-submit-button>Sign Up</button>
                 </form>
 
                 <div class="page-footer">
@@ -452,4 +531,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     <div><a href="login.php">Back to login</a></div> -->
 </body>
+<script>
+(function () {
+    const form = document.getElementById('registration-form');
+    if (!form) return;
+
+    const emailInput = document.getElementById('email');
+    const checkButton = document.getElementById('check-email');
+    const firstInput = document.getElementById('firstname');
+    const lastInput = document.getElementById('lastname');
+    const helper = document.querySelector('[data-email-helper]');
+    const roleDisplay = document.querySelector('[data-role-display]');
+    const hiddenRole = document.getElementById('detected_role');
+    const credentialInputs = form.querySelectorAll('[data-credential-input]');
+    const submitButton = form.querySelector('[data-submit-button]');
+
+    const notFoundMessage = "Invalid email address. Your email address doesn't exist in the database. Contact Registrar or MIS for assistance.";
+
+    const capitalize = (value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : '';
+
+    const setHelper = (message, state) => {
+        if (!helper) return;
+        helper.textContent = message || '';
+        helper.classList.remove('error', 'success');
+        if (state === 'error') {
+            helper.classList.add('error');
+        } else if (state === 'success') {
+            helper.classList.add('success');
+        }
+    };
+
+    const updateRoleDisplay = (role) => {
+        if (!roleDisplay) return;
+        roleDisplay.textContent = role ? `Detected role: ${capitalize(role)}` : '';
+    };
+
+    const setCredentialState = (enabled) => {
+        credentialInputs.forEach((input) => {
+            input.disabled = !enabled;
+        });
+        if (submitButton) {
+            submitButton.disabled = !enabled;
+        }
+    };
+
+    const fillNames = (first, last, role) => {
+        if (firstInput) {
+            firstInput.value = first || '';
+        }
+        if (lastInput) {
+            lastInput.value = last || '';
+        }
+        if (hiddenRole) {
+            hiddenRole.value = role || '';
+        }
+        updateRoleDisplay(role || '');
+    };
+
+    const initialVerified = form.dataset.emailVerified === '1';
+    if (initialVerified) {
+        setCredentialState(true);
+        updateRoleDisplay(hiddenRole.value || '');
+        if (helper && helper.textContent.trim() !== '') {
+            helper.classList.add('success');
+        }
+    } else {
+        setCredentialState(false);
+    }
+    if (!initialVerified && helper && helper.textContent.trim() !== '') {
+        if (helper.textContent.trim() === notFoundMessage) {
+            helper.classList.add('error');
+        }
+    }
+
+    const handleError = (message) => {
+        fillNames('', '', '');
+        setCredentialState(false);
+        setHelper(message || notFoundMessage, 'error');
+        form.dataset.emailVerified = '0';
+    };
+
+    if (checkButton) {
+        checkButton.addEventListener('click', () => {
+            const email = emailInput ? emailInput.value.trim() : '';
+            if (!email) {
+                handleError('Please enter your PTC email address first.');
+                return;
+            }
+
+            setHelper('Checking email...', null);
+            checkButton.disabled = true;
+
+            fetch('ajax/check_ptc_email.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            })
+                .then((response) => response.json())
+                .then((payload) => {
+                    if (payload.redirect) {
+                        window.location.href = payload.redirect;
+                        return;
+                    }
+                    if (!payload.ok) {
+                        handleError(payload.message || notFoundMessage);
+                        return;
+                    }
+                    const data = payload.data || {};
+                    const detectedRole = (data.role || '').toLowerCase();
+                    fillNames(data.first_name || '', data.last_name || '', detectedRole);
+                    setCredentialState(true);
+                    setHelper('Email verified as ' + (detectedRole || 'student') + ' account.', 'success');
+                    form.dataset.emailVerified = '1';
+                })
+                .catch(() => {
+                    handleError('Unable to verify this email right now. Please try again.');
+                })
+                .finally(() => {
+                    checkButton.disabled = false;
+                });
+        });
+    }
+})();
+</script>
 </html>
