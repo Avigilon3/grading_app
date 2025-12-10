@@ -276,17 +276,6 @@ if ($displaySemesterLabel || $displaySchoolYear) {
 
 $reportDate = new DateTimeImmutable('now');
 $reportFilename = preg_replace('/[^a-z0-9]+/i', '_', $studentNumber ?: 'student') . '_report_of_grades';
-$preparedBy = '';
-if (function_exists('adminCurrentName')) {
-    $preparedBy = trim((string)adminCurrentName());
-}
-if ($preparedBy === '' && isset($_SESSION['user']['name'])) {
-    $preparedBy = trim((string)$_SESSION['user']['name']);
-}
-if ($preparedBy === '' && isset($_SESSION['user']['email'])) {
-    $preparedBy = trim((string)$_SESSION['user']['email']);
-}
-$preparedBy = $preparedBy ?: 'Registrar';
 $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
 ?>
 <!DOCTYPE html>
@@ -296,6 +285,7 @@ $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report of Grades &mdash; <?= htmlspecialchars($studentNumber); ?></title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+
 </head>
 <body data-auto-download="<?= $autoDownload ? '1' : '0'; ?>" data-report-filename="<?= htmlspecialchars($reportFilename); ?>">
 <?php include '../includes/header.php'; ?>
@@ -392,16 +382,18 @@ $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
                         </tbody>
                     </table>
                     <p class="unit-note"><strong>Units Earned:</strong> <?= htmlspecialchars($unitsEarnedDisplay ?: '--'); ?></p>
-                    <p class="paper-date">Prepared by: <strong><?= htmlspecialchars($preparedBy); ?></strong></p>
-                    <p class="paper-date">THIS DATA WAS GENERATED ON <?= htmlspecialchars($reportDate->format('F d, Y')); ?> (Registrar Copy)</p>
-                    <div class="doc-caption">
-                        Showing <?= htmlspecialchars($selectedYear); ?> &mdash; <?= htmlspecialchars($displaySemesterLabel); ?>
-                        <?php if ($displaySchoolYear): ?>
-                            (S.Y. <?= htmlspecialchars($displaySchoolYear); ?>)
-                        <?php endif; ?>
-                    </div>
+                    <p class="paper-date">Prepared by: </p>
                 </div>
+
             </div>
+
+            <div class="doc-caption">
+                    Showing <?= htmlspecialchars($selectedYear); ?> &mdash; <?= htmlspecialchars($displaySemesterLabel); ?>
+                    <?php if ($displaySchoolYear): ?>
+                        (S.Y. <?= htmlspecialchars($displaySchoolYear); ?>)
+                    <?php endif; ?>
+            </div>
+            
             <div class="info-card">
                 <h3>Reminders</h3>
                 <ul>
@@ -430,20 +422,12 @@ $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
             window.print();
             return;
         }
-        var clone = paper.cloneNode(true);
-        document.body.appendChild(clone);
-        clone.style.margin = '0';
-        clone.style.boxShadow = 'none';
         html2pdf().set({
-            margin: 0,
+            margin: 0.5,
             filename: filename + '.pdf',
             html2canvas: { scale: 2, useCORS: true },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        }).from(clone).save().then(function () {
-            document.body.removeChild(clone);
-        }).catch(function () {
-            document.body.removeChild(clone);
-        });
+        }).from(paper).save();
     }
     if (downloadBtn) {
         downloadBtn.addEventListener('click', function (event) {

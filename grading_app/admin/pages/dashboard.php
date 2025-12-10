@@ -68,9 +68,11 @@ try {
 // Build last-7-days submission stats and WoW delta
 $chart = [
   'labels' => [],
-  'counts' => [],
+  'submitted' => [],
+  'pending' => [],
   'total'  => 0,
   'deltaPct' => 0.0,
+  'max' => 1,
 ];
 
 try {
@@ -91,15 +93,32 @@ try {
   ]);
   $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // ['Y-m-d' => count]
 
+  $pendingStmt = $pdo->prepare(
+    "SELECT DATE(deadline_at) d, COUNT(*) c
+       FROM grading_sheets
+      WHERE status IN ('draft','reopened')
+        AND deadline_at IS NOT NULL
+        AND deadline_at >= :start
+        AND deadline_at < :end
+      GROUP BY DATE(deadline_at)"
+  );
+  $pendingStmt->execute([
+    ':start' => $start->format('Y-m-d 00:00:00'),
+    ':end'   => $end->format('Y-m-d 00:00:00'),
+  ]);
+  $pendingRows = $pendingStmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
   $maxCount = 0;
   for ($i = 0; $i < 7; $i++) {
     $d = $start->add(new DateInterval('P' . $i . 'D'));
     $key = $d->format('Y-m-d');
-    $cnt = (int)($rows[$key] ?? 0);
+    $submittedCnt = (int)($rows[$key] ?? 0);
+    $pendingCnt = (int)($pendingRows[$key] ?? 0);
     $chart['labels'][] = $d->format('D');
-    $chart['counts'][] = $cnt;
-    $chart['total'] += $cnt;
-    if ($cnt > $maxCount) $maxCount = $cnt;
+    $chart['submitted'][] = $submittedCnt;
+    $chart['pending'][] = $pendingCnt;
+    $chart['total'] += $submittedCnt;
+    $maxCount = max($maxCount, $submittedCnt, $pendingCnt);
   }
   $chart['max'] = max(1, $maxCount);
 
@@ -130,6 +149,7 @@ try {
     <meta charset="utf-8">
       <title>Dashboard</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -142,29 +162,42 @@ try {
       <p class="text-muted">Welcome, <?= htmlspecialchars(adminCurrentName()); ?>. Here's what's happening with your grading system.</p>
     </div>
 
-    <!-- KPI cards -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Total Students</div>
-        <div class="kpi-value"><?= (int)$stats['students'] ?></div>
+    <?php
+      $dashboardCards = [
+        ['label' => 'Total Students', 'value' => (int)$stats['students'], 'icon' => 'school'],
+        ['label' => 'Total Professors', 'value' => (int)$stats['professors'], 'icon' => 'group'],
+        ['label' => 'Total Sections', 'value' => (int)$stats['sections'], 'icon' => 'class'],
+        ['label' => 'Submitted Sheets', 'value' => (int)$stats['submittedSheets'], 'icon' => 'task_alt'],
+        ['label' => 'Pending Requests', 'value' => (int)$stats['pendingRequests'], 'icon' => 'pending_actions'],
+      ];
+    ?>
+    <section class="dashboard-stats">
+      <?php foreach ($dashboardCards as $card): ?>
+        <article class="stat-card">
+          <div class="stat-text">
+            <p class="stat-label"><?= htmlspecialchars($card['label']); ?></p>
+            <p class="stat-value"><?= (int)$card['value']; ?></p>
+          </div>
+          <div class="stat-icon">
+            <span class="material-symbols-rounded"><?= htmlspecialchars($card['icon']); ?></span>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    </section>
+
+    <section class="pending-card">
+      <div class="pending-card__info">
+        <div class="pending-card__icon">
+          <span class="material-symbols-rounded">schedule</span>
+        </div>
+        <div>
+          <p class="pending-card__label">Pending Requests</p>
+          <p class="pending-card__value"><?= (int)$stats['pendingRequests']; ?></p>
+          <p class="pending-card__muted">Awaiting approval</p>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Total Professors</div>
-        <div class="kpi-value"><?= (int)$stats['professors'] ?></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Total Sections</div>
-        <div class="kpi-value"><?= (int)$stats['sections'] ?></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Submitted Sheets</div>
-        <div class="kpi-value"><?= (int)$stats['submittedSheets'] ?></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Pending Requests</div>
-        <div class="kpi-value"><?= (int)$stats['pendingRequests'] ?></div>
-      </div>
-    </div>
+      <a class="btn primary" href="./report_management.php">View All</a>
+    </section>
 
     <!-- Submission statistics chart -->
     <div class="chart-card">
@@ -179,16 +212,25 @@ try {
         ?>
         <div class="<?= $deltaClass ?>"><?= $deltaSign . $delta ?>%</div>
       </div>
+      <div class="chart-legend">
+        <span><span class="legend-dot legend-dot--submitted"></span>Submitted</span>
+        <span><span class="legend-dot legend-dot--pending"></span>Pending</span>
+      </div>
       <div class="bar-chart">
         <?php
           $todayLabel = (new DateTimeImmutable('today'))->format('D');
           foreach ($chart['labels'] as $idx => $lbl):
-            $cnt = (int)$chart['counts'][$idx];
-            $h = (int)round(($cnt / $chart['max']) * 100);
+            $submittedCnt = (int)($chart['submitted'][$idx] ?? 0);
+            $pendingCnt = (int)($chart['pending'][$idx] ?? 0);
+            $submittedHeight = $chart['max'] > 0 ? (int)round(($submittedCnt / $chart['max']) * 100) : 0;
+            $pendingHeight = $chart['max'] > 0 ? (int)round(($pendingCnt / $chart['max']) * 100) : 0;
             $isToday = ($lbl === $todayLabel);
         ?>
           <div class="bar-wrap">
-            <div class="bar <?= $isToday ? 'today' : '' ?>" style="height: <?= $h ?>%" title="<?= htmlspecialchars($lbl . ': ' . $cnt) ?>"></div>
+            <div class="bar-track">
+              <div class="bar submitted <?= $isToday ? 'today' : '' ?>" style="height: <?= $submittedHeight ?>%" title="<?= htmlspecialchars($lbl . ' submitted: ' . $submittedCnt) ?>"></div>
+              <div class="bar pending" style="height: <?= $pendingHeight ?>%" title="<?= htmlspecialchars($lbl . ' pending: ' . $pendingCnt) ?>"></div>
+            </div>
             <div class="bar-label"><?= htmlspecialchars($lbl) ?></div>
           </div>
         <?php endforeach; ?>
@@ -200,47 +242,7 @@ try {
       </div>
     </div>
 
-    <?php
-      $recent = [];
-      try {
-        $q = $pdo->query('SELECT a.id, a.action, a.details, a.created_at, u.email AS user_email
-                           FROM activity_logs a LEFT JOIN users u ON u.id = a.user_id
-                           ORDER BY a.id DESC LIMIT 10');
-        $recent = $q->fetchAll();
-      } catch (Exception $e) { /* ignore */ }
-    ?>
 
-    <div class="card">
-      <div class="card-body">
-        <div class="page-header compact">
-          <h2>Recent Activity</h2>
-        </div>
-        <table class="table table-striped table-bordered">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>User</th>
-              <th>Action</th>
-              <th>Details</th>
-              <th>When</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if (!$recent): ?>
-              <tr><td colspan="5">No recent activity.</td></tr>
-            <?php else: foreach ($recent as $r): ?>
-              <tr>
-                <td><?= (int)$r['id']; ?></td>
-                <td><?= htmlspecialchars($r['user_email'] ?: 'N/A'); ?></td>
-                <td><?= htmlspecialchars($r['action']); ?></td>
-                <td><?= htmlspecialchars((string)$r['details']); ?></td>
-                <td><?= htmlspecialchars($r['created_at']); ?></td>
-              </tr>
-            <?php endforeach; endif; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </main>
 </div>
 <script src="../assets/js/admin.js"></script>
