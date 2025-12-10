@@ -668,6 +668,7 @@ foreach ($chartBars as $bar) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
     <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -689,24 +690,27 @@ foreach ($chartBars as $bar) {
             </p>
         </div>
 
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-label">Total Subjects</div>
-                <div class="kpi-value"><?= (int)$kpis['subjects']; ?></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Current GWA</div>
-                <div class="kpi-value"><?= htmlspecialchars($gwaDisplay); ?></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Units Enrolled</div>
-                <div class="kpi-value"><?= htmlspecialchars($unitsDisplay); ?></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Attendance Rate</div>
-                <div class="kpi-value"><?= htmlspecialchars($attendanceDisplay); ?></div>
-            </div>
-        </div>
+        <?php
+            $kpiCards = [
+                ['label' => 'Total Subjects', 'value' => (string)(int)$kpis['subjects'], 'icon' => 'menu_book'],
+                ['label' => 'Current GWA', 'value' => $gwaDisplay, 'icon' => 'grade'],
+                ['label' => 'Units Enrolled', 'value' => $unitsDisplay, 'icon' => 'library_books'],
+                ['label' => 'Attendance Rate', 'value' => $attendanceDisplay, 'icon' => 'event_available'],
+            ];
+        ?>
+        <section class="dashboard-stats student-kpis">
+            <?php foreach ($kpiCards as $card): ?>
+                <article class="stat-card">
+                    <div class="stat-text"> 
+                    <p class="stat-label"><?= htmlspecialchars($card['label']); ?></p>
+                    <p class="stat-value"><?= htmlspecialchars($card['value']); ?></p>
+                    </div>
+                    <div class="stat-icon">
+                        <span class="material-symbols-rounded"><?= htmlspecialchars($card['icon']); ?></span>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </section>
 
         <div class="chart-card performance-card">
             <p class="chart-title">Your Class Standing</p>

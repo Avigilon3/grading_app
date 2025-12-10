@@ -49,13 +49,16 @@ $submittedSheets = (int)($stmt->fetchColumn() ?: 0);
 $stmt = $pdo->prepare(
     'SELECT ss.id AS assignment_id,
             sec.section_name,
+            sec.year_level,
             sub.subject_code,
             sub.subject_title,
-            t.term_name
+            t.term_name,
+            gs.id AS grading_sheet_id
        FROM section_subjects ss
        JOIN sections sec ON sec.id = ss.section_id
        JOIN subjects sub ON sub.id = ss.subject_id
   LEFT JOIN terms t ON t.id = ss.term_id
+  LEFT JOIN grading_sheets gs ON gs.section_subject_id = ss.id
       WHERE ss.professor_id = ?
    ORDER BY sec.section_name, sub.subject_title'
 );
@@ -110,6 +113,7 @@ function dueText(?string $date): string
         <meta name="viewport" content="width=device-width, initial-scale=1" />
             <title>Professor Portal Dashboard</title>
         <link rel="stylesheet" href="../assets/css/professor.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     </head>
 <body>
   <?php include '../includes/header.php'; ?>
@@ -118,55 +122,98 @@ function dueText(?string $date): string
   <main class="content">
     <?php show_flash(); ?>
     <div class="page-header">
-      <h2>Dashboard Overview</h2>
+      <h1>Dashboard Overview</h1>
       <p>Welcome back! Here's your grading summary for this term.</p>
     </div>
 
-      <div class="stats">
-          <div class="stat"><small>Total Classes</small> <span><?= $totalClasses ?></span></div>
-          <div class="stat"><small>Total Students</small> <span><?= $totalStudents ?></span></div>
-          <div class="stat"><small>Pending Grades</small> <span><?= $pendingGrades ?></span></div>
-          <div class="stat"><small>Submitted Sheets</small> <span><?= $submittedSheets ?></span></div>
-      </div>
+      <section class="dashboard-stats">
+          <?php
+              $statCards = [
+                  ['label' => 'Total Classes', 'value' => $totalClasses, 'icon' => 'menu_book'],
+                  ['label' => 'Total Students', 'value' => $totalStudents, 'icon' => 'groups_2'],
+                  ['label' => 'Pending Grades', 'value' => $pendingGrades, 'icon' => 'schedule'],
+                  ['label' => 'Submitted Sheets', 'value' => $submittedSheets, 'icon' => 'task_alt'],
+              ];
+          ?>
+          <?php foreach ($statCards as $card): ?>
+              <article class="stat-card">
 
-      <h3>My Classes</h3>
-      <div class="classes">
-          <?php if (empty($classes)): ?>
-            <p>No active teaching assignments yet.</p>
-          <?php else: ?>
-            <?php foreach ($classes as $class): ?>
-              <div class="class-card">
-                <strong><?= htmlspecialchars($class['subject_code'] ?? 'Subject') ?></strong><br>
-                <small><?= htmlspecialchars($class['subject_title'] ?? 'Untitled subject') ?></small><br>
-                <small><?= htmlspecialchars($class['section_name'] ?? '') ?></small><br>
-                <?php if(!empty($class['term_name'])): ?>
-                <small><?= htmlspecialchars($class['term_name']) ?></small><br>
-                <?php endif; ?>
-                <button type="button" onclick="window.location.href='./grading_sheet.php'">Open Sheet</button>
-              </div>
-              <?php endforeach; ?>
-          <?php endif; ?>
-        </div>
+                  <div class="stat-text">
+                  <p class="stat-label"><?= htmlspecialchars($card['label']); ?></p>
+                  <p class="stat-value"><?= (int)$card['value']; ?></p>
+                  </div>
 
-      <div class="deadline-list">
-          <h3>Upcoming Deadlines</h3>
-          <?php if(empty($deadlines)): ?>
-              <p>No upcoming deadlines.</p>
-          <?php endif; ?>
-          <?php foreach($deadlines as $d): ?>
-              <?php 
-                  $deadlineAt = $d['deadline_at'] ?? null;
-                  $now = new DateTimeImmutable();
-                  $dueClass = ($deadlineAt && new DateTimeImmutable($deadlineAt) < $now) ? 'deadline-upcoming' : 'deadline-later'; 
-                  $dueText = dueText($deadlineAt);
-              ?>
-              <div class="deadline-item <?= $dueClass ?>">
-                  <strong><?= htmlspecialchars($d['section_name'] ?? 'Section') ?></strong><br>
-                  <small>Status: <?= htmlspecialchars(ucfirst($d['status'] ?? 'draft')) ?></small>
-                  <span style="float: right;"><?= $dueText ?></span>
-              </div>
+                  <div class="stat-icon">
+                      <span class="material-symbols-rounded"><?= htmlspecialchars($card['icon']); ?></span>
+                  </div>
+              </article>
           <?php endforeach; ?>
-        </div>
+      </section>
+
+      <section class="dashboard-section">
+          <div class="section-header">
+              <h3>My Classes</h3>
+              <a class="link-muted" href="./my_sections.php">View all</a>
+          </div>
+          <?php if (empty($classes)): ?>
+              <div class="empty-state-card">
+                  <p>No active teaching assignments yet.</p>
+              </div>
+          <?php else: ?>
+              <div class="dashboard-classes">
+                  <?php foreach (array_slice($classes, 0, 4) as $class): ?>
+                      <?php
+                          $title = trim(($class['subject_code'] ?? '') . ' - ' . ($class['section_name'] ?? ''));
+                          $subtitle = $class['subject_title'] ?? '';
+                          $meta = $class['term_name'] ?? '';
+                          $sheetId = $class['grading_sheet_id'] ?? null;
+                          $viewUrl = $sheetId ? './grading_sheet.php?sheet_id=' . (int)$sheetId : './grading_sheet.php';
+                      ?>
+                      <article class="class-pill">
+                          <div>
+                              <p class="class-pill__title"><?= htmlspecialchars($title ?: 'Assigned Class'); ?></p>
+                              <?php if ($subtitle): ?>
+                                  <p class="class-pill__subtitle"><?= htmlspecialchars($subtitle); ?></p>
+                              <?php endif; ?>
+                              <?php if ($meta): ?>
+                                  <p class="class-pill__meta"><?= htmlspecialchars($meta); ?></p>
+                              <?php endif; ?>
+                          </div>
+                          <a class="btn view" href="<?= htmlspecialchars($viewUrl); ?>">View</a>
+                      </article>
+                  <?php endforeach; ?>
+              </div>
+          <?php endif; ?>
+      </section>
+
+      <section class="dashboard-section">
+          <div class="section-header">
+              <h3>Upcoming Deadlines</h3>
+          </div>
+          <?php if (empty($deadlines)): ?>
+              <div class="empty-state-card">
+                  <p>No upcoming deadlines.</p>
+              </div>
+          <?php else: ?>
+
+                  <?php foreach ($deadlines as $d): ?>
+                      <?php
+                          $deadlineAt = $d['deadline_at'] ?? null;
+                          $isOverdue = $deadlineAt ? (new DateTimeImmutable($deadlineAt) < new DateTimeImmutable()) : false;
+                          $dueText = dueText($deadlineAt);
+                          $status = ucfirst($d['status'] ?? 'draft');
+                      ?>
+                      <article class="deadline-card <?= $isOverdue ? 'deadline-card--warning' : 'deadline-card--info'; ?>">
+                          <div>
+                              <p class="deadline-card__title"><?= htmlspecialchars($d['section_name'] ?? 'Section'); ?></p>
+                              <p class="deadline-card__meta">Status: <?= htmlspecialchars($status); ?></p>
+                          </div>
+                          <p class="deadline-card__due"><?= htmlspecialchars($dueText); ?></p>
+                      </article>
+                  <?php endforeach; ?>
+
+          <?php endif; ?>
+      </section>
   </main>
 </div>
 <script src="../assets/js/professor.js"></script>

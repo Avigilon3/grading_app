@@ -624,30 +624,55 @@ button{
 
 .button + .button { margin-left: 8px; }
 
-.kpi-grid {
+.dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.kpi-card {
+.stat-card {
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 14px;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  gap: 12px;
+  box-shadow: 0 15px 30px rgba(15, 25, 55, 0.07);
 }
 
-.kpi-label {
+.student-kpis .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #ecfdf3;
+  color: #15803d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.stat-label {
+  margin: 0;
   color: #6b7280;
-  font-size: 13px;
+  font-weight: 600;
 }
 
-.kpi-value {
-  font-size: 28px;
+.stat-value {
+  margin: 0;
+  font-size: 30px;
   font-weight: 700;
-  margin-top: 6px;
-  color: #111827;
+  color: #0f172a;
+}
+
+.stat-text {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px
 }
 
 .chart-card {
@@ -1052,13 +1077,13 @@ button{
 }
 
 @media (max-width: 1024px) {
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-.kpi-grid {
+.dashboard-stats {
   grid-template-columns: 1fr;
   }
 }
@@ -1616,31 +1641,7 @@ button{
   min-width: 380px;
 }
 
-.stat-card { background: #0b200d; color: #e7eaf6; border-radius: 14px; padding: 12px 14px; border: 1px solid #123321; box-shadow: 0 12px 30px rgba(5, 9, 30, 0.2); }
-.stat-label { margin: 0; color: #d1e7d5; font-size: 12px; letter-spacing: 0.03em; text-transform: uppercase; }
-.stat-value { font-size: 28px; font-weight: 700; margin: 4px 0; }
-.stat-hint { display: block; color: #c7d5cb; font-size: 13px; }
-.request-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; align-items: start; }
-.requests-side { display: flex; flex-direction: column; gap: 14px; }
-.timeline-card { position: relative; overflow: hidden; }
-.timeline-bar { position: absolute; left: 18px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #c8d6c9, #6ea8fe); }
-.timeline-card .request-header, .timeline-card .request-body { position: relative; z-index: 1; }
-.timeline-card .request-icon { background: #ffffff; border: 1px solid #d1d5db; }
-.request-meta-line { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-weight: 600; font-size: 12px; }
-.chip.muted { background: #f3f4f6; color: #4b5563; }
-.new-request-grid.modern { gap: 12px; }
-.new-request-card.modern { align-items: flex-start; text-align: left; border: 1px solid #d1e7d5; background: #f9fffa; padding: 16px; }
-.new-request-card.modern .new-request-title { font-size: 16px; }
-.primary-btn { width: 100%; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid transparent; background: linear-gradient(135deg, #4b7250, #628f6a); color: #fff; font-weight: 700; cursor: pointer; }
-.primary-btn svg { width: 16px; height: 16px; }
-.highlight-card { background: linear-gradient(135deg, #f3f7f5, #e1f0e6); border: 1px solid #d1e7d5; }
-.highlight-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.round-icon { width: 44px; height: 44px; border-radius: 50%; background: #0b200d; color: #e7eaf6; display: grid; place-items: center; box-shadow: 0 10px 22px rgba(0,0,0,0.12); }
-.round-icon.subtle { background: #eef2ff; color: #1f2937; box-shadow: none; }
-.muted { color: #4b5563; margin: 8px 0 0; }
-.info-card.modern { background: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; }
-.info-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
 
 @media (max-width: 1024px) {
   .page-header.modern { flex-direction: column; }

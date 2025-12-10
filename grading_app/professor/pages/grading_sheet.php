@@ -334,25 +334,34 @@ if (!$noSheetsAssigned) {
     <link rel="stylesheet" href="../assets/css/professor.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
-<body data-sheet-id="<?= $sheetId; ?>" data-sheet-editable="<?= $isEditable ? '1' : '0'; ?>">
+<body
+    data-sheet-id="<?= $sheetId; ?>"
+    data-sheet-editable="<?= $isEditable ? '1' : '0'; ?>"
+    data-section-name="<?= htmlspecialchars($sheet['section_name'] ?? ''); ?>"
+>
 <?php include '../includes/header.php'; ?>
 <div class="layout">
     <?php include '../includes/sidebar.php'; ?>
     <main class="content">
         <div class="content-header">
+
             <?php if ($noSheetsAssigned): ?>
                 <h1>Grading Sheet</h1>
             <?php else: ?>
+              <div class="page-header">
                 <h1><?= htmlspecialchars($sheet['section_name']); ?> &mdash; Grading Sheet</h1>
+                <p>View and manage grading sheets for your classes.</p>
+              </div>
+
                 <?php if ($isEditable): ?>
                     <div class="header-actions">
-                        <a class="btn secondary" href="./grading_sheet_export.php?sheet_id=<?= $sheetId; ?>">Export</a>
+                        <button type="button" class="btn secondary" data-export-grading-sheet>Export</button>
                         <button type="submit" form="grading-sheet-form" name="action" value="save">Save Draft</button>
                         <button type="submit" form="grading-sheet-form" name="action" value="submit">Submit</button>
                     </div>
                 <?php else: ?>
                     <div class="header-actions">
-                        <a class="btn secondary" href="./grading_sheet_export.php?sheet_id=<?= $sheetId; ?>">Export</a>
+                        <button type="button" class="btn secondary" data-export-grading-sheet>Export</button>
                         <?php if ($canSelfEditSubmitted): ?>
                             <a class="btn" href="./grading_sheet.php?sheet_id=<?= $sheetId; ?>&edit=1">Edit</a>
                         <?php endif; ?>

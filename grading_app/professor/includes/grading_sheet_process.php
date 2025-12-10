@@ -9,32 +9,35 @@ if (!function_exists('convertRawGradeToEquivalent')) {
      */
     function convertRawGradeToEquivalent(float $grade): string
     {
-        if ($grade >= 97) {
+        if ($grade >= 98) {
             return '1.00';
         }
-        if ($grade >= 94) {
+        if ($grade >= 95) {
             return '1.25';
         }
-        if ($grade >= 91) {
+        if ($grade >= 92) {
             return '1.50';
         }
-        if ($grade >= 88) {
+        if ($grade >= 89) {
             return '1.75';
         }
-        if ($grade >= 85) {
+        if ($grade >= 86) {
             return '2.00';
         }
-        if ($grade >= 82) {
+        if ($grade >= 83) {
             return '2.25';
         }
-        if ($grade >= 79) {
+        if ($grade >= 80) {
             return '2.50';
         }
-        if ($grade >= 76) {
+        if ($grade >= 77) {
             return '2.75';
         }
         if ($grade >= 75) {
             return '3.00';
+        }
+        if ($grade >= 70) {
+            return '4.00';
         }
 
         return '5.00';

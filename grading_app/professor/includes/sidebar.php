@@ -10,7 +10,7 @@
         Dashboard</a>
     <a href="./my_sections.php" class="nav-item">
       <span class="material-symbols-rounded">database</span>
-        My Sections</a>
+        My Classes</a>
     <a href="./grading_sheet.php" class="nav-item">
       <span class="material-symbols-rounded">stacks</span>
         Grading Sheets</a>

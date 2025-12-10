@@ -104,6 +104,8 @@
 		initUserDropdowns();
     initNotificationDropdowns();
 		initGradeItemActions();
+		initGradingSheetExport();
+		initStudentSearchFilters();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
 		// tryFetchCounts();
 
@@ -339,6 +341,172 @@
 					}, 0);
 				}
 			});
+		});
+	}
+
+	function initGradingSheetExport() {
+		var buttons = safeQueryAll('[data-export-grading-sheet]');
+		if (!buttons.length) return;
+
+		var table = safeQuery('.grading-sheet-table');
+		if (!table) return;
+
+		function handleExport() {
+			var csv = buildGradingSheetCsv(table);
+			if (!csv) {
+				alert('There is no grading data to export yet.');
+				return;
+			}
+			var fileName = buildExportFilename();
+			downloadCsv(csv, fileName);
+		}
+
+		buttons.forEach(function (btn) {
+			btn.addEventListener('click', handleExport);
+		});
+	}
+
+	function buildGradingSheetCsv(table) {
+		var rows = Array.from(table.querySelectorAll('tr'));
+		if (!rows.length) return '';
+
+		var csvRows = rows.map(function (row) {
+			var cells = Array.from(row.querySelectorAll('th,td'));
+			var values = cells.map(function (cell) {
+				var input = cell.querySelector('input');
+				var text = '';
+				if (input) {
+					text = input.value || '';
+				} else {
+					text = extractCellText(cell);
+				}
+				return wrapCsvValue(text);
+			});
+			return values.join(',');
+		});
+
+		return csvRows.join('\r\n');
+	}
+
+	function extractCellText(cell) {
+		var clone = cell.cloneNode(true);
+		Array.from(clone.querySelectorAll('button, [data-export-ignore]')).forEach(function (el) {
+			if (el && el.parentNode) {
+				el.parentNode.removeChild(el);
+			}
+		});
+		var text = (clone.textContent || '')
+			.replace(/\s+/g, ' ')
+			.replace(/\u2014/g, '-')
+			.trim();
+		return text;
+	}
+
+	function wrapCsvValue(value) {
+		var normalized = (value == null ? '' : String(value))
+			.replace(/\r?\n|\r/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
+		var escaped = normalized.replace(/"/g, '""');
+		return '"' + escaped + '"';
+	}
+
+	function buildExportFilename() {
+		var section = '';
+		var body = document.body;
+		if (body) {
+			section = body.getAttribute('data-section-name') || '';
+		}
+		if (!section) {
+			var heading = safeQuery('.content-header h1');
+			if (heading) {
+				section = heading.textContent || '';
+			}
+		}
+		section = section.replace(/\s*[–—-]\s*Grading Sheet/i, '').trim();
+		var safeSection = section
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/gi, '_')
+			.replace(/^_+|_+$/g, '');
+		if (!safeSection) {
+			safeSection = 'grading_sheet';
+		}
+		var now = new Date();
+		var stamp = [
+			now.getFullYear(),
+			String(now.getMonth() + 1).padStart(2, '0'),
+			String(now.getDate()).padStart(2, '0'),
+			String(now.getHours()).padStart(2, '0'),
+			String(now.getMinutes()).padStart(2, '0')
+		].join('');
+		return safeSection + '_' + stamp + '.csv';
+	}
+
+	function downloadCsv(content, filename) {
+		var blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
+		var link = document.createElement('a');
+		var url = URL.createObjectURL(blob);
+		link.href = url;
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		setTimeout(function () {
+			URL.revokeObjectURL(url);
+		}, 0);
+	}
+
+	function initStudentSearchFilters() {
+		var inputs = safeQueryAll('[data-student-search-input]');
+		if (!inputs.length) return;
+
+		inputs.forEach(function (input) {
+			var key = input.getAttribute('data-student-search-input');
+			if (!key) return;
+			var table = safeQuery('[data-students-table="' + key + '"]');
+			if (!table) return;
+
+			var rows = Array.from(table.querySelectorAll('tbody tr')).filter(function (row) {
+				return !row.classList.contains('empty-row') && !row.classList.contains('no-results-row');
+			});
+			var noResultsRow = table.querySelector('.no-results-row');
+
+			function applyFilter() {
+				if (!rows.length) {
+					if (noResultsRow) {
+						noResultsRow.hidden = true;
+					}
+					return;
+				}
+
+				var query = (input.value || '').trim().toLowerCase();
+				if (!query) {
+					rows.forEach(function (row) {
+						row.hidden = false;
+					});
+					if (noResultsRow) {
+						noResultsRow.hidden = true;
+					}
+					return;
+				}
+
+				var visible = 0;
+				rows.forEach(function (row) {
+					var haystack = (row.textContent || '').toLowerCase();
+					var isMatch = haystack.indexOf(query) !== -1;
+					row.hidden = !isMatch;
+					if (isMatch) {
+						visible += 1;
+					}
+				});
+
+				if (noResultsRow) {
+					noResultsRow.hidden = visible !== 0;
+				}
+			}
+
+			input.addEventListener('input', applyFilter);
+			applyFilter();
 		});
 	}
 
