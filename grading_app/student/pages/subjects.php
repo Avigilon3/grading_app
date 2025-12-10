@@ -142,7 +142,17 @@ foreach ($all_subjects as $subject) {
                             <td><?php echo htmlspecialchars($subject['subject_title']); ?></td>
                             <td><?php echo htmlspecialchars($subject['professor_name'] ?: 'TBA'); ?></td>
                             <td><?php echo htmlspecialchars($gradeDisplay); ?></td>
-                            <td><a href="#" class="action-link">View</a></td>
+                            <td>
+                                <a
+                                    href="#"
+                                    class="action-link"
+                                    data-grade-view
+                                    data-subject="<?php echo htmlspecialchars($subject['subject_title']); ?>"
+                                    data-professor="<?php echo htmlspecialchars($subject['professor_name'] ?: 'TBA'); ?>"
+                                    data-section-id="<?php echo $sectionId; ?>"
+                                    data-section-subject-id="<?php echo $sectionSubjectId; ?>"
+                                >View</a>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -191,7 +201,17 @@ foreach ($all_subjects as $subject) {
                             <td><?php echo htmlspecialchars($subject['subject_title']); ?></td>
                             <td><?php echo htmlspecialchars($subject['professor_name'] ?: 'TBA'); ?></td>
                             <td><?php echo htmlspecialchars($gradeDisplay); ?></td>
-                            <td><a href="#" class="action-link">View</a></td>
+                            <td>
+                                <a
+                                    href="#"
+                                    class="action-link"
+                                    data-grade-view
+                                    data-subject="<?php echo htmlspecialchars($subject['subject_title']); ?>"
+                                    data-professor="<?php echo htmlspecialchars($subject['professor_name'] ?: 'TBA'); ?>"
+                                    data-section-id="<?php echo $sectionId; ?>"
+                                    data-section-subject-id="<?php echo $sectionSubjectId; ?>"
+                                >View</a>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -199,6 +219,21 @@ foreach ($all_subjects as $subject) {
               </table>
             </div>
 
+            <div class="grade-modal" data-grade-modal hidden>
+                <div class="grade-modal__backdrop" data-grade-modal-close></div>
+                <div class="grade-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="grade-modal-title">
+                    <div class="grade-modal__header">
+                        <div>
+                            <h3 id="grade-modal-title" data-grade-modal-title>Grading Sheet</h3>
+                            <p class="grade-modal__professor" data-grade-modal-professor></p>
+                        </div>
+                        <button type="button" class="grade-modal__close" data-grade-modal-close aria-label="Close grading sheet">&times;</button>
+                    </div>
+                    <div class="grade-modal__body" data-grade-modal-body>
+                        <p class="text-muted">Select a subject to view how your grade was computed.</p>
+                    </div>
+                </div>
+            </div>
         </main>
 
     </div>
