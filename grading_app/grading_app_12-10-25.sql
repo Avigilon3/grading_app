@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2025 at 08:10 AM
+-- Generation Time: Dec 10, 2025 at 11:33 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -447,7 +447,15 @@ INSERT INTO `grades` (`id`, `grade_item_id`, `student_id`, `score`) VALUES
 (207, 86, 7, 10),
 (208, 87, 4, 10),
 (209, 87, 5, 10),
-(210, 87, 7, 8);
+(210, 87, 7, 8),
+(211, 44, 9, 10),
+(212, 45, 9, 1),
+(213, 46, 9, 10),
+(214, 47, 9, 25),
+(215, 48, 9, 15),
+(216, 50, 9, 10),
+(217, 51, 9, 3),
+(218, 52, 9, 5);
 
 -- --------------------------------------------------------
 
@@ -587,7 +595,7 @@ CREATE TABLE `grading_sheets` (
 
 INSERT INTO `grading_sheets` (`id`, `section_subject_id`, `section_id`, `professor_id`, `status`, `deadline_at`, `submitted_at`) VALUES
 (4, 6, 11, 20, 'locked', '2025-12-09 00:00:00', '2025-12-10 09:45:53'),
-(5, 5, 11, 19, 'submitted', '2025-12-11 00:00:00', '2025-12-10 09:26:35'),
+(5, 5, 11, 19, 'submitted', '2025-12-11 00:00:00', '2025-12-10 15:20:56'),
 (6, 1, 11, 15, 'draft', '2025-12-11 00:00:00', NULL),
 (8, 11, 11, 17, 'draft', '2025-12-11 00:00:00', NULL),
 (9, 3, 11, 1, 'locked', '2025-12-08 00:00:00', NULL),
@@ -617,8 +625,8 @@ CREATE TABLE `notifications` (
 INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `is_read`, `created_at`, `read_at`) VALUES
 (1, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 1, '2025-11-30 19:35:23', '2025-11-30 19:49:20'),
 (2, 3, 'pickup_schedule', 'Your request for a Certification of Grades has been scheduled for pick-up.', 0, '2025-11-30 19:49:51', NULL),
-(3, 1, 'document_request', 'Carlo Guzman Baldemor is requesting for Certificate of Grades', 0, '2025-12-06 22:12:00', NULL),
-(4, 1, 'grading_sheet_edit_request', 'Joshua Angel Mandia Naling is requesting to edit access to a grading sheet for BSIT 2B', 0, '2025-12-10 02:13:44', NULL),
+(3, 1, 'document_request', 'Carlo Guzman Baldemor is requesting for Certificate of Grades', 1, '2025-12-06 22:12:00', '2025-12-10 17:22:16'),
+(4, 1, 'grading_sheet_edit_request', 'Joshua Angel Mandia Naling is requesting to edit access to a grading sheet for BSIT 2B', 1, '2025-12-10 02:13:44', '2025-12-10 17:22:16'),
 (5, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:38:33', NULL),
 (6, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:45:34', NULL),
 (7, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:56:09', NULL);
@@ -1067,7 +1075,7 @@ ALTER TABLE `edit_requests`
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=211;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
 
 --
 -- AUTO_INCREMENT for table `grade_components`
