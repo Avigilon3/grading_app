@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2025 at 07:58 PM
+-- Generation Time: Dec 10, 2025 at 08:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -165,7 +165,21 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `create
 (122, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 1', '::1', '2025-12-09 18:38:33'),
 (123, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 1', '::1', '2025-12-09 18:45:34'),
 (124, 1, 'CHANGE_STATUS', 'Grading sheet #9 set to locked.', '::1', '2025-12-09 18:55:01'),
-(125, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 1', '::1', '2025-12-09 18:56:09');
+(125, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 1', '::1', '2025-12-09 18:56:09'),
+(126, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:18:15'),
+(127, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0009', '::1', '2025-12-10 01:20:51'),
+(128, 1, 'SET_DEADLINE', 'Grading sheet #5 deadline updated.', '::1', '2025-12-10 01:22:10'),
+(129, 1, 'SET_DEADLINE', 'Grading sheet #10 deadline updated.', '::1', '2025-12-10 01:22:14'),
+(130, 1, 'SET_DEADLINE', 'Grading sheet #8 deadline updated.', '::1', '2025-12-10 01:22:18'),
+(131, 1, 'SET_DEADLINE', 'Grading sheet #6 deadline updated.', '::1', '2025-12-10 01:22:23'),
+(132, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0007', '::1', '2025-12-10 01:39:49'),
+(133, 1, 'SET_DEADLINE', 'Grading sheet #11 deadline updated.', '::1', '2025-12-10 01:40:04'),
+(134, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:40:30'),
+(135, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:43:11'),
+(136, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:46:20'),
+(137, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:46:43'),
+(138, 1, 'CHANGE_STATUS', 'Grading sheet #4 set to locked.', '::1', '2025-12-10 01:47:12'),
+(139, 1, 'ADD_STUDENT', 'Added student: 2022-8196', '::1', '2025-12-10 04:42:59');
 
 -- --------------------------------------------------------
 
@@ -292,7 +306,148 @@ INSERT INTO `grades` (`id`, `grade_item_id`, `student_id`, `score`) VALUES
 (60, 37, 7, 10),
 (61, 38, 4, 10),
 (62, 38, 5, 10),
-(63, 38, 7, 10);
+(63, 38, 7, 10),
+(67, 40, 4, 0),
+(68, 40, 5, 5),
+(69, 40, 7, 10),
+(70, 41, 4, 10),
+(71, 41, 5, 10),
+(72, 41, 7, 10),
+(73, 42, 4, 10),
+(74, 42, 5, 10),
+(75, 42, 7, 0),
+(76, 43, 4, 10),
+(77, 43, 5, 10),
+(78, 43, 7, 10),
+(79, 44, 4, 10),
+(80, 44, 5, 10),
+(81, 44, 7, 8),
+(82, 45, 4, 10),
+(83, 45, 5, 10),
+(84, 45, 7, 10),
+(85, 46, 4, 10),
+(86, 46, 5, 10),
+(87, 46, 7, 10),
+(88, 47, 4, 32),
+(89, 47, 5, 48),
+(90, 47, 7, 41),
+(91, 48, 4, 50),
+(92, 48, 5, 50),
+(93, 48, 7, 50),
+(97, 50, 4, 3),
+(98, 50, 5, 10),
+(99, 50, 7, 7),
+(100, 51, 4, 5),
+(101, 51, 5, 10),
+(102, 51, 7, 7),
+(103, 52, 4, 10),
+(104, 52, 5, 10),
+(105, 52, 7, 10),
+(106, 53, 4, 10),
+(107, 53, 5, 10),
+(108, 53, 7, 10),
+(109, 54, 4, 10),
+(110, 54, 5, 10),
+(111, 54, 7, 10),
+(112, 55, 4, 10),
+(113, 55, 5, 10),
+(114, 55, 7, 0),
+(115, 56, 4, 10),
+(116, 56, 5, 10),
+(117, 56, 7, 10),
+(118, 57, 4, 50),
+(119, 57, 5, 50),
+(120, 57, 7, 48),
+(121, 58, 4, 100),
+(122, 58, 5, 100),
+(123, 58, 7, 100),
+(124, 59, 4, 10),
+(125, 59, 5, 10),
+(126, 59, 7, 9),
+(127, 60, 4, 10),
+(128, 60, 5, 10),
+(129, 60, 7, 10),
+(130, 61, 4, 10),
+(131, 61, 5, 10),
+(132, 61, 7, 10),
+(133, 62, 4, 10),
+(134, 62, 5, 10),
+(135, 62, 7, 5),
+(136, 63, 4, 10),
+(137, 63, 5, 10),
+(138, 63, 7, 8),
+(139, 64, 4, 10),
+(140, 64, 5, 10),
+(141, 64, 7, 9),
+(142, 65, 4, 10),
+(143, 65, 5, 10),
+(144, 65, 7, 10),
+(145, 66, 4, 10),
+(146, 66, 5, 10),
+(147, 66, 7, 5),
+(148, 67, 4, 10),
+(149, 67, 5, 10),
+(150, 67, 7, 10),
+(151, 68, 4, 46),
+(152, 68, 5, 38),
+(153, 68, 7, 46),
+(154, 69, 4, 34),
+(155, 69, 5, 40),
+(156, 69, 7, 48),
+(157, 70, 4, 10),
+(158, 70, 5, 10),
+(159, 70, 7, 10),
+(160, 71, 4, 10),
+(161, 71, 5, 10),
+(162, 71, 7, 9),
+(163, 72, 4, 10),
+(164, 72, 5, 10),
+(165, 72, 7, 10),
+(166, 73, 4, 10),
+(167, 73, 5, 8),
+(168, 73, 7, 9),
+(169, 74, 4, 10),
+(170, 74, 5, 10),
+(171, 74, 7, 10),
+(172, 75, 4, 10),
+(173, 75, 5, 10),
+(174, 75, 7, 10),
+(175, 76, 4, 10),
+(176, 76, 5, 10),
+(177, 76, 7, 10),
+(178, 77, 4, 10),
+(179, 77, 5, 10),
+(180, 77, 7, 10),
+(181, 78, 4, 10),
+(182, 78, 5, 10),
+(183, 78, 7, 10),
+(184, 79, 4, 10),
+(185, 79, 5, 10),
+(186, 79, 7, 10),
+(187, 80, 4, 10),
+(188, 80, 5, 10),
+(189, 80, 7, 10),
+(190, 81, 4, 10),
+(191, 81, 5, 10),
+(192, 81, 7, 10),
+(193, 82, 4, 10),
+(194, 82, 5, 10),
+(195, 82, 7, 10),
+(196, 83, 4, 100),
+(197, 83, 5, 100),
+(198, 83, 7, 78),
+(199, 84, 4, 52),
+(200, 84, 5, 100),
+(201, 84, 7, 88),
+(202, 85, 4, 10),
+(203, 85, 5, 10),
+(204, 85, 7, 10),
+(205, 86, 4, 10),
+(206, 86, 5, 10),
+(207, 86, 7, 10),
+(208, 87, 4, 10),
+(209, 87, 5, 10),
+(210, 87, 7, 8);
 
 -- --------------------------------------------------------
 
@@ -331,7 +486,15 @@ INSERT INTO `grade_components` (`id`, `grading_sheet_id`, `name`, `weight`) VALU
 (44, 9, 'Activity', 40.00),
 (45, 9, 'Exam', 40.00),
 (46, 9, 'Quizzes', 10.00),
-(47, 9, 'Attendance', 10.00);
+(47, 9, 'Attendance', 10.00),
+(48, 10, 'Activity', 40.00),
+(49, 10, 'Exam', 40.00),
+(50, 10, 'Quizzes', 10.00),
+(51, 10, 'Attendance', 10.00),
+(52, 11, 'Activity', 40.00),
+(53, 11, 'Exam', 40.00),
+(54, 11, 'Quizzes', 10.00),
+(55, 11, 'Attendance', 10.00);
 
 -- --------------------------------------------------------
 
@@ -353,7 +516,54 @@ CREATE TABLE `grade_items` (
 INSERT INTO `grade_items` (`id`, `component_id`, `title`, `total_points`) VALUES
 (36, 44, 'Activity 1', 10),
 (37, 45, 'Exam 1', 10),
-(38, 46, 'Quizzes 1', 10);
+(38, 46, 'Quizzes 1', 10),
+(40, 34, 'Activity 1', 10),
+(41, 35, 'Midterm', 10),
+(42, 36, 'Quizzes 1', 10),
+(43, 37, 'Attendance 1', 10),
+(44, 30, 'Activity 1', 10),
+(45, 30, 'Activity 2', 10),
+(46, 30, 'Activity 3', 10),
+(47, 31, 'Midterm Exam', 50),
+(48, 31, 'Final Exam', 50),
+(50, 32, 'Quizzes 1', 10),
+(51, 32, 'Quizzes 2', 10),
+(52, 33, 'Attendance 1', 10),
+(53, 48, 'Activity 1', 10),
+(54, 48, 'Activity 2', 10),
+(55, 48, 'Activity 3', 10),
+(56, 48, 'Activity 4', 10),
+(57, 49, 'Midterm Exam', 50),
+(58, 49, 'Final Exam', 100),
+(59, 50, 'Quizzes 1', 10),
+(60, 50, 'Quizzes 2', 10),
+(61, 50, 'Quizzes 3', 10),
+(62, 22, 'Activity 1', 10),
+(63, 22, 'Activity 2', 10),
+(64, 22, 'Activity 3', 10),
+(65, 22, 'Activity 4', 10),
+(66, 22, 'Activity 5', 10),
+(67, 23, 'Pretest', 10),
+(68, 23, 'Midterm', 50),
+(69, 23, 'Final', 50),
+(70, 24, 'Quizzes 1', 10),
+(71, 24, 'Quizzes 2', 10),
+(72, 24, 'Quizzes 3', 10),
+(73, 24, 'Quizzes 4', 10),
+(74, 34, 'Activity 2', 10),
+(75, 35, 'Final', 10),
+(76, 36, 'Quizzes 2', 10),
+(77, 36, 'Quizzes 3', 10),
+(78, 34, 'Activity 3', 10),
+(79, 34, 'Activity 4', 10),
+(80, 52, 'Activity 1', 10),
+(81, 52, 'Activity 2', 10),
+(82, 52, 'Activity 3', 10),
+(83, 53, 'Midterm', 100),
+(84, 53, 'Final', 100),
+(85, 54, 'Quizzes 1', 10),
+(86, 54, 'Quizzes 2', 10),
+(87, 55, 'Attendance 1', 10);
 
 -- --------------------------------------------------------
 
@@ -376,11 +586,13 @@ CREATE TABLE `grading_sheets` (
 --
 
 INSERT INTO `grading_sheets` (`id`, `section_subject_id`, `section_id`, `professor_id`, `status`, `deadline_at`, `submitted_at`) VALUES
-(4, 6, 11, 20, 'draft', NULL, NULL),
-(5, 5, 11, 19, 'draft', NULL, NULL),
-(6, 1, 11, 15, 'draft', NULL, NULL),
-(8, 11, 11, 17, 'draft', NULL, NULL),
-(9, 3, 11, 1, 'locked', '2025-12-08 00:00:00', NULL);
+(4, 6, 11, 20, 'locked', '2025-12-09 00:00:00', '2025-12-10 09:45:53'),
+(5, 5, 11, 19, 'submitted', '2025-12-11 00:00:00', '2025-12-10 09:26:35'),
+(6, 1, 11, 15, 'draft', '2025-12-11 00:00:00', NULL),
+(8, 11, 11, 17, 'draft', '2025-12-11 00:00:00', NULL),
+(9, 3, 11, 1, 'locked', '2025-12-08 00:00:00', NULL),
+(10, 4, 11, 18, 'submitted', '2025-12-11 00:00:00', '2025-12-10 09:30:50'),
+(11, 2, 11, 16, 'draft', '2025-12-11 00:00:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -442,12 +654,12 @@ INSERT INTO `professors` (`id`, `user_id`, `professor_id`, `ptc_email`, `first_n
 (9, NULL, 'PROF-0003', 'rnacario@paterostechnologicalcollege.edu.ph', 'Ryan Cesar', 'Legaspi', 'Nacario', 2, 'Tue 1:00PM-4:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:49:15'),
 (10, NULL, 'PROF-0004', 'mknazareno@paterostechnologicalcollege.edu.ph', 'Mark Kenneth', 'Borja', 'Nazareno', 3, 'TH 4:00PM-7:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:49:48'),
 (14, NULL, 'PROF-0005', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria Elena', 'Cruz', 'Santos', NULL, 'Mon 8:00AM-11:00AM', 0, '2025-11-02 16:00:45', '2025-11-17 14:50:45'),
-(15, NULL, 'PROF-0006', 'flamit@paterostechnologicalcollege.edu.ph', 'Flor', '', 'Lamit', 5, 'Mon 9:00 AM - 11:00AM', 1, '2025-11-17 21:48:11', '2025-11-17 21:48:11'),
-(16, NULL, 'PROF-0007', 'mgnocon@paterostechnologicalcollege.edu.ph', 'Mary Grace', '', 'Nocon', 6, 'Fri 4:00 PM - 9:00PM', 1, '2025-11-17 21:48:57', '2025-11-17 21:48:57'),
+(15, 8, 'PROF-0006', 'flamit@paterostechnologicalcollege.edu.ph', 'Flor', '', 'Lamit', 5, 'Mon 9:00 AM - 11:00AM', 1, '2025-11-17 21:48:11', '2025-12-10 09:15:31'),
+(16, 6, 'PROF-0007', 'mgnocon@paterostechnologicalcollege.edu.ph', 'Mary Grace', '', 'Nocon', 6, 'Fri 4:00 PM - 9:00PM', 1, '2025-11-17 21:48:57', '2025-12-10 09:15:31'),
 (17, NULL, 'PROF-0008', 'jabarracozo@paterostechnologicalcollege.edu.ph', 'Jissalyn', '', 'Abarracozo', 15, 'Mon 4:00 PM - 9:00PM', 1, '2025-11-17 21:49:52', '2025-12-10 00:39:08'),
-(18, NULL, 'PROF-0009', 'jramos@paterostechnologicalcollege.edu.ph', 'Jocelyn', '', 'Ramos', 8, 'Wed 7:00AM - 11:00AM', 1, '2025-11-17 21:50:25', '2025-11-17 21:50:25'),
-(19, NULL, 'PROF-0010', 'clamera@paterostechnologicalcollege.edu.ph', 'Cornelio', '', 'Lamera', 9, 'Sat 4:00PM - 9:00PM', 1, '2025-11-17 21:50:56', '2025-11-17 21:50:56'),
-(20, NULL, 'PROF-0011', 'jaguilar@paterostechnologicalcollege.edu.ph', 'Jasper', '', 'Aguilar', 10, 'Sat 10:00AM - 3:00PM', 1, '2025-11-17 21:51:33', '2025-11-17 21:51:33'),
+(18, 7, 'PROF-0009', 'jramos@paterostechnologicalcollege.edu.ph', 'Jocelyn', '', 'Ramos', 8, 'Wed 7:00AM - 11:00AM', 1, '2025-11-17 21:50:25', '2025-12-10 09:15:31'),
+(19, 5, 'PROF-0010', 'clamera@paterostechnologicalcollege.edu.ph', 'Cornelio', '', 'Lamera', 9, 'Sat 4:00PM - 9:00PM', 1, '2025-11-17 21:50:56', '2025-12-10 09:15:31'),
+(20, 4, 'PROF-0011', 'jaguilar@paterostechnologicalcollege.edu.ph', 'Jasper', '', 'Aguilar', 10, 'Sat 10:00AM - 3:00PM', 1, '2025-11-17 21:51:33', '2025-12-10 09:15:31'),
 (21, NULL, 'PROF-00012', 'msaavedra@paterostechnologicalcollege.edu.ph', 'Manuel', '', 'Saavedra III', 11, NULL, 1, '2025-11-17 21:52:19', '2025-11-17 21:52:19'),
 (22, NULL, 'PROF-0013', 'aarsison@paterostechnologicalcollege.edu.ph', 'Ariel Antwan Rolando', '', 'Sison', 13, 'Mon 7:00AM - 12:00PM', 1, '2025-11-17 21:53:19', '2025-11-17 21:53:19'),
 (23, NULL, 'PROF-0016', 'testingduplicate@paterostechnologicalcollege.edu.ph', 'Test', 'Test', 'Test', 15, 'WTH 4PM-6PM', 1, '2025-11-18 13:12:29', '2025-11-22 21:17:12');
@@ -501,7 +713,8 @@ CREATE TABLE `section_students` (
 INSERT INTO `section_students` (`id`, `section_id`, `student_id`, `created_at`) VALUES
 (2, 11, 4, '2025-11-17 23:33:28'),
 (3, 11, 5, '2025-11-18 10:10:11'),
-(4, 11, 7, '2025-11-18 23:14:23');
+(4, 11, 7, '2025-11-18 23:14:23'),
+(6, 11, 9, '2025-12-10 12:42:59');
 
 -- --------------------------------------------------------
 
@@ -566,7 +779,8 @@ INSERT INTO `students` (`id`, `user_id`, `student_id`, `ptc_email`, `first_name`
 (2, NULL, '2022-9800', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria', 'Luna', 'Santos', '4', 'BSIT 2B', 'Irregular'),
 (4, NULL, '1900-0001', 'joserizal@paterostechnologicalcollege.edu.ph', 'Jose', 'Mercado', 'Rizal', '2', 'CCS 1A', 'Regular'),
 (5, NULL, '1900-0002', 'jburgos@paterostechnologicalcollege.edu.ph', 'Jose', 'Apolonio', 'Burgos', '1', 'BSIT 2B', 'Irregular'),
-(7, 3, '25BSIT-1545', 'cgbaldemor@paterostechnologicalcollege.edu.ph', 'Carlo', 'Guzman', 'Baldemor', '2', 'BSIT 2B', 'Regular');
+(7, 3, '25BSIT-1545', 'cgbaldemor@paterostechnologicalcollege.edu.ph', 'Carlo', 'Guzman', 'Baldemor', '2', 'BSIT 2B', 'Regular'),
+(9, 9, '2022-8196', 'bralbor@paterostechnologicalcollege.edu.ph', 'Bethel', 'Rodriguez', 'Albor', '2', 'BSIT 2B', 'Irregular');
 
 -- --------------------------------------------------------
 
@@ -662,7 +876,13 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `email`, `password_hash`, `verify_code`, `role`, `first_name`, `last_name`, `status`, `created_at`) VALUES
 (1, 'jqtumamak@paterostechnologicalcollege.edu.ph', '$2y$10$Y4tMPwhtLW1Hku2iYAFT7uqoW9wToz4pYSRoGnuW1NNt69T0WeB3q', NULL, 'admin', 'Jerick', 'Tumamak', 'ACTIVE', '2025-10-27 16:29:29'),
 (2, 'jmnaling@paterostechnologicalcollege.edu.ph', '$2y$10$2.gkduk1zwBARcSeURTFk.6oNR4dLLYlWf/e5i.rvLIN0jFs5i9s.', NULL, 'professor', 'Joshua', 'Naling', 'ACTIVE', '2025-10-27 16:29:29'),
-(3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', NULL, 'student', 'Carlo', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29');
+(3, 'cgbaldemor@paterostechnologicalcollege.edu.ph', '$2y$10$moBHjGvIBTtCSJ.PSuJQWOlWKjY4N44E15psZiyVH64ZxUmnPqshy', NULL, 'student', 'Carlo', 'Baldemor', 'ACTIVE', '2025-10-27 16:29:29'),
+(4, 'jaguilar@paterostechnologicalcollege.edu.ph', '$2y$10$6R.19BNV1lp6cshfXQwkZ.V1T3jrJKYnTLveBClN/i5OK.s6z8S/q', NULL, 'professor', 'Jasper', 'Aguilar', 'ACTIVE', '2025-12-10 01:15:31'),
+(5, 'clamera@paterostechnologicalcollege.edu.ph', '$2y$10$3JLvlS8ZadywLTqZtl/wJOPWADV44fcVCE9.w00ohF.0LlxJpsjgu', NULL, 'professor', 'Cornelio', 'Lamera', 'ACTIVE', '2025-12-10 01:15:31'),
+(6, 'mgnocon@paterostechnologicalcollege.edu.ph', '$2y$10$2gH.kf7QliICZIjLGGGS/uOBAcbbcB4En1tdY4bz6u6hYW3tXIwTW', NULL, 'professor', 'Mary Grace', 'Nocon', 'ACTIVE', '2025-12-10 01:15:31'),
+(7, 'jramos@paterostechnologicalcollege.edu.ph', '$2y$10$qez9L/a2w/580TbJTbRrSup27YQE0.qoS1AAG/wSLU5V47fQT4FjO', NULL, 'professor', 'Jocelyn', 'Ramos', 'ACTIVE', '2025-12-10 01:15:31'),
+(8, 'flamit@paterostechnologicalcollege.edu.ph', '$2y$10$q3kR9YOSKSXPDxW/wJxRV.NYVWV8SuM9kT0VnK8Es.r5j5MLBr6rK', NULL, 'professor', 'Flor', 'Lamit', 'ACTIVE', '2025-12-10 01:15:31'),
+(9, 'bralbor@paterostechnologicalcollege.edu.ph', NULL, '436852', 'student', 'Bethel', 'Albor', 'INACTIVE', '2025-12-10 04:46:41');
 
 --
 -- Indexes for dumped tables
@@ -817,7 +1037,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -847,25 +1067,25 @@ ALTER TABLE `edit_requests`
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=211;
 
 --
 -- AUTO_INCREMENT for table `grade_components`
 --
 ALTER TABLE `grade_components`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `grade_items`
 --
 ALTER TABLE `grade_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `grading_sheets`
 --
 ALTER TABLE `grading_sheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -889,7 +1109,7 @@ ALTER TABLE `sections`
 -- AUTO_INCREMENT for table `section_students`
 --
 ALTER TABLE `section_students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `section_subjects`
@@ -901,7 +1121,7 @@ ALTER TABLE `section_subjects`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `subjects`
@@ -919,7 +1139,7 @@ ALTER TABLE `terms`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
