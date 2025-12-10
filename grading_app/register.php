@@ -25,6 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $err = 'Please enter your PTC email address.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $err = 'Please enter a valid email address.';
+    } else {
+        $normalizedEmail = strtolower($email);
+        $requiredDomain = '@paterostechnologicalcollege.edu.ph';
+        $domainLength = strlen($requiredDomain);
+        if ($domainLength === 0 || substr($normalizedEmail, -$domainLength) !== $requiredDomain) {
+            $err = 'Please use the PTC email address.';
+        }
     }
 
     if (!$err) {
