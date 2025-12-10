@@ -11,7 +11,7 @@
 
 
 <!-- Dropdown -->
-  <div class="dropdown" data-dropdown>
+  <div class="dropdown" data-dropdown data-dropdown-key="database">
     <a href="./database_management.php" class="nav-item dropdown-toggle" aria-expanded="false"> 
       <span class="material-symbols-rounded">database</span>
       <span class="nav-label">Database Management</span>

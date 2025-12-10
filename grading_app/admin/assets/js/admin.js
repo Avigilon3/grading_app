@@ -71,32 +71,55 @@
 	}
 
   function initSidebarDropdowns() {
-    var dropdowns = safeQueryAll ('[data-dropdown]'); 
-    if (!dropdowns.length) return; 
+    var dropdowns = safeQueryAll('[data-dropdown]');
+    if (!dropdowns.length) return;
 
-    dropdowns.forEach(function (dropdown) {
-      var toggle = safeQuery ('.dropdown-toggle',dropdown);
-      var submenu = safeQuery ('.submenu',dropdown);
-      if (!toggle || !submenu) return; 
+    var STORAGE_KEY = 'adminSidebarDropdownState';
 
-      submenu.style.display = 'none' ;
-      toggle.setAttribute ('aria-expanded','false'); 
+    function loadDropdownState() {
+      try {
+        var raw = window.localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (err) {
+        return {};
+      }
+    }
 
-      toggle.addEventListener('click',function (event) {
+    function saveDropdownState(state) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        // ignore storage failures
+      }
+    }
+
+    var dropdownState = loadDropdownState();
+
+    dropdowns.forEach(function (dropdown, index) {
+      var toggle = safeQuery('.dropdown-toggle', dropdown);
+      var submenu = safeQuery('.submenu', dropdown);
+      if (!toggle || !submenu) return;
+
+      var stateKey = dropdown.getAttribute('data-dropdown-key') || String(index);
+
+      function applyState(isOpen) {
+        dropdown.classList.toggle('open', isOpen);
+        submenu.style.display = isOpen ? 'block' : 'none';
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+
+      var hasActiveChild = !!safeQuery('.nav-item.active', submenu);
+      var shouldOpen = dropdownState[stateKey] === 'open' || hasActiveChild;
+      applyState(shouldOpen);
+
+      toggle.addEventListener('click', function (event) {
         event.preventDefault();
-        var isOpen = dropdown.classList.toggle('open');
-
-        if (isOpen) {
-          submenu.style.display = 'block' ;
-          toggle.setAttribute ('aria-expanded','true'); 
-        } else {
-          submenu.style.display = 'none' ;
-          toggle.setAttribute ('aria-expanded','false'); 
-
-        }
+        var isOpen = !dropdown.classList.contains('open');
+        applyState(isOpen);
+        dropdownState[stateKey] = isOpen ? 'open' : 'closed';
+        saveDropdownState(dropdownState);
       });
     });
-
   }
 
 	function initNotificationDropdowns() {
