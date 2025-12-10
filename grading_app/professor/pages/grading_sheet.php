@@ -51,7 +51,11 @@ if (!$noSheetsAssigned) {
     $submittedAt = $sheet['submitted_at'] ? new DateTimeImmutable($sheet['submitted_at']) : null;
     $deadlineAt = $sheet['deadline_at'] ? new DateTimeImmutable($sheet['deadline_at']) : null;
     $currentTime = new DateTimeImmutable('now');
-    if ($deadlineAt && $currentTime >= $deadlineAt && $sheetStatus !== 'locked') {
+    if (
+        $deadlineAt
+        && $currentTime >= $deadlineAt
+        && !in_array($sheetStatus, ['locked', 'reopened'], true)
+    ) {
         $lockStmt = $pdo->prepare('UPDATE grading_sheets SET status = ? WHERE id = ?');
         $lockStmt->execute(['locked', $sheetId]);
         $sheetStatus = 'locked';
