@@ -106,6 +106,7 @@
 		initGradeItemActions();
 		initGradingSheetExport();
 		initStudentSearchFilters();
+		initGradingSheetSubmissionGuard();
 		// If server exposes counts, try to fetch them; otherwise pages can call updateCounts
 		// tryFetchCounts();
 
@@ -507,6 +508,68 @@
 
 			input.addEventListener('input', applyFilter);
 			applyFilter();
+		});
+	}
+
+	function initGradingSheetSubmissionGuard() {
+		var body = document.body;
+		if (!body || body.getAttribute('data-sheet-editable') !== '1') {
+			return;
+		}
+
+		var form = document.getElementById('grading-sheet-form');
+		if (!form) {
+			return;
+		}
+
+		var trackedButtons = Array.from(document.querySelectorAll('button[name="action"][form="grading-sheet-form"], #grading-sheet-form button[name="action"]'));
+		var lastAction = null;
+		trackedButtons.forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				lastAction = btn.value || null;
+			});
+		});
+
+		function getSubmitAction(event) {
+			var submitter = event && event.submitter;
+			if (submitter && submitter.name === 'action') {
+				return submitter.value || null;
+			}
+			return lastAction;
+		}
+
+		form.addEventListener('submit', function (event) {
+			var submitAction = getSubmitAction(event);
+			if (submitAction !== 'submit') {
+				return;
+			}
+
+			var gradeInputs = form.querySelectorAll('.grade-input');
+			var blankCount = 0;
+			gradeInputs.forEach(function (input) {
+				if (input.disabled || input.readOnly) {
+					return;
+				}
+				var value = (input.value || '').trim();
+				if (value === '') {
+					blankCount += 1;
+				}
+			});
+
+			if (blankCount > 0) {
+				var missingMsg = 'There ' + (blankCount === 1 ? 'is 1 score' : ('are ' + blankCount + ' scores')) + ' left blank. Submitting now will keep them empty. Continue?';
+				if (!window.confirm(missingMsg)) {
+					event.preventDefault();
+					event.stopPropagation();
+					return;
+				}
+			}
+
+			var confirmMessage = 'Please double-check that all entered scores are accurate before submitting. Do you want to finalize this grading sheet now?';
+			if (!window.confirm(confirmMessage)) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
 		});
 	}
 

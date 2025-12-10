@@ -29,7 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$email]);
     $u = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$u || ($u['verify_code'] ?? '') !== $code) {
+    //temporary muna tayo wala pang smtp credentials e
+    $isBypassCode = $code === '012345';
+    if (!$u || (!$isBypassCode && ($u['verify_code'] ?? '') !== $code)) {
         set_flash('error', 'Invalid or expired verification code.');
         header('Location: ' . BASE_URL . '/verify.php');
         exit;
@@ -389,18 +391,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                    <h2>Email Verification</h2>
-                      <p>We sent a 6-digit code to <strong><?= htmlspecialchars($pending['email']) ?></strong>.</p>
+                <h2>Email Verification</h2>
+                <p>We sent a 6-digit code to <strong><?= htmlspecialchars($pending['email']) ?></strong>. Enter it below to complete your registration.</p>
 
-                      <form method="post">
-                          <label>Verification Code</label><br>
-                          <input type="text" name="code" maxlength="6" required><br><br>
-                          <button type="submit">Verify</button>
-                      </form>
+                <form method="post" autocomplete="off">
+                    <div class="input-field">
+                        <label for="code">Verification Code</label>
+                        <div class="field-box">
+                            <span class="material-symbols-rounded">password</span>
+                            <input
+                                type="text"
+                                id="code"
+                                name="code"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                maxlength="6"
+                                placeholder="Enter 6-digit code"
+                                required
+                            >
+                        </div>
+                    </div>
 
-                      <div>
-                          <a href="register.php">Back to registration</a>
-                      </div>
+                    <button type="submit" class="btn-submit">Verify Account</button>
+                </form>
+
+                <div class="form-links" style="justify-content: center;">
+                    <a href="register.php">Back to registration</a>
+                </div>
             </div>
         </section>
     </div>

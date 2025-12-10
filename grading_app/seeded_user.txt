@@ -19,8 +19,12 @@ mgnocon@paterostechnologicalcollege.edu.ph
 jramos@paterostechnologicalcollege.edu.ph
 flamit@paterostechnologicalcollege.edu.ph
 
+Test student accounts: 
+jburgos@paterostechnologicalcollege.edu.ph
+bralbor@paterostechnologicalcollege.edu.ph
 
 
+temporary verification code for authentication: 012345 
 
 
 

@@ -367,6 +367,29 @@ if ($detectedRole) {
             color: var(--text-dark);
             font-family: inherit;
         }
+        .toggle-visibility {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #7b8a94;
+        }
+        .toggle-visibility:focus-visible {
+            outline: 2px solid #0f6b43;
+            outline-offset: 2px;
+        }
+        .toggle-visibility [data-icon-hide] {
+            display: none;
+        }
+        .toggle-visibility.is-visible [data-icon-show] {
+            display: none;
+        }
+        .toggle-visibility.is-visible [data-icon-hide] {
+            display: inline-flex;
+        }
         .field-box svg {
             width: 18px;
             height: 18px;
@@ -485,7 +508,20 @@ if ($detectedRole) {
                         <div class="field-box">
                             <span class="material-symbols-rounded">lock</span>
                             <input type="password" id="password" name="password" placeholder="********" <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?> data-credential-input>
-                            <span class="material-symbols-rounded">visibility</span>
+                            <button
+                                type="button"
+                                class="toggle-visibility"
+                                data-password-toggle="#password"
+                                data-hidden-type="password"
+                                data-show-label="Show password"
+                                data-hide-label="Hide password"
+                                aria-pressed="false"
+                                aria-label="Show password"
+                                <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?>
+                            >
+                                <span class="material-symbols-rounded" data-icon-show>visibility</span>
+                                <span class="material-symbols-rounded" data-icon-hide>visibility_off</span>
+                            </button>
                         </div>
                     </div>
 
@@ -494,7 +530,20 @@ if ($detectedRole) {
                         <div class="field-box">
                             <span class="material-symbols-rounded">lock</span>
                             <input type="password" id="retype_password" name="retype_password" placeholder="********" <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?> data-credential-input>
-                            <span class="material-symbols-rounded">visibility</span>
+                            <button
+                                type="button"
+                                class="toggle-visibility"
+                                data-password-toggle="#retype_password"
+                                data-hidden-type="password"
+                                data-show-label="Show password confirmation"
+                                data-hide-label="Hide password confirmation"
+                                aria-pressed="false"
+                                aria-label="Show password confirmation"
+                                <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?>
+                            >
+                                <span class="material-symbols-rounded" data-icon-show>visibility</span>
+                                <span class="material-symbols-rounded" data-icon-hide>visibility_off</span>
+                            </button>
                         </div>
                     </div>
 
@@ -544,7 +593,9 @@ if ($detectedRole) {
     const roleDisplay = document.querySelector('[data-role-display]');
     const hiddenRole = document.getElementById('detected_role');
     const credentialInputs = form.querySelectorAll('[data-credential-input]');
+    const visibilityToggles = form.querySelectorAll('[data-password-toggle]');
     const submitButton = form.querySelector('[data-submit-button]');
+    const toggleConfigs = [];
 
     const notFoundMessage = "Invalid email address. Your email address doesn't exist in the database. Contact Registrar or MIS for assistance.";
 
@@ -570,6 +621,12 @@ if ($detectedRole) {
         credentialInputs.forEach((input) => {
             input.disabled = !enabled;
         });
+        visibilityToggles.forEach((toggle) => {
+            toggle.disabled = !enabled;
+        });
+        if (!enabled) {
+            toggleConfigs.forEach((config) => config.applyVisibility(false));
+        }
         if (submitButton) {
             submitButton.disabled = !enabled;
         }
@@ -610,6 +667,36 @@ if ($detectedRole) {
         setHelper(message || notFoundMessage, 'error');
         form.dataset.emailVerified = '0';
     };
+
+    if (visibilityToggles.length) {
+        visibilityToggles.forEach((toggle) => {
+            const targetSelector = toggle.getAttribute('data-password-toggle');
+            if (!targetSelector) return;
+            const input = document.querySelector(targetSelector);
+            if (!input) return;
+
+            const hiddenType = toggle.getAttribute('data-hidden-type') || 'password';
+            const visibleType = toggle.getAttribute('data-visible-type') || 'text';
+            const showLabel = toggle.getAttribute('data-show-label') || 'Show value';
+            const hideLabel = toggle.getAttribute('data-hide-label') || 'Hide value';
+
+            const applyVisibility = (show) => {
+                input.setAttribute('type', show ? visibleType : hiddenType);
+                toggle.classList.toggle('is-visible', show);
+                toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+                toggle.setAttribute('aria-label', show ? hideLabel : showLabel);
+            };
+
+            toggle.addEventListener('click', () => {
+                if (toggle.disabled) return;
+                const shouldShow = input.getAttribute('type') === hiddenType;
+                applyVisibility(shouldShow);
+            });
+
+            toggleConfigs.push({ applyVisibility });
+            applyVisibility(false);
+        });
+    }
 
     if (checkButton) {
         checkButton.addEventListener('click', () => {

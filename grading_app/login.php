@@ -277,6 +277,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-dark);
             font-family: inherit;
         }
+        .toggle-visibility {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #7b8a94;
+        }
+        .toggle-visibility:focus-visible {
+            outline: 2px solid #0f6b43;
+            outline-offset: 2px;
+        }
+        .toggle-visibility [data-icon-hide] {
+            display: none;
+        }
+        .toggle-visibility.is-visible [data-icon-show] {
+            display: none;
+        }
+        .toggle-visibility.is-visible [data-icon-hide] {
+            display: inline-flex;
+        }
         .field-box svg {
             width: 18px;
             height: 18px;
@@ -375,8 +398,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="password">Password</label>
                         <div class="field-box">
                           <span class="material-symbols-rounded">lock</span>
-                            <input type="password" id="password" name="password" placeholder="••••••••" required>
-                          <span class="material-symbols-rounded">visibility</span>
+                            <input type="password" id="password" name="password" placeholder="********" required>
+                          <button
+                            type="button"
+                            class="toggle-visibility"
+                            data-password-toggle="#password"
+                            data-hidden-type="password"
+                            aria-pressed="false"
+                            aria-label="Show password"
+                          >
+                            <span class="material-symbols-rounded" data-icon-show>visibility</span>
+                            <span class="material-symbols-rounded" data-icon-hide>visibility_off</span>
+                          </button>
                         </div>
                     </div>
 
@@ -394,5 +427,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </section>
     </div>
+<script>
+(function () {
+    var toggles = document.querySelectorAll('[data-password-toggle]');
+    if (!toggles.length) return;
+
+    toggles.forEach(function (toggle) {
+        var targetSelector = toggle.getAttribute('data-password-toggle');
+        var hiddenType = toggle.getAttribute('data-hidden-type') || 'password';
+        var visibleType = toggle.getAttribute('data-visible-type') || 'text';
+        if (!targetSelector) return;
+        var input = document.querySelector(targetSelector);
+        if (!input) return;
+
+        function setVisibility(show) {
+            input.setAttribute('type', show ? visibleType : hiddenType);
+            toggle.classList.toggle('is-visible', show);
+            toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+            toggle.setAttribute('aria-label', show ? 'Hide value' : 'Show value');
+        }
+
+        toggle.addEventListener('click', function () {
+            var shouldShow = input.getAttribute('type') === hiddenType;
+            setVisibility(shouldShow);
+        });
+    });
+})();
+</script>
 </body>
 </html>

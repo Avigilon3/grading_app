@@ -129,9 +129,6 @@ foreach ($requests as $row) {
             <p class="text-muted">Submit and monitor your grading sheet edit access requests.</p>
         </div>
         <?php show_flash(); ?>
-        <?php if (isset($_GET['submitted'])): ?>
-            <div class="alert alert-success">Your edit access request was submitted.</div>
-        <?php endif; ?>
 
         <div class="requests-card">
             <h2 class="section-title">Request Edit Access</h2>
@@ -290,8 +287,7 @@ foreach ($requests as $row) {
             <strong>Important Information</strong>
             <ul class="info-list">
                 <li>Provide a clear reason to help the registrar review your request faster.</li>
-                <li>Approved requests will reopen the grading sheet for edits within the allowed window.</li>
-                <li>Denied requests can be appealed by submitting a new explanation.</li>
+                <li>Approved requests will reopen the grading sheet for edits within 24 hours</li>
             </ul>
         </div>
     </main>
