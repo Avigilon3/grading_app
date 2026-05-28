@@ -1,97 +1,79 @@
-# Grading System Web Application
+# Online Grading and Academic Record Monitoring System
 
-A web-based grading system built with PHP and MySQL, featuring Admin, Teacher, and Student roles. This project allows for easy management of students, subjects, and grades, with a modern UI and dark mode support.
-
----
+## Description
+The Online Grading and Academic Record Monitoring System (or Grading App to make it simple) is a centralized, web-based platform developed specifically for Pateros Technological College (PTC). Designed to transition the institution from a semi-automated, spreadsheet-reliant workflow to a fully digital environment, this system automates grade calculations, streamlines record management, and provides real-time academic tracking. It aims to reduce administrative workloads, minimize manual encoding errors, and provide students with immediate, transparent access to their academic progress.
 
 ## Features
 
-- **User Authentication** (Admin, Teacher, Student)
-- **Role-based Access Control**
-- **Add/Edit/Delete Students and Subjects**
-- **Assign and Update Grades**
-- **Student Dashboard** with GPA, pass/fail status, and analytics
-- **Dark Mode** toggle (remembers your preference)
-- **Responsive UI** (Bootstrap 5)
-- **Secure Password Hashing**
-- **User-friendly error and success messages**
+### Admin (Registrar / MIS Office)
+* **Centralized Database Management:** Add, edit, and manage records for students, professors, courses, subjects, and sections.
+* **Grading Sheet Management:** Set and manage submission deadlines for faculty grading sheets.
+* **Request & Scheduling Management:** Approve or deny professors' requests for grade amendments and schedule pick-up dates for students requesting physical documents.
+* **Activity Logging:** Track administrative actions for accountability and transparency.
 
----
+### Professor
+* **Automated Grading Sheets:** Input raw scores (quizzes, exams, attendance, etc.) and allow the system to automatically compute tentative and final grades.
+* **Draft & Submit Workflow:** Save grading sheets as drafts while the semester is ongoing, and submit them once finalized.
+* **Amendment Requests:** Request temporary edit access from the Admin to correct grading mistakes after submission deadlines have passed.
 
-## Requirements
+### Student
+* **Academic Dashboard:** View current GWA, enrolled units, attendance rate, and real-time class standing (including rank and average comparisons).
+* **Report of Grades:** Download official grade reports in an un-editable JPEG format to prevent tampering and ensure visual integrity.
+* **Document Requests:** Request official, sealed hard copies of grade reports or certificates directly through the portal.
 
-- PHP 7.4 or higher
-- MySQL/MariaDB
-- XAMPP/LAMP/WAMP or any web server with PHP & MySQL
-- Composer (optional, if you want to manage dependencies)
+## Tech Stack
+* **Frontend:** HTML, CSS, JavaScript
+* **Backend:** PHP
+* **Database:** MySQL
+* **Environment:** XAMPP (Apache/MySQL local server)
+* **Editor:** Visual Studio Code
 
----
+## Installation & Setup
+Follow these instructions to run the system locally on your machine.
 
-## Installation
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/Avigilon3/grading_app.git
+    ```
+2.  **Move the project folder:**
+    Place the cloned project folder into your XAMPP `htdocs` directory (e.g., `C:\xampp\htdocs\grading_app`).
+3.  **Start the local server:**
+    Open the XAMPP Control Panel and start **Apache** and **MySQL**.
+4.  **Database Configuration:**
+    * Open your browser and navigate to `http://localhost/phpmyadmin`.
+    * Create a new database (e.g., `grading_app`).
+    * Import the provided `.sql` file (usually found in the `database` folder of the repo) into your newly created database.
+5.  **Configure Database Connection:**
+    * Locate the database connection file in the project (e.g., `db_connect.php` or `config.php`).
+    * Update the credentials to match your local setup:
+        ```php
+        $host = "localhost";
+        $username = "root";
+        $password = ""; // Default XAMPP password is empty
+        $database = "grading_app";
+        ```
+6.  **Launch the System:**
+    Open your browser and go to `http://localhost/grading_app`.
 
-1. **Clone or Download** this repository to your web server directory (e.g., `htdocs` for XAMPP).
-2. **Import the Database:**
-    - Open `phpMyAdmin` or your preferred MySQL tool.
-    - Import the provided SQL file (e.g., `install.sql` or `grading_app.sql`).
-3. **Configure Database Connection:**
-    - Edit `includes/config.php` and set your MySQL username, password, and database name.
-4. **Start your web server** (Apache) and MySQL.
-5. **Access the Application:**
-    - Go to [http://localhost/grading_app/](http://localhost/grading_app/) in your browser.
+## Test Accounts
+Use the following credentials to explore the different portals of the system:
 
----
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | ` jqtumamak@paterostechnologicalcollege.edu.ph` | `Admin123!` |
+| **Professor** | `jmnaling@paterostechnologicalcollege.edu.ph` | `Prof123!` |
+| **Student** | `cgbaldemor@paterostechnologicalcollege.edu.ph` | `Stud123!` |
 
-## Default Accounts
 
-| Role    | Username   | Password  |
-|---------|------------|-----------|
-| Admin   | admin      | password  |
-| Teacher | teacher1   | password  |
-| Student | student1   | password  |
+## Project Methodology
+This project was developed using the **Agile Methodology (Scrum)**, progressing through continuous iterative phases of Concept, Plan, Develop, Test, Deploy, and Review.
 
-> You can add more users via the Admin panel or directly in the database.
+## Research Document
+The research paper related to this system is stored in Google Drive and can be accessed using this link: `https://drive.google.com/file/d/1M-5ZfyWP_nfj1PF_IzB1aiBnaUpYnJpk/view?usp=sharing`.
 
----
-
-## Usage
-
-- **Admin**: Manage all users, subjects, and grades.
-- **Teacher**: Manage students and assign grades.
-- **Student**: View grades, GPA, and analytics.
-
----
-
-## File Structure
-
-- `/includes/` - Configuration and database connection
-- `/teacher/`  - Admin/Teacher dashboard and management
-- `/student/`  - Student dashboard
-- `/login.php` - Login page
-- `/logout.php` - Logout script
-
----
-
-## Notes
-
-- Passwords are securely hashed.
-- Dark mode preference is saved per browser.
-- All actions are protected by user roles.
-- Error and success messages are displayed for user actions.
-
----
-
-## Troubleshooting
-
-- If you see a blank page, enable error reporting in `php.ini` or at the top of PHP files.
-- Double-check your database credentials in `includes/config.php`.
-- Make sure you have imported the SQL file before logging in.
-
----
-
-## Credits
-
-Developed by Tumamak jerick, San Pascual Phillip  for PROF. JC CODILAN
- PTC WEBPROG 2 CCS 2B , 2025.
-
----
-ADDED BY BETHEL FOR TESTING Nov 2
+## Developers / Authors
+**BSIT 3OL Students - Institute of Information and Communication Technology**
+* Bethel Rodriguez Albor
+* Carlo Guzman Baldemor
+* Jerick Quintana Tumamak
+* Joshua Angel Mandia Naling
