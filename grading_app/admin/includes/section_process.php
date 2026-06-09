@@ -67,13 +67,13 @@ try {
 
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
-        $stmt = $pdo->prepare("DELETE FROM sections WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE sections SET is_active = 0 WHERE id = ?");
         $stmt->execute([$id]);
 
         $userId = $_SESSION['user']['id'] ?? null;
-        add_activity_log($pdo, $userId, 'DELETE_SECTION', 'Deleted section id: ' . $id);
+        add_activity_log($pdo, $userId, 'DEACTIVATE_SECTION', 'Deactivated section id: ' . $id);
 
-        header('Location: ../pages/sections.php?msg=' . urlencode('Section deleted successfully.'));
+        header('Location: ../pages/sections.php?msg=' . urlencode('Section deactivated successfully.'));
         exit;
     }
 

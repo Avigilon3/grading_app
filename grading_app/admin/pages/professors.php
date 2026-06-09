@@ -2,8 +2,12 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-$stmt = $pdo->query("SELECT * FROM professors ORDER BY last_name, first_name");
-$result = $stmt->fetchAll();
+$statusFilter = $_GET['status_filter'] ?? 'active';
+$subjectFilter = $_GET['subject_filter'] ?? 'all';
+$validStatusFilters = ['active', 'inactive', 'all'];
+if (!in_array($statusFilter, $validStatusFilters, true)) {
+  $statusFilter = 'active';
+}
 
 $subjects = [];
 $subjectsById = [];
@@ -25,10 +29,30 @@ try {
     }
     $subjectsById[$subject['id']] = $label;
   }
+  if ($subjectFilter !== 'all' && !array_key_exists((int)$subjectFilter, $subjectsById)) {
+    $subjectFilter = 'all';
+  }
 } catch (Exception $e) {
   $subjects = [];
   $subjectsById = [];
+  $subjectFilter = 'all';
 }
+
+$professorFilters = [];
+$professorParams = [];
+if ($statusFilter === 'active') {
+  $professorFilters[] = 'is_active = 1';
+} elseif ($statusFilter === 'inactive') {
+  $professorFilters[] = 'is_active = 0';
+}
+if ($subjectFilter !== 'all') {
+  $professorFilters[] = 'subject_id = :subject_id';
+  $professorParams[':subject_id'] = (int)$subjectFilter;
+}
+$professorWhereSql = $professorFilters ? 'WHERE ' . implode(' AND ', $professorFilters) : '';
+$stmt = $pdo->prepare("SELECT * FROM professors $professorWhereSql ORDER BY last_name, first_name");
+$stmt->execute($professorParams);
+$result = $stmt->fetchAll();
 ?>
 <!doctype html><html><head>
   <meta charset="utf-8"><title> Database Management - Professors</title>
@@ -193,6 +217,32 @@ try {
 
     <div class="card">
       <div class="card-body">
+        <form method="get" class="form-box filters-grid table-filter-form">
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status_filter" class="form-control">
+              <option value="active" <?= $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
+              <option value="inactive" <?= $statusFilter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+              <option value="all" <?= $statusFilter === 'all' ? 'selected' : ''; ?>>All</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <select name="subject_filter" class="form-control">
+              <option value="all" <?= $subjectFilter === 'all' ? 'selected' : ''; ?>>All Subjects</option>
+              <?php foreach ($subjects as $subject): ?>
+                <?php $label = $subjectsById[$subject['id']] ?? ('Subject #' . (int)$subject['id']); ?>
+                <option value="<?= (int)$subject['id']; ?>" <?= (string)$subjectFilter === (string)$subject['id'] ? 'selected' : ''; ?>>
+                  <?= htmlspecialchars($label); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-actions filter-actions">
+            <button class="btn btn-primary" type="submit">Apply Filters</button>
+            <a class="btn btn-sm btn-secondary" href="./professors.php">Reset</a>
+          </div>
+        </form>
         <table class="table table-striped table-bordered">
           <thead>
             <tr>
@@ -230,10 +280,10 @@ try {
                   data-schedule="<?= htmlspecialchars((string)($row['schedule'] ?? '')); ?>"
                 >Edit</button>
 
-                <form action="../includes/professor_process.php" method="POST" onsubmit="return confirm('Delete this professor?');">
+                <form action="../includes/professor_process.php" method="POST" onsubmit="return confirm('Deactivate this professor?');">
                   <input type="hidden" name="action" value="delete">
                   <input type="hidden" name="id" value="<?= $row['id']; ?>">
-                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                  <button class="btn btn-sm btn-danger btn-deactivate" type="submit">Deactivate</button>
                 </form>
               </td>
             </tr>

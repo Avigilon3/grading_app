@@ -41,13 +41,13 @@ try {
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id > 0) {
-            $stmt = $pdo->prepare("DELETE FROM courses WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE courses SET is_active = 0 WHERE id = ?");
             $stmt->execute([$id]);
 
             $userId = $_SESSION['user']['id'] ?? null;
-            add_activity_log($pdo, $userId, 'DELETE_COURSE', 'Deleted course id: ' . $id);
+            add_activity_log($pdo, $userId, 'DEACTIVATE_COURSE', 'Deactivated course id: ' . $id);
         }
-        header('Location: ../pages/subjects.php?msg=' . urlencode('Course deleted.'));
+        header('Location: ../pages/subjects.php?msg=' . urlencode('Course deactivated.'));
         exit;
     }
 

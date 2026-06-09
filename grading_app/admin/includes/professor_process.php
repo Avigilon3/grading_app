@@ -154,13 +154,13 @@ try {
 
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
-        $stmt = $pdo->prepare("DELETE FROM professors WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE professors SET is_active = 0 WHERE id = ?");
         $stmt->execute([$id]);
 
         $userId = $_SESSION['user']['id'] ?? null;
-        add_activity_log($pdo, $userId, 'DELETE_PROFESSOR', 'Deleted professor id: ' . $id);
+        add_activity_log($pdo, $userId, 'DEACTIVATE_PROFESSOR', 'Deactivated professor id: ' . $id);
 
-        header('Location: ../pages/professors.php?msg=' . urlencode('Professor deleted successfully.'));
+        header('Location: ../pages/professors.php?msg=' . urlencode('Professor deactivated successfully.'));
         exit;
     }
 

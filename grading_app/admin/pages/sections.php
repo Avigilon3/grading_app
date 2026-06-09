@@ -2,14 +2,17 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-// Fetch sections with joined display fields
-$stmt = $pdo->query(
-    "SELECT s.*, t.term_name 
-     FROM sections s
-     LEFT JOIN terms t ON t.id = s.term_id
-     ORDER BY s.section_name DESC, s.id DESC"
-);
-$result = $stmt->fetchAll();
+$statusFilter = $_GET['status_filter'] ?? 'active';
+$courseFilter = $_GET['course_filter'] ?? 'all';
+$yearFilter = $_GET['year_level_filter'] ?? 'all';
+$validStatusFilters = ['active', 'inactive', 'all'];
+$validYearFilters = ['all', '1', '2', '3', '4'];
+if (!in_array($statusFilter, $validStatusFilters, true)) {
+  $statusFilter = 'active';
+}
+if (!in_array($yearFilter, $validYearFilters, true)) {
+  $yearFilter = 'all';
+}
 
 // Fetch lookup data for selects
 $termsStmt = $pdo->query("SELECT id, term_name FROM terms ORDER BY start_date DESC, id DESC");
@@ -25,6 +28,9 @@ foreach ($courses as $course) {
   }
   $courseLabels[$course['id']] = $label;
 }
+if ($courseFilter !== 'all' && !array_key_exists((int)$courseFilter, $courseLabels)) {
+  $courseFilter = 'all';
+}
 
 $yearLevels = [
   '1' => '1st Year',
@@ -32,6 +38,33 @@ $yearLevels = [
   '3' => '3rd Year',
   '4' => '4th Year',
 ];
+
+// Fetch sections with joined display fields
+$sectionFilters = [];
+$sectionParams = [];
+if ($statusFilter === 'active') {
+  $sectionFilters[] = 's.is_active = 1';
+} elseif ($statusFilter === 'inactive') {
+  $sectionFilters[] = 's.is_active = 0';
+}
+if ($courseFilter !== 'all') {
+  $sectionFilters[] = 's.course_id = :course_id';
+  $sectionParams[':course_id'] = (int)$courseFilter;
+}
+if ($yearFilter !== 'all') {
+  $sectionFilters[] = 's.year_level = :year_level';
+  $sectionParams[':year_level'] = $yearFilter;
+}
+$sectionWhereSql = $sectionFilters ? 'WHERE ' . implode(' AND ', $sectionFilters) : '';
+$stmt = $pdo->prepare(
+    "SELECT s.*, t.term_name
+     FROM sections s
+     LEFT JOIN terms t ON t.id = s.term_id
+     $sectionWhereSql
+     ORDER BY s.section_name DESC, s.id DESC"
+);
+$stmt->execute($sectionParams);
+$result = $stmt->fetchAll();
 
 ?>
 <!doctype html><html><head>
@@ -183,6 +216,43 @@ $yearLevels = [
     </div>
     <div class="card">
       <div class="card-body">
+        <form method="get" class="form-box filters-grid table-filter-form">
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status_filter" class="form-control">
+              <option value="active" <?= $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
+              <option value="inactive" <?= $statusFilter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+              <option value="all" <?= $statusFilter === 'all' ? 'selected' : ''; ?>>All</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Course</label>
+            <select name="course_filter" class="form-control">
+              <option value="all" <?= $courseFilter === 'all' ? 'selected' : ''; ?>>All Courses</option>
+              <?php foreach ($courses as $course): ?>
+                <?php $label = $courseLabels[$course['id']] ?? ('Course #' . (int)$course['id']); ?>
+                <option value="<?= (int)$course['id']; ?>" <?= (string)$courseFilter === (string)$course['id'] ? 'selected' : ''; ?>>
+                  <?= htmlspecialchars($label); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Year Level</label>
+            <select name="year_level_filter" class="form-control">
+              <option value="all" <?= $yearFilter === 'all' ? 'selected' : ''; ?>>All Year Levels</option>
+              <?php foreach ($yearLevels as $value => $label): ?>
+                <option value="<?= htmlspecialchars($value); ?>" <?= $yearFilter === $value ? 'selected' : ''; ?>>
+                  <?= htmlspecialchars($label); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-actions filter-actions">
+            <button class="btn btn-primary" type="submit">Apply Filters</button>
+            <a class="btn btn-sm btn-secondary" href="./sections.php">Reset</a>
+          </div>
+        </form>
         <table class="table table-striped table-bordered">
           <thead>
             <tr>
@@ -216,10 +286,10 @@ $yearLevels = [
                   data-is_active="<?= htmlspecialchars($row['is_active']); ?>"
                 >Edit</button>
 
-                <form action="../includes/section_process.php" method="POST" onsubmit="return confirm('Delete this section?');">
+                <form action="../includes/section_process.php" method="POST" onsubmit="return confirm('Deactivate this section?');">
                   <input type="hidden" name="action" value="delete">
                   <input type="hidden" name="id" value="<?= $row['id']; ?>">
-                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                  <button class="btn btn-sm btn-danger btn-deactivate" type="submit">Deactivate</button>
                 </form>
               </td>
             </tr>

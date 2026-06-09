@@ -123,13 +123,13 @@ try {
 
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
-        $stmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE students SET status = 'Inactive' WHERE id = ?");
         $stmt->execute([$id]);
 
         $userId = $_SESSION['user']['id'] ?? null;
-        add_activity_log($pdo, $userId, 'DELETE_STUDENT', 'Deleted student id: ' . $id);
+        add_activity_log($pdo, $userId, 'DEACTIVATE_STUDENT', 'Deactivated student id: ' . $id);
 
-        header('Location: ../pages/students.php?msg=' . urlencode('Student deleted successfully.'));
+        header('Location: ../pages/students.php?msg=' . urlencode('Student deactivated successfully.'));
         exit;
     }
 

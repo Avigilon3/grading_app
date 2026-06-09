@@ -7,8 +7,17 @@ requireAdmin();
 // add later siguro wag na? check if user is MIS or Registrar
 // if (!is_mis($_SESSION['admin']['role'])) { die('Unauthorized'); }
 
-$stmt = $pdo->query("SELECT * FROM students ORDER BY last_name, first_name");
-$result = $stmt->fetchAll();
+$statusFilter = $_GET['status_filter'] ?? 'active';
+$yearFilter = $_GET['year_level_filter'] ?? 'all';
+$sectionFilter = $_GET['section_filter'] ?? 'all';
+$validStatusFilters = ['active', 'inactive', 'all'];
+$validYearFilters = ['all', '1', '2', '3', '4'];
+if (!in_array($statusFilter, $validStatusFilters, true)) {
+    $statusFilter = 'active';
+}
+if (!in_array($yearFilter, $validYearFilters, true)) {
+    $yearFilter = 'all';
+}
 
 $sectionStmt = $pdo->query("SELECT s.id, s.section_name, s.term_id, t.school_year
                               FROM sections s
@@ -33,6 +42,32 @@ foreach ($sections as $section) {
         'label' => $label
     ];
 }
+if ($sectionFilter !== 'all') {
+    $validSections = array_column($sectionOptions, 'value');
+    if (!in_array($sectionFilter, $validSections, true)) {
+        $sectionFilter = 'all';
+    }
+}
+
+$studentFilters = [];
+$studentParams = [];
+if ($statusFilter === 'active') {
+    $studentFilters[] = "status <> 'Inactive'";
+} elseif ($statusFilter === 'inactive') {
+    $studentFilters[] = "status = 'Inactive'";
+}
+if ($yearFilter !== 'all') {
+    $studentFilters[] = "year_level = :year_level";
+    $studentParams[':year_level'] = $yearFilter;
+}
+if ($sectionFilter !== 'all') {
+    $studentFilters[] = "section = :section";
+    $studentParams[':section'] = $sectionFilter;
+}
+$studentWhereSql = $studentFilters ? 'WHERE ' . implode(' AND ', $studentFilters) : '';
+$stmt = $pdo->prepare("SELECT * FROM students $studentWhereSql ORDER BY last_name, first_name");
+$stmt->execute($studentParams);
+$result = $stmt->fetchAll();
 
 ?>
 <!doctype html><html><head>
@@ -221,6 +256,41 @@ foreach ($sections as $section) {
 
 <div class="card">
     <div class="card-body">
+        <form method="get" class="form-box filters-grid table-filter-form">
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status_filter" class="form-control">
+                    <option value="active" <?= $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
+                    <option value="inactive" <?= $statusFilter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                    <option value="all" <?= $statusFilter === 'all' ? 'selected' : ''; ?>>All</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Year Level</label>
+                <select name="year_level_filter" class="form-control">
+                    <option value="all" <?= $yearFilter === 'all' ? 'selected' : ''; ?>>All Year Levels</option>
+                    <option value="1" <?= $yearFilter === '1' ? 'selected' : ''; ?>>1st Year</option>
+                    <option value="2" <?= $yearFilter === '2' ? 'selected' : ''; ?>>2nd Year</option>
+                    <option value="3" <?= $yearFilter === '3' ? 'selected' : ''; ?>>3rd Year</option>
+                    <option value="4" <?= $yearFilter === '4' ? 'selected' : ''; ?>>4th Year</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Section</label>
+                <select name="section_filter" class="form-control">
+                    <option value="all" <?= $sectionFilter === 'all' ? 'selected' : ''; ?>>All Sections</option>
+                    <?php foreach ($sectionOptions as $sectionOption): ?>
+                        <option value="<?= htmlspecialchars($sectionOption['value']); ?>" <?= $sectionFilter === $sectionOption['value'] ? 'selected' : ''; ?>>
+                            <?= htmlspecialchars($sectionOption['label']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-actions filter-actions">
+                <button class="btn btn-primary" type="submit">Apply Filters</button>
+                <a class="btn btn-sm btn-secondary" href="./students.php">Reset</a>
+            </div>
+        </form>
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -267,10 +337,10 @@ foreach ($sections as $section) {
                             data-status="<?= htmlspecialchars($row['status']); ?>"
                         >Edit</button>
 
-                        <form action="../includes/student_process.php" method="POST" onsubmit="return confirm('Delete this student?');">
+                        <form action="../includes/student_process.php" method="POST" onsubmit="return confirm('Deactivate this student?');">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $row['id']; ?>">
-                            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                            <button class="btn btn-sm btn-danger btn-deactivate" type="submit">Deactivate</button>
                         </form>
                     </td>
                 </tr>

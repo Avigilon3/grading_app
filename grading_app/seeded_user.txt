@@ -28,7 +28,7 @@ jburgos@paterostechnologicalcollege.edu.ph
 bralbor@paterostechnologicalcollege.edu.ph
 
 
-temporary verification code for authentication: 012345 
+authentication code for testing: 012345 
 
 =-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 >>>>Student accounts in database: <<<<
@@ -37,28 +37,78 @@ joserizal@paterostechnologicalcollege.edu.ph
 jburgos@paterostechnologicalcollege.edu.ph - Registered
 cgbaldemor@paterostechnologicalcollege.edu.ph - Registered
 bralbor@paterostechnologicalcollege.edu.ph
+rbacani@paterostechnologicalcollege.edu.ph
+jmbalingit@paterostechnologicalcollege.edu.ph
+mbautista@paterostechnologicalcollege.edu.ph
+christiancalix@paterostechnologicalcollege.edu.ph
+lgclitar@paterostechnologicalcollege.edu.ph
+dconel@paterostechnologicalcollege.edu.ph
 
 >>>>Professors accounts in database: <<<<
 	
 jmnaling@paterostechnologicalcollege.edu.ph - Registered
-storre@paterostechnologicalcollege.edu.ph
-rnacario@paterostechnologicalcollege.edu.ph
-mknazareno@paterostechnologicalcollege.edu.ph
-maria.santos@paterostechnologicalcollege.edu.ph
-flamit@paterostechnologicalcollege.edu.ph - Registered
+jaguilar@paterostechnologicalcollege.edu.ph - Registered
 mgnocon@paterostechnologicalcollege.edu.ph - Registered
-jabarracozo@paterostechnologicalcollege.edu.ph
 jramos@paterostechnologicalcollege.edu.ph - Registered
 clamera@paterostechnologicalcollege.edu.ph - Registered
-jaguilar@paterostechnologicalcollege.edu.ph - Registered
+mknazareno@paterostechnologicalcollege.edu.ph - Registered
+testingduplicate@paterostechnologicalcollege.edu.ph - Registered
+storre@paterostechnologicalcollege.edu.ph
+rnacario@paterostechnologicalcollege.edu.ph
+maria.santos@paterostechnologicalcollege.edu.ph
+flamit@paterostechnologicalcollege.edu.ph - Registered
+jabarracozo@paterostechnologicalcollege.edu.ph
 msaavedra@paterostechnologicalcollege.edu.ph
 aarsison@paterostechnologicalcollege.edu.ph
-testingduplicate@paterostechnologicalcollege.edu.ph - Registered
+saricafort@paterostechnologicalcollege.edu.ph
+
+
+
+=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Steps:
+1. The admin needs to setup the database using the Database Management page. This is where they could add students, professors, subjects, courses, etc. 
+2. The admin needs to set the submission deadline for the grading sheets using the Submission Deadlines tab under the Grading Sheets page.
+3. The users (professors and students) can now register using the ptc email address provided by the administrator. 
+4. 
+
+
+
+For students, it will show as pending if the professor has not yet submitted the grading sheet that contains their grades. Once the deadline had passed, the submitted grades should show.
 
 
 
 
-seed_users.php (decapricated already)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+seed_users.php (decapricated code)
 
 <?php
 // 1) Connect to the new DB (adjust if your DB creds differ)

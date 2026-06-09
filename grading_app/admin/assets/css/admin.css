@@ -546,6 +546,10 @@ label{
   justify-content: flex-end;
 }
 
+.table-filter-form {
+  margin-bottom: 16px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -1081,6 +1085,17 @@ button{
 .btn.primary:hover,
 .btn.ghost:hover {
   opacity: 0.9;
+}
+
+.btn-secondary {
+  background: #eef2f7;
+  color: var(--primarycolor);
+  border-color: #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  color: var(--primarycolor);
 }
 
 .kpi-grid {

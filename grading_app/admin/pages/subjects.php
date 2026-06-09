@@ -2,18 +2,18 @@
 require_once '../includes/init.php';
 requireAdmin();
 
-if (function_exists('syncSubjectStatusesWithTerms')) {
-  syncSubjectStatusesWithTerms($pdo);
+$statusFilter = $_GET['status_filter'] ?? 'active';
+$courseFilter = $_GET['course_filter'] ?? 'all';
+$yearFilter = $_GET['year_level_filter'] ?? 'all';
+$termFilter = $_GET['term_filter'] ?? 'all';
+$validStatusFilters = ['active', 'inactive', 'all'];
+$validYearFilters = ['all', '1', '2', '3', '4'];
+if (!in_array($statusFilter, $validStatusFilters, true)) {
+  $statusFilter = 'active';
 }
-
-$stmt = $pdo->query("SELECT s.*,
-                             t.term_name,
-                             t.is_active AS term_is_active
-                      FROM subjects s
-                      LEFT JOIN terms t
-                        ON t.id = s.term_id
-                      ORDER BY s.subject_code");
-$result = $stmt->fetchAll();
+if (!in_array($yearFilter, $validYearFilters, true)) {
+  $yearFilter = 'all';
+}
 
 $coursesStmt = $pdo->query("SELECT * FROM courses ORDER BY code, title");
 $courses = $coursesStmt->fetchAll();
@@ -25,8 +25,18 @@ foreach ($courses as $course) {
   }
   $courseLabels[$course['id']] = $label;
 }
+if ($courseFilter !== 'all' && !array_key_exists((int)$courseFilter, $courseLabels)) {
+  $courseFilter = 'all';
+}
 
 $termsRecords = $pdo->query("SELECT * FROM terms ORDER BY start_date DESC, id DESC")->fetchAll();
+$termLabels = [];
+foreach ($termsRecords as $termRecord) {
+  $termLabels[$termRecord['id']] = $termRecord['term_name'];
+}
+if ($termFilter !== 'all' && !array_key_exists((int)$termFilter, $termLabels)) {
+  $termFilter = 'all';
+}
 
 $yearLevels = [
   '1' => '1st Year',
@@ -34,6 +44,37 @@ $yearLevels = [
   '3' => '3rd Year',
   '4' => '4th Year',
 ];
+
+$subjectFilters = [];
+$subjectParams = [];
+if ($statusFilter === 'active') {
+  $subjectFilters[] = 's.is_active = 1';
+} elseif ($statusFilter === 'inactive') {
+  $subjectFilters[] = 's.is_active = 0';
+}
+if ($courseFilter !== 'all') {
+  $subjectFilters[] = 's.course_id = :course_id';
+  $subjectParams[':course_id'] = (int)$courseFilter;
+}
+if ($yearFilter !== 'all') {
+  $subjectFilters[] = 's.year_level = :year_level';
+  $subjectParams[':year_level'] = $yearFilter;
+}
+if ($termFilter !== 'all') {
+  $subjectFilters[] = 's.term_id = :term_id';
+  $subjectParams[':term_id'] = (int)$termFilter;
+}
+$subjectWhereSql = $subjectFilters ? 'WHERE ' . implode(' AND ', $subjectFilters) : '';
+$stmt = $pdo->prepare("SELECT s.*,
+                             t.term_name,
+                             t.is_active AS term_is_active
+                      FROM subjects s
+                      LEFT JOIN terms t
+                        ON t.id = s.term_id
+                      $subjectWhereSql
+                      ORDER BY s.subject_code");
+$stmt->execute($subjectParams);
+$result = $stmt->fetchAll();
 ?>
 <!doctype html><html><head>
   <meta charset="utf-8"><title>Database Management - Subjects</title>
@@ -279,10 +320,10 @@ $yearLevels = [
                       <td><?= htmlspecialchars($course['description'] ?? ''); ?></td>
                       <td><?= (!isset($course['is_active']) || $course['is_active']) ? 'Active' : 'Inactive'; ?></td>
                       <td class="actions">
-                        <form action="../includes/course_process.php" method="POST" onsubmit="return confirm('Delete this course?');">
+                        <form action="../includes/course_process.php" method="POST" onsubmit="return confirm('Deactivate this course?');">
                           <input type="hidden" name="action" value="delete">
                           <input type="hidden" name="id" value="<?= (int)$course['id']; ?>">
-                          <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                          <button class="btn btn-sm btn-danger btn-deactivate" type="submit">Deactivate</button>
                         </form>
                       </td>
                     </tr>
@@ -298,6 +339,7 @@ $yearLevels = [
           <div class="form-box">
             <form action="../includes/term_process.php" method="POST">
               <input type="hidden" name="action" value="create">
+              <input type="hidden" name="redirect_to" value="subjects">
               <div class="row-grid cols-2">
                 <div class="form-group">
                   <label>Semester *</label>
@@ -336,6 +378,7 @@ $yearLevels = [
           <div class="form-box mt-16">
             <form action="../includes/term_process.php" method="POST">
               <input type="hidden" name="action" value="update">
+              <input type="hidden" name="redirect_to" value="subjects">
               <input type="hidden" name="id" id="term-edit-id">
               <div class="row-grid cols-2">
                 <div class="form-group">
@@ -409,10 +452,11 @@ $yearLevels = [
                           data-end_date="<?= htmlspecialchars($termRow['end_date']); ?>"
                           data-is_active="<?= htmlspecialchars($termRow['is_active']); ?>"
                         >Edit</button>
-                        <form action="../includes/term_process.php" method="POST" onsubmit="return confirm('Delete this term?');">
+                        <form action="../includes/term_process.php" method="POST" onsubmit="return confirm('Deactivate this term?');">
                           <input type="hidden" name="action" value="delete">
+                          <input type="hidden" name="redirect_to" value="subjects">
                           <input type="hidden" name="id" value="<?= $termRow['id']; ?>">
-                          <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                          <button class="btn btn-sm btn-danger btn-deactivate" type="submit">Deactivate</button>
                         </form>
                       </td>
                     </tr>
@@ -435,6 +479,54 @@ $yearLevels = [
 
       <div class="card">
         <div class="card-body">
+          <form method="get" class="form-box filters-grid table-filter-form">
+            <div class="form-group">
+              <label>Status</label>
+              <select name="status_filter" class="form-control">
+                <option value="active" <?= $statusFilter === 'active' ? 'selected' : ''; ?>>Active</option>
+                <option value="inactive" <?= $statusFilter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                <option value="all" <?= $statusFilter === 'all' ? 'selected' : ''; ?>>All</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Course</label>
+              <select name="course_filter" class="form-control">
+                <option value="all" <?= $courseFilter === 'all' ? 'selected' : ''; ?>>All Courses</option>
+                <?php foreach ($courses as $course): ?>
+                  <?php $label = $courseLabels[$course['id']] ?? ('Course #' . (int)$course['id']); ?>
+                  <option value="<?= (int)$course['id']; ?>" <?= (string)$courseFilter === (string)$course['id'] ? 'selected' : ''; ?>>
+                    <?= htmlspecialchars($label); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year Level</label>
+              <select name="year_level_filter" class="form-control">
+                <option value="all" <?= $yearFilter === 'all' ? 'selected' : ''; ?>>All Year Levels</option>
+                <?php foreach ($yearLevels as $value => $label): ?>
+                  <option value="<?= htmlspecialchars($value); ?>" <?= $yearFilter === $value ? 'selected' : ''; ?>>
+                    <?= htmlspecialchars($label); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Term</label>
+              <select name="term_filter" class="form-control">
+                <option value="all" <?= $termFilter === 'all' ? 'selected' : ''; ?>>All Terms</option>
+                <?php foreach ($termsRecords as $termRecord): ?>
+                  <option value="<?= (int)$termRecord['id']; ?>" <?= (string)$termFilter === (string)$termRecord['id'] ? 'selected' : ''; ?>>
+                    <?= htmlspecialchars($termRecord['term_name']); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="form-actions filter-actions">
+              <button class="btn btn-primary" type="submit">Apply Filters</button>
+              <a class="btn btn-sm btn-secondary" href="./subjects.php">Reset</a>
+            </div>
+          </form>
           <table class="table table-striped table-bordered">
             <thead>
               <tr>
@@ -452,21 +544,7 @@ $yearLevels = [
             <tbody>
             <?php $i=1; foreach ($result as $row): ?>
               <?php
-                $termIsActive = null;
-                if (!empty($row['term_id'])) {
-                  if ($row['term_is_active'] === null) {
-                    $termIsActive = null;
-                  } else {
-                    $termIsActive = (int)$row['term_is_active'];
-                  }
-                }
-                $derivedActive = null;
-                if ($row['term_id']) {
-                  $derivedActive = ($termIsActive === null) ? null : ($termIsActive === 1);
-                }
-                if ($derivedActive === null) {
-                  $derivedActive = (int)$row['is_active'] === 1;
-                }
+                $derivedActive = (int)$row['is_active'] === 1;
                 $derivedActiveInt = $derivedActive ? 1 : 0;
               ?>
               <tr>
@@ -492,10 +570,10 @@ $yearLevels = [
                     data-is_active="<?= $derivedActiveInt; ?>"
                   >Edit</button>
 
-                  <form action="../includes/subject_process.php" method="POST" onsubmit="return confirm('Delete this subject?');">
+                  <form action="../includes/subject_process.php" method="POST" onsubmit="return confirm('Deactivate this subject?');">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="id" value="<?= $row['id']; ?>">
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    <button class="btn btn-sm btn-danger btn-deactivate" type="submit">Deactivate</button>
                   </form>
                 </td>
               </tr>

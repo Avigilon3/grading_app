@@ -78,13 +78,13 @@ try {
 
     if ($action === 'delete') {
         $id = (int)$_POST['id'];
-        $stmt = $pdo->prepare("DELETE FROM subjects WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE subjects SET is_active = 0 WHERE id = ?");
         $stmt->execute([$id]);
 
         $userId = $_SESSION['user']['id'] ?? null;
-        add_activity_log($pdo, $userId, 'DELETE_SUBJECT', 'Deleted subject id: ' . $id);
+        add_activity_log($pdo, $userId, 'DEACTIVATE_SUBJECT', 'Deactivated subject id: ' . $id);
 
-        header('Location: ../pages/subjects.php?msg=' . urlencode('Subject deleted successfully.'));
+        header('Location: ../pages/subjects.php?msg=' . urlencode('Subject deactivated successfully.'));
         exit;
     }
 
