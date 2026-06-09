@@ -15,27 +15,14 @@ Email: cgbaldemor@paterostechnologicalcollege.edu.ph
 Password: Stud123!
 
 
-
-Test professors accounts:
-jaguilar@paterostechnologicalcollege.edu.ph
-clamera@paterostechnologicalcollege.edu.ph
-mgnocon@paterostechnologicalcollege.edu.ph
-jramos@paterostechnologicalcollege.edu.ph
-flamit@paterostechnologicalcollege.edu.ph
-
-Test student accounts: 
-jburgos@paterostechnologicalcollege.edu.ph
-bralbor@paterostechnologicalcollege.edu.ph
-
-
 authentication code for testing: 012345 
 
 =-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 >>>>Student accounts in database: <<<<
-maria.santos@paterostechnologicalcollege.edu.ph
-joserizal@paterostechnologicalcollege.edu.ph
 jburgos@paterostechnologicalcollege.edu.ph - Registered
 cgbaldemor@paterostechnologicalcollege.edu.ph - Registered
+maria.santos@paterostechnologicalcollege.edu.ph
+joserizal@paterostechnologicalcollege.edu.ph
 bralbor@paterostechnologicalcollege.edu.ph
 rbacani@paterostechnologicalcollege.edu.ph
 jmbalingit@paterostechnologicalcollege.edu.ph
@@ -44,11 +31,13 @@ christiancalix@paterostechnologicalcollege.edu.ph
 lgclitar@paterostechnologicalcollege.edu.ph
 dconel@paterostechnologicalcollege.edu.ph
 
+
 >>>>Professors accounts in database: <<<<
 	
 jmnaling@paterostechnologicalcollege.edu.ph - Registered
 jaguilar@paterostechnologicalcollege.edu.ph - Registered
 mgnocon@paterostechnologicalcollege.edu.ph - Registered
+flamit@paterostechnologicalcollege.edu.ph - Registered
 jramos@paterostechnologicalcollege.edu.ph - Registered
 clamera@paterostechnologicalcollege.edu.ph - Registered
 mknazareno@paterostechnologicalcollege.edu.ph - Registered
@@ -56,7 +45,6 @@ testingduplicate@paterostechnologicalcollege.edu.ph - Registered
 storre@paterostechnologicalcollege.edu.ph
 rnacario@paterostechnologicalcollege.edu.ph
 maria.santos@paterostechnologicalcollege.edu.ph
-flamit@paterostechnologicalcollege.edu.ph - Registered
 jabarracozo@paterostechnologicalcollege.edu.ph
 msaavedra@paterostechnologicalcollege.edu.ph
 aarsison@paterostechnologicalcollege.edu.ph
@@ -65,15 +53,19 @@ saricafort@paterostechnologicalcollege.edu.ph
 
 
 =-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-Steps:
-1. The admin needs to setup the database using the Database Management page. This is where they could add students, professors, subjects, courses, etc. 
-2. The admin needs to set the submission deadline for the grading sheets using the Submission Deadlines tab under the Grading Sheets page.
-3. The users (professors and students) can now register using the ptc email address provided by the administrator. 
-4. 
-
-
-
-For students, it will show as pending if the professor has not yet submitted the grading sheet that contains their grades. Once the deadline had passed, the submitted grades should show.
+How It Works
+1. Database Setup
+The administrator sets up the system database using the Database Management page. Here, the admin can add all necessary entities such as students, professors, subjects, and courses.
+2. Set Submission Deadlines
+Using the Submission Deadlines tab under the Grading Sheets page, the admin sets the deadline for grading sheet submissions. Setting a deadline automatically generates a grading sheet for each professor.
+3. User Registration
+Professors and students can register using the PTC email address provided by the administrator.
+4. Managing Grades (Professors)
+Professors manage grades under the Grading Sheet tab. They can add grade components such as quizzes, assignments, and exams. The system automatically calculates the overall grades. Professors must submit the grading sheet before the deadline. After the deadline, the grading sheet locks automatically, and any further changes require a request to the admin to reopen it.
+5. Amendments After Submission
+Professors can edit grading sheets before the submission deadline. If the deadline has passed, they must submit a request to reopen the grading sheet using the Requests tab.
+6. Viewing Grades (Students)
+Students will see their grades as pending until the submission deadline. Once the professor submits the grading sheet, the system automatically displays the final grades.
 
 
 
