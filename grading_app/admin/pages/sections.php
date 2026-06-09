@@ -51,15 +51,21 @@ $yearLevels = [
     </div>
 
     <?php if (isset($_GET['msg'])): ?>
-      <div class="alert alert-success">
+      <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
         <?= htmlspecialchars($_GET['msg']) ?>
       </div>
     <?php endif; ?>
 
     <div class="card" id="student-tabs">
-      <div class="card-header tabs">
-        <button type="button" class="tab-link active" data-tab="add">Add Section</button>
-        <button type="button" class="tab-link" data-tab="edit">Edit Section</button>
+      <div class="card-header admin-tabs" role="tablist" aria-label="Section management tabs">
+        <button type="button" class="admin-tab tab-link active" data-tab="add">
+          <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+          Add Section
+        </button>
+        <button type="button" class="admin-tab tab-link" data-tab="edit">
+          <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+          Edit Section
+        </button>
       </div>
       <div class="card-body">
         <div class="tab-pane active" data-pane="add">

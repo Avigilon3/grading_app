@@ -252,102 +252,6 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
     <meta charset="utf-8">
     <title>Grading Sheets Management</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
-    <style>
-        .default-template-editor {
-            border: 1px solid #e1e6ef;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-            background: #fdfefe;
-        }
-        .default-template-editor .editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .component-add-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid #c0cadb;
-            background: #fff;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .component-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .component-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: flex-end;
-            border: 1px solid #e6e9f0;
-            border-radius: 10px;
-            padding: 12px;
-            background: #fff;
-        }
-        .component-row .form-group {
-            flex: 1 1 220px;
-            margin: 0;
-        }
-        .component-row .form-group label {
-            font-size: 13px;
-            color: #4d5565;
-        }
-        .component-row .form-group input {
-            width: 100%;
-        }
-        .component-row .form-group.narrow {
-            flex: 0 0 140px;
-        }
-        .component-row .row-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .component-row .row-actions button {
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: 1px solid #ccd5e0;
-            background: #f5f7fb;
-            cursor: pointer;
-        }
-        .component-row .row-actions button.danger {
-            border-color: #e88a8a;
-            background: #ffecec;
-            color: #b42318;
-        }
-        .component-row.add-row {
-            border-style: dashed;
-        }
-        .apply-template-form {
-            margin-top: 20px;
-            border: 1px solid #e6e9f0;
-            border-radius: 12px;
-            padding: 16px;
-            background: #fbfcff;
-        }
-        .apply-template-form .form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 10px;
-        }
-        .apply-template-form .form-actions button {
-            border-radius: 8px;
-            padding: 10px 16px;
-            border: 1px solid #ccd5e0;
-            background: #fff;
-            cursor: pointer;
-        }
-        .apply-template-form .form-actions button.danger {
-            border-color: #f5b3b3;
-            background: #ffe9e9;
-            color: #91261f;
-        }
-    </style>
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -355,8 +259,8 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
     <?php include '../includes/sidebar.php'; ?>
     <main class="content">
         <?php show_flash(); ?>
-        <?php if ($err): ?><div class="alert alert-error"><?= htmlspecialchars($err); ?></div><?php endif; ?>
-        <?php if ($msg): ?><div class="alert alert-success"><?= htmlspecialchars($msg); ?></div><?php endif; ?>
+        <?php if ($err): ?><div class="feedback-toast feedback-toast-error" role="alert"><?= htmlspecialchars($err); ?></div><?php endif; ?>
+        <?php if ($msg): ?><div class="feedback-toast feedback-toast-success" role="status" aria-live="polite"><?= htmlspecialchars($msg); ?></div><?php endif; ?>
 
         <div class="page-header">
             <h1>Grading Sheets Management</h1>
@@ -364,10 +268,19 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
         </div>
 
         <div class="card" id="grading-tabs">
-            <div class="card-header tabs">
-                <button class="tab-link active" type="button" data-tab="view">View Grading Sheets</button>
-                <button class="tab-link" type="button" data-tab="template">Manage Template</button>
-                <button class="tab-link" type="button" data-tab="deadlines">Submission Deadlines</button>
+            <div class="card-header admin-tabs" role="tablist" aria-label="Grading management tabs">
+                <button class="admin-tab tab-link active" type="button" data-tab="view">
+                    <span class="material-symbols-rounded" aria-hidden="true">table_view</span>
+                    View Grading Sheets
+                </button>
+                <button class="admin-tab tab-link" type="button" data-tab="template">
+                    <span class="material-symbols-rounded" aria-hidden="true">tune</span>
+                    Manage Template
+                </button>
+                <button class="admin-tab tab-link" type="button" data-tab="deadlines">
+                    <span class="material-symbols-rounded" aria-hidden="true">event</span>
+                    Submission Deadlines
+                </button>
             </div>
             <div class="card-body">
                 <section class="tab-pane active" data-pane="view">

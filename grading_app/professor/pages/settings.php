@@ -109,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
                 </div>
             </div>
             <?php if ($passwordNotice): ?>
-                <div class="alert alert-success"><?= htmlspecialchars($passwordNotice); ?></div>
+                <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite"><?= htmlspecialchars($passwordNotice); ?></div>
             <?php endif; ?>
             <?php if ($passwordErrors): ?>
-                <div class="alert alert-error">
+                <div class="feedback-toast feedback-toast-error" role="alert">
                     <ul>
                         <?php foreach ($passwordErrors as $error): ?>
                             <li><?= htmlspecialchars($error); ?></li>

@@ -216,8 +216,8 @@ foreach ($editRequests as $r) {
       <?php include '../includes/sidebar.php'; ?>
       <main class="content">
         <?php show_flash(); ?>
-        <?php if ($err): ?><div class="alert alert-error"><?= htmlspecialchars($err) ?></div><?php endif; ?>
-        <?php if ($msg): ?><div class="alert alert-success"><?= htmlspecialchars($msg) ?></div><?php endif; ?>
+        <?php if ($err): ?><div class="feedback-toast feedback-toast-error" role="alert"><?= htmlspecialchars($err) ?></div><?php endif; ?>
+        <?php if ($msg): ?><div class="feedback-toast feedback-toast-success" role="status" aria-live="polite"><?= htmlspecialchars($msg) ?></div><?php endif; ?>
 
         <div class="page-header">
           <h1>Requests Management</h1>
@@ -227,35 +227,41 @@ foreach ($editRequests as $r) {
         <div class="stat-grid">
           <div class="stat-card">
             <div>
-              <div style="color:#b7791f;font-weight:600;">Student Requests (Pending)</div>
+              <div class="request-stat-label request-stat-label--student">Student Requests (Pending)</div>
               <div class="stat-value"><?= (int)$counts['pendingDocs']; ?></div>
             </div>
-            <span class="material-symbols-rounded" style="font-size:32px;color:#b7791f;">person</span>
+            <span class="material-symbols-rounded request-stat-icon request-stat-icon--student">person</span>
           </div>
           <div class="stat-card blue">
             <div>
-              <div style="color:#1d4ed8;font-weight:600;">Scheduled Pickups</div>
+              <div class="request-stat-label request-stat-label--scheduled">Scheduled Pickups</div>
               <div class="stat-value"><?= (int)$counts['scheduledDocs']; ?></div>
             </div>
-            <span class="material-symbols-rounded" style="font-size:32px;color:#1d4ed8;">event</span>
+            <span class="material-symbols-rounded request-stat-icon request-stat-icon--scheduled">event</span>
           </div>
           <div class="stat-card red">
             <div>
-              <div style="color:#b42318;font-weight:600;">Professor Requests (Pending)</div>
+              <div class="request-stat-label request-stat-label--professor">Professor Requests (Pending)</div>
               <div class="stat-value"><?= (int)$counts['pendingProf']; ?></div>
             </div>
-            <span class="material-symbols-rounded" style="font-size:32px;color:#b42318;">error</span>
+            <span class="material-symbols-rounded request-stat-icon request-stat-icon--professor">error</span>
           </div>
         </div>
 
         <div class="table-card" id="request-tabs">
-          <div class="tabs">
-            <button type="button" class="tab-link active" data-tab="student">Student Document Requests</button>
-            <button type="button" class="tab-link" data-tab="prof">Professor Re-opening Requests</button>
+          <div class="admin-tabs" role="tablist" aria-label="Request management tabs">
+            <button type="button" class="admin-tab tab-link active" data-tab="student">
+              <span class="material-symbols-rounded" aria-hidden="true">description</span>
+              Student Document Requests
+            </button>
+            <button type="button" class="admin-tab tab-link" data-tab="prof">
+              <span class="material-symbols-rounded" aria-hidden="true">lock_open</span>
+              Professor Re-opening Requests
+            </button>
           </div>
 
-          <div id="tab-student" class="tab-pane" style="display:block;">
-            <form class="filters-row" method="get" action="" style="grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:12px;">
+          <div id="tab-student" class="tab-pane active">
+            <form class="filters-row requests-filter-form" method="get" action="">
               <div class="search-box">
                 <input type="text" name="doc_q" value="<?= htmlspecialchars($docSearch); ?>" placeholder="Search by student ID, name, or document...">
               </div>
@@ -325,7 +331,7 @@ foreach ($editRequests as $r) {
                             <input type="hidden" name="status" value="released">
                             <input type="hidden" name="scheduled_at" value="<?= $r['scheduled_at'] ? htmlspecialchars($r['scheduled_at']) : ''; ?>">
                             <input type="hidden" name="released_at" value="<?= htmlspecialchars(date('Y-m-d\TH:i')); ?>">
-                            <button type="submit" class="btn-pill primary" style="background:#16a34a;border-color:#16a34a;">Complete</button>
+                            <button type="submit" class="btn-pill primary complete">Complete</button>
                           </form>
                         <?php else: ?>
                           <!-- <span class="btn-pill neutral">View Details</span> -->
@@ -338,8 +344,8 @@ foreach ($editRequests as $r) {
             </table>
           </div>
 
-          <div id="tab-prof" class="tab-pane" style="display:none;">
-            <form class="filters-row" method="get" action="" style="grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:12px;">
+          <div id="tab-prof" class="tab-pane">
+            <form class="filters-row requests-filter-form" method="get" action="">
               <div class="search-box">
                 <input type="text" name="prof_q" value="<?= htmlspecialchars($profSearch); ?>" placeholder="Search by professor, grading sheet, or reason...">
               </div>
@@ -405,11 +411,11 @@ foreach ($editRequests as $r) {
           document.querySelectorAll('#request-tabs .tab-link').forEach(function(btn) {
             btn.addEventListener('click', function() {
               document.querySelectorAll('#request-tabs .tab-link').forEach(function(b){ b.classList.remove('active'); });
-              document.querySelectorAll('.tab-pane').forEach(function(p){ p.style.display = 'none'; });
+              document.querySelectorAll('#request-tabs .tab-pane').forEach(function(p){ p.classList.remove('active'); });
               btn.classList.add('active');
               var tab = btn.dataset.tab;
               var pane = document.getElementById('tab-' + tab);
-              if (pane) pane.style.display = 'block';
+              if (pane) pane.classList.add('active');
             });
           });
         </script>

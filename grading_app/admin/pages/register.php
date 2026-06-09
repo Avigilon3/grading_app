@@ -55,10 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <main class="content">
         <?php show_flash(); ?>
         <?php if ($err): ?>
-          <div class="alert alert-error"><?= htmlspecialchars($err) ?></div>
+          <div class="feedback-toast feedback-toast-error" role="alert"><?= htmlspecialchars($err) ?></div>
         <?php endif; ?>
         <?php if ($msg): ?>
-          <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
+          <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite"><?= htmlspecialchars($msg) ?></div>
         <?php endif; ?>
 
         <div class="page-header">

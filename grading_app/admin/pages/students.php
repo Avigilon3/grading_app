@@ -54,16 +54,22 @@ foreach ($sections as $section) {
 
 <!-- Feedback (optional) -->
 <?php if (isset($_GET['msg'])): ?>
-    <div class="alert alert-success">
+    <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
         <?= htmlspecialchars($_GET['msg']) ?>
     </div>
 <?php endif; ?>
 
 <!-- Tabs: Add / Edit Student -->
 <div class="card" id="student-tabs">
-  <div class="card-header tabs">
-    <button type="button" class="tab-link active" data-tab="add">Add Student</button>
-    <button type="button" class="tab-link" data-tab="edit">Edit Student</button>
+  <div class="card-header admin-tabs" role="tablist" aria-label="Student management tabs">
+    <button type="button" class="admin-tab tab-link active" data-tab="add">
+      <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+      Add Student
+    </button>
+    <button type="button" class="admin-tab tab-link" data-tab="edit">
+      <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+      Edit Student
+    </button>
   </div>
 
   <div class="card-body">
@@ -261,7 +267,7 @@ foreach ($sections as $section) {
                             data-status="<?= htmlspecialchars($row['status']); ?>"
                         >Edit</button>
 
-                        <form action="../includes/student_process.php" method="POST" style="display:inline-block" onsubmit="return confirm('Delete this student?');">
+                        <form action="../includes/student_process.php" method="POST" onsubmit="return confirm('Delete this student?');">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $row['id']; ?>">
                             <button class="btn btn-sm btn-danger" type="submit">Delete</button>

@@ -74,7 +74,7 @@ $sections = $pdo->query("SELECT s.id, s.section_name, s.is_active, s.year_level,
     </div>
 
     <?php if (isset($_GET['msg'])): ?>
-      <div class="alert alert-success">
+      <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
         <?= htmlspecialchars($_GET['msg']) ?>
       </div>
     <?php endif; ?>

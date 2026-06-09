@@ -59,6 +59,61 @@ if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
     }
 }
 ?>
+<style>
+  .feedback-toast {
+    position: fixed !important;
+    left: 24px !important;
+    bottom: 24px !important;
+    z-index: 5000 !important;
+    width: min(380px, calc(100vw - 32px)) !important;
+    padding: 14px 16px !important;
+    border-radius: 10px !important;
+    border: 1px solid transparent !important;
+    background: #fff !important;
+    color: var(--primarycolor, #2C3E50) !important;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22) !important;
+    font-weight: 600 !important;
+    line-height: 1.45 !important;
+    margin: 0 !important;
+    animation: feedbackToastIn 0.24s ease-out both;
+  }
+  .feedback-toast-success {
+    background: #f0f8f0 !important;
+    border-color: rgba(97, 138, 97, 0.35) !important;
+    color: #315d36 !important;
+  }
+  .feedback-toast-error {
+    background: #fff1f1 !important;
+    border-color: rgba(193, 85, 85, 0.35) !important;
+    color: #9f3535 !important;
+  }
+  .feedback-toast-warning {
+    background: #fff8e1 !important;
+    border-color: rgba(255, 215, 0, 0.55) !important;
+    color: #7a6200 !important;
+  }
+  .feedback-toast-info {
+    background: #f4f7fb !important;
+    border-color: rgba(44, 62, 80, 0.18) !important;
+    color: var(--primarycolor, #2C3E50) !important;
+  }
+  .feedback-toast ul {
+    margin: 0 !important;
+    padding-left: 18px !important;
+  }
+  @keyframes feedbackToastIn {
+    from { opacity: 0; transform: translate(-10px, 12px); }
+    to { opacity: 1; transform: translate(0, 0); }
+  }
+  @media (max-width: 640px) {
+    .feedback-toast {
+      left: 16px !important;
+      right: 16px !important;
+      bottom: 16px !important;
+      width: auto !important;
+    }
+  }
+</style>
 <header>
   <div class="left-header">
     <div class="logo">

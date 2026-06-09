@@ -47,15 +47,21 @@ try {
     </div>
 
     <?php if (isset($_GET['msg'])): ?>
-      <div class="alert alert-success">
+      <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
         <?= htmlspecialchars($_GET['msg']) ?>
       </div>
     <?php endif; ?>
 
     <div class="card" id="student-tabs">
-      <div class="card-header tabs">
-        <button type="button" class="tab-link active" data-tab="add">Add Professor</button>
-        <button type="button" class="tab-link" data-tab="edit">Edit Professor</button>
+      <div class="card-header admin-tabs" role="tablist" aria-label="Professor management tabs">
+        <button type="button" class="admin-tab tab-link active" data-tab="add">
+          <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+          Add Professor
+        </button>
+        <button type="button" class="admin-tab tab-link" data-tab="edit">
+          <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+          Edit Professor
+        </button>
       </div>
       <div class="card-body">
         <div class="tab-pane active" data-pane="add">

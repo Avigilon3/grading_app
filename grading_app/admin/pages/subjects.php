@@ -52,17 +52,29 @@ $yearLevels = [
     </div>
 
     <?php if (isset($_GET['msg'])): ?>
-      <div class="alert alert-success">
+      <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
         <?= htmlspecialchars($_GET['msg']) ?>
       </div>
     <?php endif; ?>
 
     <div class="card" id="student-tabs">
-      <div class="card-header tabs">
-        <button type="button" class="tab-link active" data-tab="add">Add Subject</button>
-        <button type="button" class="tab-link" data-tab="edit">Edit Subject</button>
-        <button type="button" class="tab-link" data-tab="courses">Manage Courses</button>
-        <button type="button" class="tab-link" data-tab="terms">Manage Terms</button>
+      <div class="card-header admin-tabs" role="tablist" aria-label="Subject management tabs">
+        <button type="button" class="admin-tab tab-link active" data-tab="add">
+          <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+          Add Subject
+        </button>
+        <button type="button" class="admin-tab tab-link" data-tab="edit">
+          <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+          Edit Subject
+        </button>
+        <button type="button" class="admin-tab tab-link" data-tab="courses">
+          <span class="material-symbols-rounded" aria-hidden="true">school</span>
+          Manage Courses
+        </button>
+        <button type="button" class="admin-tab tab-link" data-tab="terms">
+          <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+          Manage Terms
+        </button>
       </div>
       <div class="card-body">
         <div class="tab-pane active" data-pane="add">
@@ -321,7 +333,7 @@ $yearLevels = [
               </div>
             </form>
           </div>
-          <div class="form-box" style="margin-top:16px;">
+          <div class="form-box mt-16">
             <form action="../includes/term_process.php" method="POST">
               <input type="hidden" name="action" value="update">
               <input type="hidden" name="id" id="term-edit-id">
@@ -360,7 +372,7 @@ $yearLevels = [
               </div>
             </form>
           </div>
-          <div class="card" style="margin-top:16px;">
+          <div class="card mt-16">
             <div class="card-body">
               <h3>Terms Table</h3>
               <table class="table table-striped table-bordered">

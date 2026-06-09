@@ -21,8 +21,7 @@ function show_flash() {
             $msg = $_SESSION['flash'][$t];
             unset($_SESSION['flash'][$t]);
 
-            // adjust classes to your CSS framework
-            echo '<div class="alert alert-' . $t . '">' . htmlspecialchars($msg) . '</div>';
+            echo '<div class="feedback-toast feedback-toast-' . $t . '" role="status" aria-live="polite">' . htmlspecialchars($msg) . '</div>';
         }
     }
 
@@ -31,7 +30,7 @@ function show_flash() {
         $msg = $_SESSION['flash']['message'];
         unset($_SESSION['flash']['message']);
 
-        echo '<div class="alert alert-info">' . htmlspecialchars($msg) . '</div>';
+        echo '<div class="feedback-toast feedback-toast-info" role="status" aria-live="polite">' . htmlspecialchars($msg) . '</div>';
     }
 }
 

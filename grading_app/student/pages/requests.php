@@ -174,10 +174,10 @@ if ($studentId) {
             </div>
 
           <?php if (isset($_GET['submitted'])): ?>
-            <div class="alert-simple alert-success">Your request was submitted.</div>
+            <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">Your request was submitted.</div>
           <?php endif; ?>
           <?php if ($pageAlert): ?>
-            <div class="alert-simple alert-warning"><?php echo htmlspecialchars($pageAlert); ?></div>
+            <div class="feedback-toast feedback-toast-warning" role="alert"><?php echo htmlspecialchars($pageAlert); ?></div>
           <?php endif; ?>
 
             <div class="requests-card">

@@ -207,6 +207,60 @@ $user['email'] = $userData['student_email'] ?? '';
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
         }
+
+        .feedback-toast {
+            position: fixed;
+            left: 24px;
+            bottom: 24px;
+            z-index: 3000;
+            width: min(380px, calc(100vw - 32px));
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: #ffffff;
+            color: #2C3E50;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+            font-weight: 600;
+            line-height: 1.45;
+            animation: feedbackToastIn 0.24s ease-out both;
+        }
+
+        .feedback-toast ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .feedback-toast-success {
+            background: #f0f8f0;
+            border-color: rgba(97, 138, 97, 0.35);
+            color: #315d36;
+        }
+
+        .feedback-toast-error {
+            background: #fff1f1;
+            border-color: rgba(193, 85, 85, 0.35);
+            color: #9f3535;
+        }
+
+        @keyframes feedbackToastIn {
+            from {
+                opacity: 0;
+                transform: translate(-10px, 12px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(0, 0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .feedback-toast {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -223,17 +277,19 @@ $user['email'] = $userData['student_email'] ?? '';
                     <p class="text-muted"><?= htmlspecialchars($user['role']) ?></p>
                 </div>
 
-                <?php if (isset($errors)): ?>
-                    <?php foreach ($errors as $error): ?>
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
-                        </div>
-                    <?php endforeach; ?>
+                <?php if (isset($errors) && $errors): ?>
+                    <div class="feedback-toast feedback-toast-error" role="alert">
+                        <ul>
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                 <?php endif; ?>
 
                 <?php if (isset($success)): ?>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i> <?= htmlspecialchars($success) ?>
+                    <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
+                        <?= htmlspecialchars($success) ?>
                     </div>
                 <?php endif; ?>
 
