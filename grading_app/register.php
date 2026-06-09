@@ -159,19 +159,24 @@ if ($detectedRole) {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
         .hero {
             position: relative;
-            padding: 56px 16px 90px;
+            height: clamp(430px, 42vh, 460px);
+            min-height: clamp(430px, 42vh, 460px);
+            padding: 44px 16px 72px;
             backdrop-filter: blur(3px);
             background: 
             linear-gradient(120deg, rgba(6, 64, 42, 0.92), rgba(6, 98, 80, 0.7)),
             linear-gradient(180deg, rgba(0, 56, 32, 0.75), rgba(10, 104, 72, 0.65)),
                 url('admin/assets/images/background.jpg') center/cover no-repeat;
-            mix-blend-mode: multiply;
-            
             color: #fff;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
         .hero::after {
             content: '';
@@ -179,48 +184,35 @@ if ($detectedRole) {
             left: 0;
             right: 0;
             bottom: 0;
-            height: 18px;
             width: 100%;
             height: 27px;
             background: linear-gradient(180deg, #FFD700 25.96%, #998100 99.98%, #A08700 99.99%);
-            align-items: bottom;
-
-
         }
         .hero-inner {
             position: relative;
             z-index: 1;
-            max-width: 720px;
+            max-width: 620px;
             margin: 0 auto;
+            transform: translateY(-4px);
         }
         .hero-logo {
-            /* width: 105px;
-            height: 105px;
+            width: 86px;
+            height: 86px;
             object-fit: contain;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35)); */
-            width: 110px;
-            height: 110px;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
+            margin-bottom: 10px;
             aspect-ratio: 54/55;
-            border: 10px solid rgba(255, 255, 255, 0.20);
+            border: 8px solid rgba(255, 255, 255, 0.20);
             border-radius: 50%;
         }
         .hero h1 {
-            /* text-transform: uppercase;
-            letter-spacing: 2.5px;
-            font-size: clamp(1.3rem, 4vw, 1.8rem);
-            margin: 0; */
             color: var(--text-base);
             text-align: center;
             font-family: Bayon;
-            font-size: 35px;
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
             font-style: normal;
             font-weight: 400;
             line-height: 35px;
+            margin: 0;
         }
         .hero h2 {
             font-size: clamp(2rem, 5vw, 3rem);
@@ -439,7 +431,33 @@ if ($detectedRole) {
             font-size: 0.85rem;
             color: var(--text-muted);
         }
+        @media (max-width: 760px) {
+            .hero {
+                height: 380px;
+                min-height: 380px;
+                padding: 34px 20px 62px;
+            }
+        }
         @media (max-width: 520px) {
+            .hero {
+                height: 350px;
+                min-height: 350px;
+            }
+            .hero-logo {
+                width: 76px;
+                height: 76px;
+            }
+            .hero h1 {
+                font-size: 1.7rem;
+                line-height: 1.05;
+            }
+            .hero h2 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
             .auth-card {
                 padding: 24px 20px 30px;
                 border-radius: 22px;
@@ -462,8 +480,8 @@ if ($detectedRole) {
         <section class="auth-area">
             <div class="auth-card">
                 <div class="auth-tabs">
-                    <a href="login.php">Login</a>
-                    <a href="register.php" class="active">Register</a>
+                    <a href="login.php?open=1">Login</a>
+                    <a href="register.php?open=1" class="active">Register</a>
                 </div>
 
                 <div class="welcome-text">
@@ -555,7 +573,7 @@ if ($detectedRole) {
                     </div>
 
                     <div class="form-links">
-                        <a href="login.php">I have an existing account.</a>
+                        <a href="login.php?open=1">I have an existing account.</a>
                     </div>
 
                     <button type="submit" class="btn-submit" <?= ($prefilledFirst && $prefilledLast) ? '' : 'disabled'; ?> data-submit-button>Sign Up</button>

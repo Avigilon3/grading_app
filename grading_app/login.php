@@ -66,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $err = 'Please fill in all fields.';
     }
 }
+$openLogin = ($_SERVER['REQUEST_METHOD'] === 'POST') || isset($_GET['open']) || $flashError || $flashSuccess || $err;
+$heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Open login form"';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -100,19 +102,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
         .hero {
             position: relative;
-            padding: 56px 16px 90px;
+            height: 100vh;
+            min-height: 100vh;
+            padding: 72px 16px 96px;
             backdrop-filter: blur(3px);
             background: 
             linear-gradient(120deg, rgba(6, 64, 42, 0.92), rgba(6, 98, 80, 0.7)),
             linear-gradient(180deg, rgba(0, 56, 32, 0.75), rgba(10, 104, 72, 0.65)),
                 url('admin/assets/images/background.jpg') center/cover no-repeat;
-            mix-blend-mode: multiply;
-            
             color: #fff;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            transform-origin: top center;
+            will-change: height, min-height, padding;
         }
         .hero::after {
             content: '';
@@ -120,48 +130,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 0;
             right: 0;
             bottom: 0;
-            height: 18px;
             width: 100%;
             height: 27px;
             background: linear-gradient(180deg, #FFD700 25.96%, #998100 99.98%, #A08700 99.99%);
-            align-items: bottom;
-
-
         }
         .hero-inner {
             position: relative;
             z-index: 1;
             max-width: 720px;
             margin: 0 auto;
+            transition: transform 0.7s ease, max-width 0.7s ease;
         }
         .hero-logo {
-            /* width: 105px;
-            height: 105px;
-            object-fit: contain;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35)); */
             width: 110px;
             height: 110px;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
+            object-fit: contain;
+            margin-bottom: 10px;
             aspect-ratio: 54/55;
             border: 10px solid rgba(255, 255, 255, 0.20);
             border-radius: 50%;
+            transition: width 0.7s ease, height 0.7s ease, border-width 0.7s ease;
         }
         .hero h1 {
-            /* text-transform: uppercase;
-            letter-spacing: 2.5px;
-            font-size: clamp(1.3rem, 4vw, 1.8rem);
-            margin: 0; */
             color: var(--text-base);
             text-align: center;
             font-family: Bayon;
-            font-size: 35px;
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
             font-style: normal;
             font-weight: 400;
             line-height: 35px;
+            margin: 0;
         }
         .hero h2 {
             font-size: clamp(2rem, 5vw, 3rem);
@@ -180,6 +178,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           font-weight: 400;
           line-height: 28px;
         }
+        .hero-description {
+            max-width: 670px;
+            margin: 14px auto 34px;
+            font-size: clamp(1rem, 2.4vw, 1.35rem);
+            transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.5s ease, margin 0.5s ease;
+        }
+        .hero-hint {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            color: var(--text-base);
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.5s ease;
+        }
+        .hero-hint .material-symbols-rounded {
+            font-size: 2.1rem;
+        }
         .auth-area {
             flex: 1;
             background:
@@ -188,6 +205,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 48px 16px 56px;
             display: flex;
             justify-content: center;
+            opacity: 0;
+            transform: translateY(36px);
+            pointer-events: none;
+            transition: opacity 0.55s ease 0.48s, transform 0.55s ease 0.48s;
+        }
+        body.hero-compressed .hero {
+            height: clamp(430px, 42vh, 460px);
+            min-height: clamp(430px, 42vh, 460px);
+            padding: 44px 16px 72px;
+            cursor: default;
+            animation: curtainCompress 0.92s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+        }
+        body.hero-compressed.hero-skip-animation .hero {
+            animation: none;
+        }
+        body.hero-compressed .hero-inner {
+            max-width: 620px;
+            transform: translateY(-4px);
+        }
+        body.hero-compressed .hero-logo {
+            width: 86px;
+            height: 86px;
+            border-width: 8px;
+        }
+        body.hero-compressed .hero-description,
+        body.hero-compressed .hero-hint {
+            opacity: 0;
+            transform: translateY(-12px);
+            max-height: 0;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        body.hero-compressed .auth-area {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        @keyframes curtainCompress {
+            0% {
+                height: 100vh;
+                min-height: 100vh;
+                padding-top: 72px;
+                padding-bottom: 96px;
+            }
+            28% {
+                height: 104vh;
+                min-height: 104vh;
+                padding-top: 76px;
+                padding-bottom: 112px;
+            }
+            100% {
+                height: clamp(430px, 42vh, 460px);
+                min-height: clamp(430px, 42vh, 460px);
+                padding-top: 44px;
+                padding-bottom: 72px;
+            }
         }
         .auth-card {
             width: min(440px, 100%);
@@ -342,7 +415,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.85rem;
             color: var(--text-muted);
         }
+        @media (prefers-reduced-motion: reduce) {
+            .hero,
+            .hero-inner,
+            .hero-logo,
+            .hero-description,
+            .hero-hint,
+            .auth-area,
+            body.hero-compressed .hero {
+                animation: none;
+                transition: none;
+            }
+        }
+        @media (max-width: 760px) {
+            .hero {
+                padding: 54px 20px 84px;
+            }
+            body.hero-compressed .hero {
+                height: 380px;
+                min-height: 380px;
+                padding: 34px 20px 62px;
+            }
+            @keyframes curtainCompress {
+                0% {
+                    height: 100vh;
+                    min-height: 100vh;
+                    padding-top: 54px;
+                    padding-bottom: 84px;
+                }
+                28% {
+                    height: 103vh;
+                    min-height: 103vh;
+                    padding-top: 58px;
+                    padding-bottom: 96px;
+                }
+                100% {
+                    height: 380px;
+                    min-height: 380px;
+                    padding-top: 34px;
+                    padding-bottom: 62px;
+                }
+            }
+        }
         @media (max-width: 520px) {
+            .hero-logo {
+                width: 94px;
+                height: 94px;
+            }
+            .hero h1 {
+                font-size: 1.7rem;
+                line-height: 1.05;
+            }
+            .hero h2 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+            body.hero-compressed .hero {
+                height: 350px;
+                min-height: 350px;
+            }
+            @keyframes curtainCompress {
+                0% {
+                    height: 100vh;
+                    min-height: 100vh;
+                    padding-top: 54px;
+                    padding-bottom: 84px;
+                }
+                28% {
+                    height: 103vh;
+                    min-height: 103vh;
+                    padding-top: 58px;
+                    padding-bottom: 96px;
+                }
+                100% {
+                    height: 350px;
+                    min-height: 350px;
+                    padding-top: 34px;
+                    padding-bottom: 62px;
+                }
+            }
+            body.hero-compressed .hero-logo {
+                width: 76px;
+                height: 76px;
+            }
             .auth-card {
                 padding: 24px 20px 30px;
                 border-radius: 22px;
@@ -350,22 +508,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body>
+<body class="<?= $openLogin ? 'hero-compressed hero-skip-animation' : '' ?>">
     <div class="page-shell">
-        <section class="hero">
+        <section class="hero"<?= $heroAttributes ?>>
             <div class="hero-inner">
                 <img src="admin/assets/images/logo-ptc.png" alt="PTC Logo" class="hero-logo">
                 <h1>PATEROS TECHNOLOGICAL COLLEGE</h1>
                 <p>Gearing the way to your future!</p>
                 <h2>Online Grading System</h2>
+                <p class="hero-description">Access your grades, monitor progress, and stay connected with your academic journey whenever and wherever you are.</p>
+                <div class="hero-hint" aria-hidden="true">
+                    <span class="material-symbols-rounded">arrow_circle_down</span>
+                    <span>Click anywhere to get started</span>
+                </div>
             </div>
         </section>
 
         <section class="auth-area">
             <div class="auth-card">
                 <div class="auth-tabs">
-                    <a href="login.php" class="active">Login</a>
-                    <a href="register.php">Register</a>
+                    <a href="login.php?open=1" class="active">Login</a>
+                    <a href="register.php?open=1">Register</a>
                 </div>
 
                 <div class="welcome-text">
@@ -429,6 +592,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 <script>
 (function () {
+    var hero = document.querySelector('.hero');
+    var hasOpened = document.body.classList.contains('hero-compressed');
+
+    function openLogin() {
+        if (hasOpened) return;
+        hasOpened = true;
+        document.body.classList.add('hero-compressed');
+        if (hero) {
+            hero.removeAttribute('role');
+            hero.removeAttribute('tabindex');
+            hero.removeAttribute('aria-label');
+        }
+    }
+
+    if (hero && !hasOpened) {
+        hero.addEventListener('click', openLogin, { once: true });
+        hero.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openLogin();
+            }
+        });
+    }
+
     var toggles = document.querySelectorAll('[data-password-toggle]');
     if (!toggles.length) return;
 
