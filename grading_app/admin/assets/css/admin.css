@@ -901,6 +901,45 @@ textarea.form-control {
   overflow-x: auto;
 }
 
+.grading-table-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(34, 34, 34, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 15px 40px rgba(20, 30, 90, 0.08);
+}
+
+.grading-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 12px;
+}
+
+.grading-table-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.grading-table-scroll::-webkit-scrollbar-track {
+  background: rgba(97, 138, 97, 0.12);
+  border-radius: 999px;
+}
+
+.grading-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--schoolcolor);
+  border-radius: 999px;
+}
+
+.grading-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #4f744f;
+}
+
 .table { 
   width: 100%;
   border-collapse: collapse;

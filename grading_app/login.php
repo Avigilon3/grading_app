@@ -180,7 +180,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
         }
         .hero-description {
             max-width: 670px;
-            margin: 14px auto 34px;
+            margin: 14px auto 200px;
             font-size: clamp(1rem, 2.4vw, 1.35rem);
             transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.5s ease, margin 0.5s ease;
         }
@@ -188,14 +188,11 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 14px;
+            gap: 30px;
             color: var(--text-base);
-            font-weight: 600;
+            font-weight: 100;
             letter-spacing: 1px;
             transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.5s ease;
-        }
-        .hero-hint .material-symbols-rounded {
-            font-size: 2.1rem;
         }
         .auth-area {
             flex: 1;
@@ -518,7 +515,6 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
                 <h2>Online Grading System</h2>
                 <p class="hero-description">Access your grades, monitor progress, and stay connected with your academic journey whenever and wherever you are.</p>
                 <div class="hero-hint" aria-hidden="true">
-                    <span class="material-symbols-rounded">arrow_circle_down</span>
                     <span>Click anywhere to get started</span>
                 </div>
             </div>

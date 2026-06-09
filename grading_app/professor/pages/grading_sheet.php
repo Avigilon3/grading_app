@@ -339,6 +339,7 @@ if (!$noSheetsAssigned) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body
+    class="grading-sheet-page"
     data-sheet-id="<?= $sheetId; ?>"
     data-sheet-editable="<?= $isEditable ? '1' : '0'; ?>"
     data-section-name="<?= htmlspecialchars($sheet['section_name'] ?? ''); ?>"
@@ -407,8 +408,9 @@ if (!$noSheetsAssigned) {
                     </div>
                 <?php endif; ?>
                 <form method="post" id="grading-sheet-form">
-                    <div class="table-responsive">
-                        <table class="grading-sheet-table">
+                    <div class="grading-table-card">
+                        <div class="grading-table-scroll" role="region" aria-label="Grading sheet table">
+                            <table class="grading-sheet-table">
                         <thead>
                         <tr>
                             <th rowspan="2">Student ID</th>
@@ -557,8 +559,9 @@ if (!$noSheetsAssigned) {
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
-                    </table>
-                </div>
+                            </table>
+                        </div>
+                    </div>
 
             </form>
             <div class="grading-info-card">
