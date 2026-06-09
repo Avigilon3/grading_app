@@ -70,8 +70,16 @@ Students will see their grades as pending until the submission deadline. Once th
 
 
 
+=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+Features to add: 
 
+no search option for the professors, students, subjects, sections
+minimizing the window makes the tables exceed the screen in which the scroll bar would appear, but scrolling horizontally would cut the background (solution: put the tables in div and add scroll bar to them) 
+
+no option to just upload a sheet in the grading sheet table and apply the values. 
+
+I noticed that when the grading sheet was locked (past deadline) it did not calculate the grade if the professor did not click submit and was left on draft. This results to showing as 'Pending' for the student's end. 
 
 
 

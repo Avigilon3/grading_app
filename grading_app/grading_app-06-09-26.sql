@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2025 at 11:33 AM
+-- Generation Time: Jun 09, 2026 at 08:15 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -179,7 +179,51 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `ip`, `create
 (136, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:46:20'),
 (137, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2025-12-10 01:46:43'),
 (138, 1, 'CHANGE_STATUS', 'Grading sheet #4 set to locked.', '::1', '2025-12-10 01:47:12'),
-(139, 1, 'ADD_STUDENT', 'Added student: 2022-8196', '::1', '2025-12-10 04:42:59');
+(139, 1, 'ADD_STUDENT', 'Added student: 2022-8196', '::1', '2025-12-10 04:42:59'),
+(140, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 2', '::1', '2025-12-10 11:59:01'),
+(141, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 3', '::1', '2025-12-10 12:03:45'),
+(142, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 4', '::1', '2025-12-10 13:02:21'),
+(143, 1, 'DECIDE_EDIT_REQUEST', 'DENIED edit request id: 5', '::1', '2025-12-10 13:05:28'),
+(144, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2026-05-12 11:30:12'),
+(145, 1, 'CHANGE_STATUS', 'Grading sheet #4 set to draft.', '::1', '2026-05-12 11:31:08'),
+(146, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0008', '::1', '2026-06-09 02:09:48'),
+(147, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0008', '::1', '2026-06-09 02:10:42'),
+(148, 1, 'UPDATE_STUDENT', 'Updated student: 2022-8196', '::1', '2026-06-09 02:11:32'),
+(149, 1, 'UPDATE_SUBJECT', 'Updated subject: WS 102', '::1', '2026-06-09 02:11:52'),
+(150, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2026-06-09 02:12:58'),
+(151, 1, 'UPDATE_STUDENT', 'Updated student: 2022-8196', '::1', '2026-06-09 02:26:06'),
+(152, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0008', '::1', '2026-06-09 02:26:22'),
+(153, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0008', '::1', '2026-06-09 02:26:56'),
+(154, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0011', '::1', '2026-06-09 02:34:10'),
+(155, 1, 'UPDATE_PROFESSOR', 'Updated professor: PROF-0011', '::1', '2026-06-09 02:34:19'),
+(156, 1, 'UPDATE_STUDENT', 'Updated student: 1900-0001', '::1', '2026-06-09 02:34:27'),
+(157, 1, 'UPDATE_STUDENT', 'Updated student: 1900-0001', '::1', '2026-06-09 02:35:07'),
+(158, 1, 'ADD_SECTION', 'Added section: BSIT 3OL', '::1', '2026-06-09 04:40:01'),
+(159, 1, 'UPDATE_SECTION', 'Updated section: BSIT-3A', '::1', '2026-06-09 04:40:38'),
+(160, 1, 'ADD_SUBJECT', 'Added subject: SAD 1', '::1', '2026-06-09 04:46:11'),
+(161, 1, 'ADD_PROFESSOR', 'Added professor: PROF-00017', '::1', '2026-06-09 04:46:57'),
+(162, 1, 'DEACTIVATE_STUDENT', 'Deactivated student id: 4', '::1', '2026-06-09 05:22:49'),
+(163, 1, 'UPDATE_STUDENT', 'Updated student: 1900-0001', '::1', '2026-06-09 05:23:13'),
+(164, 1, 'UPDATE_STUDENT', 'Updated student: 1900-0001', '::1', '2026-06-09 05:23:37'),
+(165, 1, 'DEACTIVATE_PROFESSOR', 'Deactivated professor id: 17', '::1', '2026-06-09 05:24:15'),
+(166, 1, 'DEACTIVATE_STUDENT', 'Deactivated student id: 4', '::1', '2026-06-09 05:29:47'),
+(167, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1559', '::1', '2026-06-09 05:35:05'),
+(168, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1544', '::1', '2026-06-09 05:35:34'),
+(169, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1541', '::1', '2026-06-09 05:35:59'),
+(170, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1551', '::1', '2026-06-09 05:36:29'),
+(171, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1564', '::1', '2026-06-09 05:36:53'),
+(172, 1, 'ADD_STUDENT', 'Added student: 25BSIT-1547', '::1', '2026-06-09 05:37:29'),
+(173, 1, 'SET_DEADLINE', 'Grading sheet #9 deadline updated.', '::1', '2026-06-09 05:44:17'),
+(174, 1, 'SET_DEADLINE', 'Grading sheet #5 deadline updated.', '::1', '2026-06-09 05:44:34'),
+(175, 1, 'SET_DEADLINE', 'Grading sheet #11 deadline updated.', '::1', '2026-06-09 05:44:49'),
+(176, 1, 'SET_DEADLINE', 'Grading sheet #8 deadline updated.', '::1', '2026-06-09 05:45:03'),
+(177, 1, 'SET_DEADLINE', 'Grading sheet #4 deadline updated.', '::1', '2026-06-09 05:48:03'),
+(178, 1, 'SET_DEADLINE', 'Grading sheet #9 deadline updated.', '::1', '2026-06-09 05:54:47'),
+(179, 1, 'DECIDE_EDIT_REQUEST', 'APPROVED edit request id: 7', '::1', '2026-06-09 05:56:42'),
+(180, 1, 'SET_DEADLINE', 'Grading sheet #11 deadline updated.', '::1', '2026-06-09 05:58:57'),
+(181, 1, 'SET_DEADLINE', 'Grading sheet #11 deadline updated.', '::1', '2026-06-09 06:01:52'),
+(182, 1, 'SET_DEADLINE', 'Grading sheet #13 deadline updated.', '::1', '2026-06-09 06:04:13'),
+(183, 1, 'CHANGE_STATUS', 'Grading sheet #9 set to draft.', '::1', '2026-06-09 06:14:35');
 
 -- --------------------------------------------------------
 
@@ -255,7 +299,8 @@ INSERT INTO `document_requests` (`id`, `student_id`, `type`, `purpose`, `status`
 (7, 7, 'certificate', 'Year Level: 3rd Year | Semester: 2nd Semester', 'released', '2025-11-30 12:49:14', '2025-12-04 00:00:00', '2025-11-30 12:49:00'),
 (8, 7, 'report', NULL, 'cancelled', '2025-12-06 14:55:55', NULL, NULL),
 (9, 7, 'report', 'Year Level: 1st Year | Semester: 1st Semester', 'pending', '2025-12-06 15:02:27', NULL, NULL),
-(10, 7, 'certificate', 'Year Level: 4th Year | Semester: 2nd Semester', 'pending', '2025-12-06 15:12:00', NULL, NULL);
+(10, 7, 'certificate', 'Year Level: 4th Year | Semester: 2nd Semester', 'pending', '2025-12-06 15:12:00', NULL, NULL),
+(11, 7, 'report', NULL, 'pending', '2026-05-07 11:37:56', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -278,7 +323,13 @@ CREATE TABLE `edit_requests` (
 --
 
 INSERT INTO `edit_requests` (`id`, `grading_sheet_id`, `professor_id`, `reason`, `status`, `decided_by`, `decided_at`) VALUES
-(1, 9, 1, 'I need to edit the score of a student', 'approved', 1, '2025-12-10 02:56:09');
+(1, 9, 1, 'I need to edit the score of a student', 'approved', 1, '2025-12-10 02:56:09'),
+(2, 9, 1, 'sdasadaf', 'approved', 1, '2025-12-10 19:59:01'),
+(3, 9, 1, 'seda', 'approved', 1, '2025-12-10 20:03:45'),
+(4, 4, 20, 'Forgot to submit grades for Albor', 'approved', 1, '2025-12-10 21:02:21'),
+(5, 4, 20, 'I need to edit the grades of a student', 'denied', 1, '2025-12-10 21:05:28'),
+(6, 9, 1, 'I need to edit this', 'pending', NULL, NULL),
+(7, 11, 16, 'Need to revise.', 'approved', 1, '2026-06-09 13:56:42');
 
 -- --------------------------------------------------------
 
@@ -301,7 +352,7 @@ INSERT INTO `grades` (`id`, `grade_item_id`, `student_id`, `score`) VALUES
 (55, 36, 4, 10),
 (56, 36, 5, 10),
 (57, 36, 7, 9),
-(58, 37, 4, 10),
+(58, 37, 4, 5),
 (59, 37, 5, 10),
 (60, 37, 7, 10),
 (61, 38, 4, 10),
@@ -455,7 +506,32 @@ INSERT INTO `grades` (`id`, `grade_item_id`, `student_id`, `score`) VALUES
 (215, 48, 9, 15),
 (216, 50, 9, 10),
 (217, 51, 9, 3),
-(218, 52, 9, 5);
+(218, 52, 9, 5),
+(219, 40, 9, 10),
+(220, 74, 9, 10),
+(221, 78, 9, 7),
+(222, 79, 9, 6),
+(223, 41, 9, 10),
+(224, 75, 9, 5),
+(225, 42, 9, 0),
+(226, 76, 9, 10),
+(227, 77, 9, 0),
+(228, 43, 9, 10),
+(229, 36, 9, 10),
+(230, 37, 9, 10),
+(231, 38, 9, 10),
+(232, 80, 9, 10),
+(233, 81, 9, 10),
+(234, 82, 9, 10),
+(235, 83, 9, 50),
+(236, 84, 9, 70),
+(237, 85, 9, 10),
+(238, 86, 9, 10),
+(239, 87, 9, 10),
+(248, 90, 4, 8),
+(249, 90, 5, 9),
+(250, 90, 7, 10),
+(251, 90, 9, 10);
 
 -- --------------------------------------------------------
 
@@ -502,7 +578,19 @@ INSERT INTO `grade_components` (`id`, `grading_sheet_id`, `name`, `weight`) VALU
 (52, 11, 'Activity', 40.00),
 (53, 11, 'Exam', 40.00),
 (54, 11, 'Quizzes', 10.00),
-(55, 11, 'Attendance', 10.00);
+(55, 11, 'Attendance', 10.00),
+(56, 12, 'Activity', 40.00),
+(57, 12, 'Exam', 40.00),
+(58, 12, 'Quizzes', 10.00),
+(59, 12, 'Attendance', 10.00),
+(60, 13, 'Activity', 40.00),
+(61, 13, 'Exam', 40.00),
+(62, 13, 'Quizzes', 10.00),
+(63, 13, 'Attendance', 10.00),
+(64, 14, 'Activity', 40.00),
+(65, 14, 'Exam', 40.00),
+(66, 14, 'Quizzes', 10.00),
+(67, 14, 'Attendance', 10.00);
 
 -- --------------------------------------------------------
 
@@ -571,7 +659,8 @@ INSERT INTO `grade_items` (`id`, `component_id`, `title`, `total_points`) VALUES
 (84, 53, 'Final', 100),
 (85, 54, 'Quizzes 1', 10),
 (86, 54, 'Quizzes 2', 10),
-(87, 55, 'Attendance 1', 10);
+(87, 55, 'Attendance 1', 10),
+(90, 47, 'Attendance 1', 10);
 
 -- --------------------------------------------------------
 
@@ -594,13 +683,16 @@ CREATE TABLE `grading_sheets` (
 --
 
 INSERT INTO `grading_sheets` (`id`, `section_subject_id`, `section_id`, `professor_id`, `status`, `deadline_at`, `submitted_at`) VALUES
-(4, 6, 11, 20, 'locked', '2025-12-09 00:00:00', '2025-12-10 09:45:53'),
-(5, 5, 11, 19, 'submitted', '2025-12-11 00:00:00', '2025-12-10 15:20:56'),
-(6, 1, 11, 15, 'draft', '2025-12-11 00:00:00', NULL),
+(4, 6, 11, 20, 'locked', '2026-06-08 00:00:00', '2026-06-09 12:29:03'),
+(5, 5, 11, 19, 'locked', '2026-06-30 00:00:00', '2025-12-10 21:13:33'),
+(6, 1, 11, 15, 'locked', '2025-12-11 00:00:00', NULL),
 (8, 11, 11, 17, 'draft', '2025-12-11 00:00:00', NULL),
-(9, 3, 11, 1, 'locked', '2025-12-08 00:00:00', NULL),
-(10, 4, 11, 18, 'submitted', '2025-12-11 00:00:00', '2025-12-10 09:30:50'),
-(11, 2, 11, 16, 'draft', '2025-12-11 00:00:00', NULL);
+(9, 3, 11, 1, 'draft', '2026-06-30 00:00:00', NULL),
+(10, 4, 11, 18, 'locked', '2025-12-11 00:00:00', '2025-12-10 09:30:50'),
+(11, 2, 11, 16, 'locked', '2026-06-10 00:00:00', NULL),
+(12, 16, 14, 9, 'draft', NULL, NULL),
+(13, 17, 14, 10, 'draft', '2026-06-30 00:00:00', NULL),
+(14, 19, 14, 24, 'draft', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -629,7 +721,22 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `is_read`, `cre
 (4, 1, 'grading_sheet_edit_request', 'Joshua Angel Mandia Naling is requesting to edit access to a grading sheet for BSIT 2B', 1, '2025-12-10 02:13:44', '2025-12-10 17:22:16'),
 (5, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:38:33', NULL),
 (6, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:45:34', NULL),
-(7, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:56:09', NULL);
+(7, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 02:56:09', NULL),
+(8, 1, 'grading_sheet_edit_request', 'Joshua Angel Mandia Naling is requesting to edit access to a grading sheet for BSIT 2B', 0, '2025-12-10 19:58:47', NULL),
+(9, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 19:59:01', NULL),
+(10, 1, 'grading_sheet_edit_request', 'Joshua Angel Mandia Naling is requesting to edit access to a grading sheet for BSIT 2B', 0, '2025-12-10 20:03:15', NULL),
+(11, 2, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #9. Status: Approved.', 0, '2025-12-10 20:03:45', NULL),
+(12, 1, 'new_user', 'New user registered: testingduplicate@paterostechnologicalcollege.edu.ph (Professor)', 0, '2025-12-10 20:38:03', NULL),
+(13, 1, 'new_user', 'New user registered: jburgos@paterostechnologicalcollege.edu.ph (Student)', 0, '2025-12-10 20:58:51', NULL),
+(14, 1, 'grading_sheet_edit_request', 'Jasper Aguilar is requesting to edit access to a grading sheet for BSIT 2B', 0, '2025-12-10 20:59:42', NULL),
+(15, 4, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #4. Status: Approved.', 0, '2025-12-10 21:02:21', NULL),
+(16, 1, 'grading_sheet_edit_request', 'Jasper Aguilar is requesting to edit access to a grading sheet for BSIT 2B', 0, '2025-12-10 21:05:13', NULL),
+(17, 4, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #4. Status: Denied.', 0, '2025-12-10 21:05:28', NULL),
+(18, 1, 'document_request', 'Carlo Guzman Baldemor is requesting for Report of Grades', 0, '2026-05-07 17:37:56', NULL),
+(19, 1, 'grading_sheet_edit_request', 'Joshua Angel Mandia Naling is requesting to edit access to a grading sheet for BSIT 2B', 0, '2026-05-12 19:14:32', NULL),
+(20, 1, 'new_user', 'New user registered: mknazareno@paterostechnologicalcollege.edu.ph (Professor)', 0, '2026-06-09 12:32:01', NULL),
+(21, 1, 'grading_sheet_edit_request', 'Mary Grace Nocon is requesting to edit access to a grading sheet for BSIT 2B', 0, '2026-06-09 13:56:13', NULL),
+(22, 6, 'edit_request_decision', 'The admin has a decision to your edit request for grading sheet #11. Status: Approved.', 0, '2026-06-09 13:56:42', NULL);
 
 -- --------------------------------------------------------
 
@@ -660,17 +767,18 @@ INSERT INTO `professors` (`id`, `user_id`, `professor_id`, `ptc_email`, `first_n
 (1, 2, 'PROF-0001', 'jmnaling@paterostechnologicalcollege.edu.ph', 'Joshua Angel', 'Mandia', 'Naling', 7, 'WTH 4PM-6PM', 1, '2025-11-02 15:05:53', '2025-12-10 00:41:44'),
 (8, NULL, 'PROF-0002', 'storre@paterostechnologicalcollege.edu.ph', 'Shider Rey', 'Dela Cruz', 'Torre', NULL, 'Sat 3:00PM-5:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:51:31'),
 (9, NULL, 'PROF-0003', 'rnacario@paterostechnologicalcollege.edu.ph', 'Ryan Cesar', 'Legaspi', 'Nacario', 2, 'Tue 1:00PM-4:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:49:15'),
-(10, NULL, 'PROF-0004', 'mknazareno@paterostechnologicalcollege.edu.ph', 'Mark Kenneth', 'Borja', 'Nazareno', 3, 'TH 4:00PM-7:00PM', 1, '2025-11-02 15:22:08', '2025-11-17 14:49:48'),
+(10, 12, 'PROF-0004', 'mknazareno@paterostechnologicalcollege.edu.ph', 'Mark Kenneth', 'Borja', 'Nazareno', 3, 'TH 4:00PM-7:00PM', 1, '2025-11-02 15:22:08', '2026-06-09 12:31:53'),
 (14, NULL, 'PROF-0005', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria Elena', 'Cruz', 'Santos', NULL, 'Mon 8:00AM-11:00AM', 0, '2025-11-02 16:00:45', '2025-11-17 14:50:45'),
 (15, 8, 'PROF-0006', 'flamit@paterostechnologicalcollege.edu.ph', 'Flor', '', 'Lamit', 5, 'Mon 9:00 AM - 11:00AM', 1, '2025-11-17 21:48:11', '2025-12-10 09:15:31'),
 (16, 6, 'PROF-0007', 'mgnocon@paterostechnologicalcollege.edu.ph', 'Mary Grace', '', 'Nocon', 6, 'Fri 4:00 PM - 9:00PM', 1, '2025-11-17 21:48:57', '2025-12-10 09:15:31'),
-(17, NULL, 'PROF-0008', 'jabarracozo@paterostechnologicalcollege.edu.ph', 'Jissalyn', '', 'Abarracozo', 15, 'Mon 4:00 PM - 9:00PM', 1, '2025-11-17 21:49:52', '2025-12-10 00:39:08'),
+(17, NULL, 'PROF-0008', 'jabarracozo@paterostechnologicalcollege.edu.ph', 'Jissalyn', '', 'Abarracozo', 15, 'Mon 4:00 PM - 9:00PM', 0, '2025-11-17 21:49:52', '2026-06-09 13:24:15'),
 (18, 7, 'PROF-0009', 'jramos@paterostechnologicalcollege.edu.ph', 'Jocelyn', '', 'Ramos', 8, 'Wed 7:00AM - 11:00AM', 1, '2025-11-17 21:50:25', '2025-12-10 09:15:31'),
 (19, 5, 'PROF-0010', 'clamera@paterostechnologicalcollege.edu.ph', 'Cornelio', '', 'Lamera', 9, 'Sat 4:00PM - 9:00PM', 1, '2025-11-17 21:50:56', '2025-12-10 09:15:31'),
-(20, 4, 'PROF-0011', 'jaguilar@paterostechnologicalcollege.edu.ph', 'Jasper', '', 'Aguilar', 10, 'Sat 10:00AM - 3:00PM', 1, '2025-11-17 21:51:33', '2025-12-10 09:15:31'),
+(20, 4, 'PROF-0011', 'jaguilar@paterostechnologicalcollege.edu.ph', 'Jasper', '', 'Aguilar', 10, 'Sat 10:00AM - 3:00PM', 1, '2025-11-17 21:51:33', '2026-06-09 10:34:19'),
 (21, NULL, 'PROF-00012', 'msaavedra@paterostechnologicalcollege.edu.ph', 'Manuel', '', 'Saavedra III', 11, NULL, 1, '2025-11-17 21:52:19', '2025-11-17 21:52:19'),
 (22, NULL, 'PROF-0013', 'aarsison@paterostechnologicalcollege.edu.ph', 'Ariel Antwan Rolando', '', 'Sison', 13, 'Mon 7:00AM - 12:00PM', 1, '2025-11-17 21:53:19', '2025-11-17 21:53:19'),
-(23, NULL, 'PROF-0016', 'testingduplicate@paterostechnologicalcollege.edu.ph', 'Test', 'Test', 'Test', 15, 'WTH 4PM-6PM', 1, '2025-11-18 13:12:29', '2025-11-22 21:17:12');
+(23, 10, 'PROF-0016', 'testingduplicate@paterostechnologicalcollege.edu.ph', 'Test', 'Test', 'Test', 15, 'WTH 4PM-6PM', 1, '2025-11-18 13:12:29', '2025-12-10 20:37:54'),
+(24, NULL, 'PROF-00017', 'saricafort@paterostechnologicalcollege.edu.ph', 'Sheryl Ann', '', 'Ricafort', 17, 'Mon 1PM - 6PM', 1, '2026-06-09 12:46:57', '2026-06-09 12:46:57');
 
 -- --------------------------------------------------------
 
@@ -694,12 +802,13 @@ CREATE TABLE `sections` (
 --
 
 INSERT INTO `sections` (`id`, `section_name`, `is_active`, `created_at`, `updated_at`, `year_level`, `course_id`, `term_id`) VALUES
-(1, 'BSIT-3A', 1, '2025-11-02 15:05:53', '2025-11-17 20:32:21', '3', 1, 5),
+(1, 'BSIT-3A', 0, '2025-11-02 15:05:53', '2026-06-09 12:40:38', '3', 1, 5),
 (8, 'BSIT 1A', 1, '2025-11-02 15:49:49', '2025-11-17 22:45:38', '1', 2, 6),
 (10, 'BSIT 3C', 1, '2025-11-02 15:49:49', '2025-11-17 20:26:04', '3', 2, 2),
 (11, 'BSIT 2B', 1, '2025-11-02 17:15:07', '2025-11-17 21:54:47', '2', 2, 2),
 (12, 'BSOA 4S', 1, '2025-11-17 22:46:04', '2025-11-17 22:46:04', '4', 4, 2),
-(13, 'CSS 3M', 1, '2025-11-17 22:46:25', '2025-11-17 22:46:25', '3', 3, 6);
+(13, 'CSS 3M', 1, '2025-11-17 22:46:25', '2025-11-17 22:46:25', '3', 3, 6),
+(14, 'BSIT 3OL', 1, '2026-06-09 12:40:01', '2026-06-09 12:40:01', '3', 2, 2);
 
 -- --------------------------------------------------------
 
@@ -722,7 +831,13 @@ INSERT INTO `section_students` (`id`, `section_id`, `student_id`, `created_at`) 
 (2, 11, 4, '2025-11-17 23:33:28'),
 (3, 11, 5, '2025-11-18 10:10:11'),
 (4, 11, 7, '2025-11-18 23:14:23'),
-(6, 11, 9, '2025-12-10 12:42:59');
+(6, 11, 9, '2025-12-10 12:42:59'),
+(9, 14, 10, '2026-06-09 13:35:05'),
+(10, 14, 11, '2026-06-09 13:35:34'),
+(11, 14, 12, '2026-06-09 13:35:59'),
+(12, 14, 13, '2026-06-09 13:36:29'),
+(13, 14, 14, '2026-06-09 13:36:53'),
+(14, 14, 15, '2026-06-09 13:37:29');
 
 -- --------------------------------------------------------
 
@@ -758,7 +873,11 @@ INSERT INTO `section_subjects` (`id`, `section_id`, `subject_id`, `professor_id`
 (12, 11, 16, NULL, 6, '2025-11-18 13:10:54'),
 (13, 10, 2, 9, 2, '2025-11-22 21:49:16'),
 (14, 10, 3, 10, 2, '2025-11-22 21:49:16'),
-(15, 10, 4, NULL, 2, '2025-11-22 21:49:16');
+(15, 10, 4, NULL, 2, '2025-11-22 21:49:16'),
+(16, 14, 2, 9, 2, '2026-06-09 12:40:01'),
+(17, 14, 3, 10, 2, '2026-06-09 12:40:01'),
+(18, 14, 4, NULL, 2, '2026-06-09 12:40:01'),
+(19, 14, 17, 24, 2, '2026-06-09 12:47:13');
 
 -- --------------------------------------------------------
 
@@ -776,7 +895,7 @@ CREATE TABLE `students` (
   `last_name` varchar(100) NOT NULL,
   `year_level` enum('1','2','3','4') NOT NULL,
   `section` varchar(50) DEFAULT NULL,
-  `status` enum('Regular','Irregular') DEFAULT 'Regular'
+  `status` enum('Regular','Irregular','Inactive') NOT NULL DEFAULT 'Regular'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -785,10 +904,16 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`id`, `user_id`, `student_id`, `ptc_email`, `first_name`, `middle_name`, `last_name`, `year_level`, `section`, `status`) VALUES
 (2, NULL, '2022-9800', 'maria.santos@paterostechnologicalcollege.edu.ph', 'Maria', 'Luna', 'Santos', '4', 'BSIT 2B', 'Irregular'),
-(4, NULL, '1900-0001', 'joserizal@paterostechnologicalcollege.edu.ph', 'Jose', 'Mercado', 'Rizal', '2', 'CCS 1A', 'Regular'),
-(5, NULL, '1900-0002', 'jburgos@paterostechnologicalcollege.edu.ph', 'Jose', 'Apolonio', 'Burgos', '1', 'BSIT 2B', 'Irregular'),
+(4, NULL, '1900-0001', 'joserizal@paterostechnologicalcollege.edu.ph', 'Jose', 'Mercado', 'Rizal', '2', '', 'Inactive'),
+(5, 11, '1900-0002', 'jburgos@paterostechnologicalcollege.edu.ph', 'Jose', 'Apolonio', 'Burgos', '1', 'BSIT 2B', 'Irregular'),
 (7, 3, '25BSIT-1545', 'cgbaldemor@paterostechnologicalcollege.edu.ph', 'Carlo', 'Guzman', 'Baldemor', '2', 'BSIT 2B', 'Regular'),
-(9, 9, '2022-8196', 'bralbor@paterostechnologicalcollege.edu.ph', 'Bethel', 'Rodriguez', 'Albor', '2', 'BSIT 2B', 'Irregular');
+(9, 9, '2022-8196', 'bralbor@paterostechnologicalcollege.edu.ph', 'Bethel', 'Rodriguez', 'Albor', '2', 'BSIT 2B', 'Irregular'),
+(10, NULL, '25BSIT-1559', 'rbacani@paterostechnologicalcollege.edu.ph', 'Raphael', '', 'Bacani', '3', 'BSIT 3OL', 'Regular'),
+(11, NULL, '25BSIT-1544', 'jmbalingit@paterostechnologicalcollege.edu.ph', 'Jay', '', 'Balingit', '3', 'BSIT 3OL', 'Regular'),
+(12, NULL, '25BSIT-1541', 'mbautista@paterostechnologicalcollege.edu.ph', 'Marian', '', 'Bautista', '3', 'BSIT 3OL', 'Regular'),
+(13, NULL, '25BSIT-1551', 'christiancalix@paterostechnologicalcollege.edu.ph', 'Christian', '', 'Calix', '3', 'BSIT 3OL', 'Regular'),
+(14, NULL, '25BSIT-1564', 'lgclitar@paterostechnologicalcollege.edu.ph', 'Louie Gen', '', 'Clitar', '3', 'BSIT 3OL', 'Regular'),
+(15, NULL, '25BSIT-1547', 'dconel@paterostechnologicalcollege.edu.ph', 'Denmark', '', 'Conel', '3', 'BSIT 3OL', 'Regular');
 
 -- --------------------------------------------------------
 
@@ -824,12 +949,13 @@ INSERT INTO `subjects` (`id`, `subject_code`, `subject_title`, `units`, `descrip
 (8, 'OP 3', 'Office Productivity 3 (Animation)', 3.0, '', 2, 2, 2, 1, '2025-11-17 21:45:09', '2025-11-17 21:45:09'),
 (9, 'IM 101', 'Database Management System', 3.0, '', 2, 2, 2, 1, '2025-11-17 21:45:20', '2025-11-17 21:45:20'),
 (10, 'CRM 101', 'Computer Repair Maintenance', 3.0, 'CSS (COMPUTER SYSTEM SERVICING)', 2, 2, 2, 1, '2025-11-17 21:45:43', '2025-11-17 21:46:00'),
-(11, 'NET 101', 'Network Design and Management', 3.0, '', 2, 2, 6, 1, '2025-11-17 21:46:13', '2025-11-17 21:46:13'),
-(12, 'WS 102', 'Web Programming 2', 3.0, '', 2, 2, 6, 1, '2025-11-17 21:46:22', '2025-11-17 21:46:22'),
-(13, 'OOP 1', 'Programming 4 (OOP)', 3.0, '', 2, 2, 6, 1, '2025-11-17 21:46:32', '2025-11-17 21:46:32'),
-(14, 'OP 4', 'Office Productivity 4 (Computer Aided design)', 3.0, '', 2, 2, 6, 1, '2025-11-17 21:46:51', '2025-11-17 21:46:51'),
-(15, 'OJT', 'On-The-Job-Training (300 hrs.)', 1.0, '', 2, 2, 6, 1, '2025-11-17 21:47:03', '2025-11-17 21:47:03'),
-(16, 'AAA222', 'Testing the Subject', 3.0, '', 2, 2, 6, 1, '2025-11-18 13:01:58', '2025-11-18 13:01:58');
+(11, 'NET 101', 'Network Design and Management', 3.0, '', 2, 2, 6, 0, '2025-11-17 21:46:13', '2025-12-10 20:24:53'),
+(12, 'WS 102', 'Web Programming 2', 3.0, '', 2, 2, 6, 0, '2025-11-17 21:46:22', '2025-12-10 20:24:53'),
+(13, 'OOP 1', 'Programming 4 (OOP)', 3.0, '', 2, 2, 6, 0, '2025-11-17 21:46:32', '2025-12-10 20:24:53'),
+(14, 'OP 4', 'Office Productivity 4 (Computer Aided design)', 3.0, '', 2, 2, 6, 0, '2025-11-17 21:46:51', '2025-12-10 20:24:53'),
+(15, 'OJT', 'On-The-Job-Training (300 hrs.)', 1.0, '', 2, 2, 6, 0, '2025-11-17 21:47:03', '2025-12-10 20:24:53'),
+(16, 'AAA222', 'Testing the Subject', 3.0, '', 2, 2, 6, 0, '2025-11-18 13:01:58', '2025-12-10 20:24:53'),
+(17, 'SAD 1', 'System Analysis and Design', 3.0, 'Research', 2, 3, 2, 1, '2026-06-09 12:46:11', '2026-06-09 12:46:11');
 
 -- --------------------------------------------------------
 
@@ -890,7 +1016,10 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `verify_code`, `role`, `fir
 (6, 'mgnocon@paterostechnologicalcollege.edu.ph', '$2y$10$2gH.kf7QliICZIjLGGGS/uOBAcbbcB4En1tdY4bz6u6hYW3tXIwTW', NULL, 'professor', 'Mary Grace', 'Nocon', 'ACTIVE', '2025-12-10 01:15:31'),
 (7, 'jramos@paterostechnologicalcollege.edu.ph', '$2y$10$qez9L/a2w/580TbJTbRrSup27YQE0.qoS1AAG/wSLU5V47fQT4FjO', NULL, 'professor', 'Jocelyn', 'Ramos', 'ACTIVE', '2025-12-10 01:15:31'),
 (8, 'flamit@paterostechnologicalcollege.edu.ph', '$2y$10$q3kR9YOSKSXPDxW/wJxRV.NYVWV8SuM9kT0VnK8Es.r5j5MLBr6rK', NULL, 'professor', 'Flor', 'Lamit', 'ACTIVE', '2025-12-10 01:15:31'),
-(9, 'bralbor@paterostechnologicalcollege.edu.ph', NULL, '436852', 'student', 'Bethel', 'Albor', 'INACTIVE', '2025-12-10 04:46:41');
+(9, 'bralbor@paterostechnologicalcollege.edu.ph', NULL, '436852', 'student', 'Bethel', 'Albor', 'INACTIVE', '2025-12-10 04:46:41'),
+(10, 'testingduplicate@paterostechnologicalcollege.edu.ph', '$2y$10$qsS7eICSGLzTfhJ3dLhIEuJ4wWiDXJlD.Yn0N7xApH57Baq2WE/92', NULL, 'professor', 'Test', 'Test', 'ACTIVE', '2025-12-10 12:37:54'),
+(11, 'jburgos@paterostechnologicalcollege.edu.ph', '$2y$10$pIy60N8muUEAYjRVBihRmOzL7oH5G75JLjj.1muoFoAubEW0TnOXC', NULL, 'student', 'Jose', 'Burgos', 'ACTIVE', '2025-12-10 12:58:37'),
+(12, 'mknazareno@paterostechnologicalcollege.edu.ph', '$2y$10$RiZ0ZChWAxn49j0H5iP5Ce2GoQ.dc3eLn/dukQ46LuWi3S3DZ5bAq', NULL, 'professor', 'Mark Kenneth', 'Nazareno', 'ACTIVE', '2026-06-09 04:31:53');
 
 --
 -- Indexes for dumped tables
@@ -1045,7 +1174,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -1063,79 +1192,79 @@ ALTER TABLE `default_grade_components`
 -- AUTO_INCREMENT for table `document_requests`
 --
 ALTER TABLE `document_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `edit_requests`
 --
 ALTER TABLE `edit_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=252;
 
 --
 -- AUTO_INCREMENT for table `grade_components`
 --
 ALTER TABLE `grade_components`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `grade_items`
 --
 ALTER TABLE `grade_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `grading_sheets`
 --
 ALTER TABLE `grading_sheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `professors`
 --
 ALTER TABLE `professors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `section_students`
 --
 ALTER TABLE `section_students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `section_subjects`
 --
 ALTER TABLE `section_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `terms`
@@ -1147,7 +1276,7 @@ ALTER TABLE `terms`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
