@@ -112,7 +112,7 @@ if ($fullName === '') {
   <head>
     <meta charset="utf-8">
     <title>Settings</title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   </head>
   <body>
@@ -188,5 +188,5 @@ if ($fullName === '') {
       </main>
     </div>
   </body>
-  <script src="../assets/js/admin.js"></script>
+  <script src="../assets/js/admin.js?v=20260916"></script>
 </html>

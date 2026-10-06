@@ -45,5 +45,4 @@
       <span class="material-symbols-rounded">earthquake</span>
         Activity Logs</a>
   </nav>
-  <script> src= "../assets/js/admin.js"</script>
 </aside>

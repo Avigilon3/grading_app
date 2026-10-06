@@ -75,7 +75,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Online Grading System</title>
+    <title>Login | ACADEMIC PORTAL</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
@@ -103,6 +103,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
         }
         .hero {
             position: relative;
@@ -121,8 +122,16 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             justify-content: center;
             cursor: pointer;
             overflow: hidden;
-            transform-origin: top center;
-            will-change: height, min-height, padding;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.24;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: linear-gradient(135deg, #000, transparent 75%);
         }
         .hero::after {
             content: '';
@@ -149,6 +158,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             aspect-ratio: 54/55;
             border: 10px solid rgba(255, 255, 255, 0.20);
             border-radius: 50%;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24), 0 0 0 1px rgba(255,255,255,.18);
             transition: width 0.7s ease, height 0.7s ease, border-width 0.7s ease;
         }
         .hero h1 {
@@ -160,6 +170,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             font-weight: 400;
             line-height: 35px;
             margin: 0;
+            letter-spacing: .015em;
         }
         .hero h2 {
             font-size: clamp(2rem, 5vw, 3rem);
@@ -182,6 +193,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             max-width: 670px;
             margin: 14px auto 200px;
             font-size: clamp(1rem, 2.4vw, 1.35rem);
+            text-shadow: 0 3px 18px rgba(0,0,0,.18);
             transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.5s ease, margin 0.5s ease;
         }
         .hero-hint {
@@ -195,30 +207,37 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.5s ease;
         }
         .auth-area {
-            flex: 1;
-            background:
-              linear-gradient(180deg, rgba(255, 255, 255, 0.47) 0%, rgba(255, 255, 255, 0.95) 50.96%),
-              url('admin/assets/images/ptcfront.png') center/cover no-repeat;
-            padding: 48px 16px 56px;
+            position: absolute;
+            z-index: 3;
+            top: 0;
+            right: 0;
+            width: min(48vw, 570px);
+            height: 100vh;
+            padding: 32px clamp(18px, 4vw, 56px);
             display: flex;
             justify-content: center;
+            align-items: center;
+            background: rgba(248, 251, 249, .84);
+            border-left: 1px solid rgba(20, 90, 50, .12);
+            backdrop-filter: blur(14px);
             opacity: 0;
-            transform: translateY(36px);
+            transform: translateX(42px);
             pointer-events: none;
-            transition: opacity 0.55s ease 0.48s, transform 0.55s ease 0.48s;
+            transition: opacity 0.55s ease 0.35s, transform 0.55s ease 0.35s;
         }
         body.hero-compressed .hero {
-            height: clamp(430px, 42vh, 460px);
-            min-height: clamp(430px, 42vh, 460px);
-            padding: 44px 16px 72px;
+            height: 100vh;
+            min-height: 100vh;
+            padding: 48px 48vw 72px max(16px, 4vw);
             cursor: default;
-            animation: curtainCompress 0.92s cubic-bezier(0.2, 0.85, 0.25, 1) both;
-        }
-        body.hero-compressed.hero-skip-animation .hero {
             animation: none;
+            justify-content: center;
+            text-align: center;
         }
         body.hero-compressed .hero-inner {
+            width: 100%;
             max-width: 620px;
+            margin: 0 auto;
             transform: translateY(-4px);
         }
         body.hero-compressed .hero-logo {
@@ -236,35 +255,45 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
         }
         body.hero-compressed .auth-area {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(0);
             pointer-events: auto;
-        }
-        @keyframes curtainCompress {
-            0% {
-                height: 100vh;
-                min-height: 100vh;
-                padding-top: 72px;
-                padding-bottom: 96px;
-            }
-            28% {
-                height: 104vh;
-                min-height: 104vh;
-                padding-top: 76px;
-                padding-bottom: 112px;
-            }
-            100% {
-                height: clamp(430px, 42vh, 460px);
-                min-height: clamp(430px, 42vh, 460px);
-                padding-top: 44px;
-                padding-bottom: 72px;
-            }
         }
         .auth-card {
             width: min(440px, 100%);
+            max-height: calc(100vh - 48px);
+            overflow-x: hidden;
+            overflow-y: auto;
             background: #fff;
-            border-radius: 28px;
-            box-shadow: 0 30px 70px rgba(17, 48, 59, 0.18);
+            border: 1px solid rgba(20, 90, 50, .1);
+            border-radius: 24px;
+            box-shadow: 0 30px 70px rgba(17, 48, 59, 0.18), 0 4px 12px rgba(17, 48, 59, .06);
             padding: 28px 32px 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto;
+            height: 4px;
+            background: linear-gradient(90deg, #0c5133, #f5c84c, #0e7a4c);
+        }
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            margin-bottom: 22px;
+            color: #477254;
+            font-size: .76rem;
+            font-weight: 700;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+        }
+        .auth-brand img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
         }
         .auth-tabs {
             display: grid;
@@ -337,6 +366,12 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             border-radius: 14px;
             border: 1px solid var(--border-muted);
             background: #f9fbfd;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .field-box:focus-within {
+            border-color: #4f9468;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 148, 104, .14);
         }
         .field-box input {
             border: none;
@@ -406,6 +441,12 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
             transform: translateY(-1px);
             box-shadow: 0 15px 30px rgba(12, 81, 51, 0.25);
         }
+        .btn-submit:focus-visible,
+        .auth-tabs a:focus-visible,
+        .form-links a:focus-visible {
+            outline: 3px solid rgba(245, 200, 76, .7);
+            outline-offset: 3px;
+        }
         .page-footer {
             text-align: center;
             margin-top: 28px;
@@ -429,29 +470,18 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
                 padding: 54px 20px 84px;
             }
             body.hero-compressed .hero {
-                height: 380px;
-                min-height: 380px;
+                height: 100vh;
+                min-height: 100vh;
                 padding: 34px 20px 62px;
             }
-            @keyframes curtainCompress {
-                0% {
-                    height: 100vh;
-                    min-height: 100vh;
-                    padding-top: 54px;
-                    padding-bottom: 84px;
-                }
-                28% {
-                    height: 103vh;
-                    min-height: 103vh;
-                    padding-top: 58px;
-                    padding-bottom: 96px;
-                }
-                100% {
-                    height: 380px;
-                    min-height: 380px;
-                    padding-top: 34px;
-                    padding-bottom: 62px;
-                }
+            body.hero-compressed .hero-inner {
+                max-width: 100%;
+            }
+            .auth-area {
+                left: 0;
+                width: 100%;
+                padding: 16px;
+                background: rgba(248, 251, 249, .9);
             }
         }
         @media (max-width: 520px) {
@@ -471,28 +501,8 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
                 line-height: 1.5;
             }
             body.hero-compressed .hero {
-                height: 350px;
-                min-height: 350px;
-            }
-            @keyframes curtainCompress {
-                0% {
-                    height: 100vh;
-                    min-height: 100vh;
-                    padding-top: 54px;
-                    padding-bottom: 84px;
-                }
-                28% {
-                    height: 103vh;
-                    min-height: 103vh;
-                    padding-top: 58px;
-                    padding-bottom: 96px;
-                }
-                100% {
-                    height: 350px;
-                    min-height: 350px;
-                    padding-top: 34px;
-                    padding-bottom: 62px;
-                }
+                height: 100vh;
+                min-height: 100vh;
             }
             body.hero-compressed .hero-logo {
                 width: 76px;
@@ -505,14 +515,14 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
         }
     </style>
 </head>
-<body class="<?= $openLogin ? 'hero-compressed hero-skip-animation' : '' ?>">
+<body class="<?= $openLogin ? 'hero-compressed' : '' ?>">
     <div class="page-shell">
         <section class="hero"<?= $heroAttributes ?>>
             <div class="hero-inner">
                 <img src="admin/assets/images/logo-ptc.png" alt="PTC Logo" class="hero-logo">
                 <h1>PATEROS TECHNOLOGICAL COLLEGE</h1>
                 <p>Gearing the way to your future!</p>
-                <h2>Online Grading System</h2>
+                <h2>ACADEMIC PORTAL</h2>
                 <p class="hero-description">Access your grades, monitor progress, and stay connected with your academic journey whenever and wherever you are.</p>
                 <div class="hero-hint" aria-hidden="true">
                     <span>Click anywhere to get started</span>
@@ -522,6 +532,10 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
 
         <section class="auth-area">
             <div class="auth-card">
+                <div class="auth-brand">
+                    <img src="admin/assets/images/logo-ptc.png" alt="">
+                    <span>PTC ACADEMIC PORTAL</span>
+                </div>
                 <div class="auth-tabs">
                     <a href="login.php?open=1" class="active">Login</a>
                     <a href="register.php?open=1">Register</a>
@@ -529,7 +543,7 @@ $heroAttributes = $openLogin ? '' : ' role="button" tabindex="0" aria-label="Ope
 
                 <div class="welcome-text">
                     <h3>Welcome Back!</h3>
-                    <p>Sign in to access your portal.</p>
+                    <p>Sign in to access your ACADEMIC PORTAL.</p>
                 </div>
 
                 <?php if ($flashError): ?>

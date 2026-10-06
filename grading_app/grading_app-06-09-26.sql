@@ -1065,6 +1065,7 @@ ALTER TABLE `edit_requests`
 --
 ALTER TABLE `grades`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_grades_item_student` (`grade_item_id`,`student_id`),
   ADD KEY `grade_item_id` (`grade_item_id`),
   ADD KEY `student_id` (`student_id`);
 

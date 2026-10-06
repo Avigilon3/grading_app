@@ -251,7 +251,7 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
 <head>
     <meta charset="utf-8">
     <title>Grading Sheets Management</title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -705,6 +705,6 @@ $redirectUrl = '../pages/grading_management.php' . ($currentQuery ? '?' . $curre
         }
     })();
 </script>
-<script src="../assets/js/admin.js"></script>
+<script src="../assets/js/admin.js?v=20260916"></script>
 </body>
 </html>

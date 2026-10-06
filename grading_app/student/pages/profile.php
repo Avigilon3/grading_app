@@ -1,379 +1,170 @@
 <?php
 require_once '../includes/init.php';
 requireStudent();
-session_start();
 
+$currentUserId = (int)($_SESSION['user']['id'] ?? 0);
+$errors = [];
+$success = null;
+$uploadDirectory = dirname(__DIR__) . '/assets/uploads/profile';
+$uploadWebPath = '../assets/uploads/profile';
 
-// Function to safely prepare and execute SQL statements
-function safeQuery($pdo, $sql, $params = []) {
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
-    } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
-        die("An error occurred. Please try again later.");
-    }
-}
-
-// Handle profile update
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = $_SESSION['user_id'];
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $current_password = $_POST['current_password'] ?? '';
-    $new_password = $_POST['new_password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
-    
-    // First get user data without joins to verify user exists
-    $user = safeQuery($pdo, "SELECT * FROM users WHERE id = ?", [$user_id])->fetch();
-    
-    if (!$user) {
-        die("User not found. Please log in again.");
-    }
-    
-    // Then get the full user data with student info
-    $sql = "SELECT 
-                u.*,
-                s.name as student_name,
-                s.email as student_email
-            FROM users u 
-            LEFT JOIN students s ON s.user_id = u.id 
-            WHERE u.id = ?";
-    
-    $userData = safeQuery($pdo, $sql, [$user_id])->fetch();
-    
-    // Set display values
-    $user['display_name'] = $userData['student_name'] ?? $user['username'];
-    $user['email'] = $userData['student_email'] ?? '';
-    
-    $errors = [];
-    
-    // Validate current password if trying to change password
-    if (!empty($new_password)) {
-        if (!password_verify($current_password, $user['password'])) {
-            $errors[] = "Current password is incorrect";
-        }
-        if ($new_password !== $confirm_password) {
-            $errors[] = "New passwords do not match";
-        }
-    }
-    
-    if (empty($errors)) {
-        try {
-            $pdo->beginTransaction();
-            
-            // Update or create student record
-            $stmt = safeQuery($pdo, "SELECT id FROM students WHERE user_id = ?", [$user_id]);
-            $student = $stmt->fetch();
-            
-            if ($student) {
-                safeQuery($pdo, 
-                    "UPDATE students SET name = ?, email = ? WHERE user_id = ?",
-                    [$name, $email, $user_id]
-                );
-            } else {
-                safeQuery($pdo,
-                    "INSERT INTO students (user_id, name, email) VALUES (?, ?, ?)",
-                    [$user_id, $name, $email]
-                );
-            }
-            
-            // Update password if provided
-            if (!empty($new_password)) {
-                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                safeQuery($pdo,
-                    "UPDATE users SET password = ? WHERE id = ?",
-                    [$hashed_password, $user_id]
-                );
-            }
-            
-            $pdo->commit();
-            $success = "Profile updated successfully!";
-            
-            // Refresh user data
-            $userData = safeQuery($pdo, $sql, [$user_id])->fetch();
-            $user['display_name'] = $userData['student_name'] ?? $user['username'];
-            $user['email'] = $userData['student_email'] ?? '';
-            
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            error_log("Transaction failed: " . $e->getMessage());
-            die("An error occurred while updating your profile. Please try again later.");
-        }
-    }
-}
-
-// Get current user data
-$user = safeQuery($pdo, "SELECT * FROM users WHERE id = ?", [$_SESSION['user_id']])->fetch();
-
-if (!$user) {
-    header("Location: login.php");
+if ($currentUserId <= 0) {
+    header('Location: ../../login.php');
     exit;
 }
 
-// Get extended user data with student info
-$sql = "SELECT 
-            u.*,
-            s.name as student_name,
-            s.email as student_email
-        FROM users u 
-        LEFT JOIN students s ON s.user_id = u.id 
-        WHERE u.id = ?";
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_picture'])) {
+    $file = $_FILES['profile_picture'];
+    $maxBytes = 2 * 1024 * 1024;
+    $allowedTypes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
 
-$userData = safeQuery($pdo, $sql, [$_SESSION['user_id']])->fetch();
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        $errors[] = 'Please choose a valid image to upload.';
+    } elseif (($file['size'] ?? 0) > $maxBytes) {
+        $errors[] = 'Profile pictures must be 2 MB or smaller.';
+    } else {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo ? finfo_file($finfo, $file['tmp_name']) : false;
+        if ($finfo) {
+            finfo_close($finfo);
+        }
 
-// Set display values
-$user['display_name'] = $userData['student_name'] ?? $user['username'];
-$user['email'] = $userData['student_email'] ?? '';
+        if (!isset($allowedTypes[$mimeType])) {
+            $errors[] = 'Only JPG, PNG, and WebP images are supported.';
+        } elseif (!is_uploaded_file($file['tmp_name'])) {
+            $errors[] = 'The uploaded file could not be verified.';
+        } elseif (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0755, true)) {
+            $errors[] = 'The profile picture folder could not be created.';
+        } else {
+            $extension = $allowedTypes[$mimeType];
+            $targetPath = $uploadDirectory . '/' . $currentUserId . '.' . $extension;
+            foreach (array_values($allowedTypes) as $oldExtension) {
+                $oldPath = $uploadDirectory . '/' . $currentUserId . '.' . $oldExtension;
+                if ($oldPath !== $targetPath && is_file($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+
+            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                $success = 'Profile picture updated successfully.';
+            } else {
+                $errors[] = 'The profile picture could not be saved.';
+            }
+        }
+    }
+}
+
+$stmt = $pdo->prepare(
+    "SELECT s.*, u.email AS account_email, u.status AS account_status
+       FROM students s
+  LEFT JOIN users u ON u.id = s.user_id
+      WHERE s.user_id = :user_id
+      LIMIT 1"
+);
+$stmt->execute([':user_id' => $currentUserId]);
+$student = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+$firstName = trim((string)($student['first_name'] ?? $_SESSION['user']['first_name'] ?? ''));
+$middleName = trim((string)($student['middle_name'] ?? ''));
+$lastName = trim((string)($student['last_name'] ?? $_SESSION['user']['last_name'] ?? ''));
+$fullName = trim(implode(' ', array_filter([$firstName, $middleName, $lastName])));
+$fullName = $fullName !== '' ? $fullName : currentUserName();
+$email = trim((string)($student['ptc_email'] ?? $student['account_email'] ?? $_SESSION['user']['email'] ?? ''));
+$studentNumber = trim((string)($student['student_id'] ?? ''));
+$yearValue = trim((string)($student['year_level'] ?? ''));
+$yearLabels = ['1' => '1st Year', '2' => '2nd Year', '3' => '3rd Year', '4' => '4th Year'];
+$yearLevel = $yearLabels[$yearValue] ?? ($yearValue !== '' ? $yearValue : 'Not assigned');
+$section = trim((string)($student['section'] ?? '')) ?: 'Not assigned';
+$studentStatus = trim((string)($student['status'] ?? '')) ?: 'Not assigned';
+$accountStatus = trim((string)($student['account_status'] ?? '')) ?: 'ACTIVE';
+
+$profileFields = [$fullName, $email, $studentNumber, $yearValue, $section === 'Not assigned' ? '' : $section];
+$profileAccuracy = (int)round((count(array_filter($profileFields)) / count($profileFields)) * 100);
+
+$profilePicture = null;
+$profilePicturePath = null;
+foreach (['jpg', 'png', 'webp'] as $extension) {
+    $candidate = $uploadDirectory . '/' . $currentUserId . '.' . $extension;
+    if (is_file($candidate)) {
+        $profilePicturePath = $candidate;
+        $profilePicture = $uploadWebPath . '/' . $currentUserId . '.' . $extension;
+        break;
+    }
+}
+$initials = strtoupper(substr($firstName !== '' ? $firstName : $fullName, 0, 1) . substr($lastName, 0, 1));
+$initials = $initials !== '' ? $initials : 'ST';
 ?>
-
-<!DOCTYPE html>
-<html lang="en" data-theme="<?= isset($_SESSION['theme_preference']) ? htmlspecialchars($_SESSION['theme_preference']) : 'light' ?>">
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Grading System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --card-bg: #ffffff;
-            --border-color: #dee2e6;
-            --input-bg: #ffffff;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #f8f9fa;
-            --card-bg: #1e1e1e;
-            --border-color: #2d2d2d;
-            --input-bg: #2d2d2d;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-        }
-
-        .profile-card {
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-top: 2rem;
-        }
-
-        .form-control {
-            background-color: var(--input-bg);
-            border-color: var(--border-color);
-            color: var(--text-color);
-        }
-
-        .form-control:focus {
-            background-color: var(--input-bg);
-            color: var(--text-color);
-        }
-
-        .profile-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .profile-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background-color: #0d6efd;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            margin: 0 auto 1rem;
-        }
-
-        .btn-profile {
-            padding: 0.5rem 2rem;
-            border-radius: 25px;
-        }
-
-        .section-title {
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .feedback-toast {
-            position: fixed;
-            left: 24px;
-            bottom: 24px;
-            z-index: 3000;
-            width: min(380px, calc(100vw - 32px));
-            padding: 14px 16px;
-            border-radius: 10px;
-            border: 1px solid transparent;
-            background: #ffffff;
-            color: #2C3E50;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
-            font-weight: 600;
-            line-height: 1.45;
-            animation: feedbackToastIn 0.24s ease-out both;
-        }
-
-        .feedback-toast ul {
-            margin: 0;
-            padding-left: 18px;
-        }
-
-        .feedback-toast-success {
-            background: #f0f8f0;
-            border-color: rgba(97, 138, 97, 0.35);
-            color: #315d36;
-        }
-
-        .feedback-toast-error {
-            background: #fff1f1;
-            border-color: rgba(193, 85, 85, 0.35);
-            color: #9f3535;
-        }
-
-        @keyframes feedbackToastIn {
-            from {
-                opacity: 0;
-                transform: translate(-10px, 12px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(0, 0);
-            }
-        }
-
-        @media (max-width: 640px) {
-            .feedback-toast {
-                left: 16px;
-                right: 16px;
-                bottom: 16px;
-                width: auto;
-            }
-        }
-    </style>
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="../assets/css/student.css?v=20260916.7">
 </head>
 <body>
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <h2><?= htmlspecialchars($user['display_name']) ?></h2>
-                    <p class="text-muted"><?= htmlspecialchars($user['role']) ?></p>
-                </div>
-
-                <?php if (isset($errors) && $errors): ?>
-                    <div class="feedback-toast feedback-toast-error" role="alert">
-                        <ul>
-                            <?php foreach ($errors as $error): ?>
-                                <li><?= htmlspecialchars($error) ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (isset($success)): ?>
-                    <div class="feedback-toast feedback-toast-success" role="status" aria-live="polite">
-                        <?= htmlspecialchars($success) ?>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST">
-                    <h4 class="section-title">
-                        <i class="fas fa-user-edit"></i> Basic Information
-                    </h4>
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-user"></i>
-                            </span>
-                            <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user['display_name']) ?>" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-envelope"></i>
-                            </span>
-                            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Role</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-user-tag"></i>
-                            </span>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars(ucfirst($user['role'])) ?>" disabled>
-                        </div>
-                    </div>
-
-                    <h4 class="section-title mt-4">
-                        <i class="fas fa-lock"></i> Change Password
-                    </h4>
-                    <div class="mb-3">
-                        <label class="form-label">Current Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-lock"></i>
-                            </span>
-                            <input type="password" name="current_password" class="form-control" placeholder="Enter current password">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">New Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-key"></i>
-                            </span>
-                            <input type="password" name="new_password" class="form-control" placeholder="Enter new password">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label">Confirm New Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-key"></i>
-                            </span>
-                            <input type="password" name="confirm_password" class="form-control" placeholder="Confirm new password">
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="dashboard.php" class="btn btn-secondary btn-profile">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
-                        <button type="submit" class="btn btn-primary btn-profile">
-                            <i class="fas fa-save"></i> Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
+<?php include '../includes/header.php'; ?>
+<div class="layout">
+    <?php include '../includes/sidebar.php'; ?>
+    <main class="content">
+        <div class="page-header profile-page-heading">
+            <h1>My Profile</h1>
+            <p class="text-muted">View your student information and keep your profile photo up to date.</p>
         </div>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <?php if ($errors): ?>
+            <div class="profile-message profile-message-error" role="alert"><?= htmlspecialchars(implode(' ', $errors)); ?></div>
+        <?php elseif ($success): ?>
+            <div class="profile-message profile-message-success" role="status"><?= htmlspecialchars($success); ?></div>
+        <?php endif; ?>
+
+        <section class="profile-layout">
+            <article class="profile-card profile-summary-card">
+                <div class="profile-avatar-wrap">
+                    <?php if ($profilePicture && $profilePicturePath): ?>
+                        <img class="profile-avatar-image" src="<?= htmlspecialchars($profilePicture . '?v=' . filemtime($profilePicturePath)); ?>" alt="Profile picture">
+                    <?php else: ?>
+                        <div class="profile-avatar-fallback" aria-hidden="true"><?= htmlspecialchars($initials); ?></div>
+                    <?php endif; ?>
+                </div>
+                <h2><?= htmlspecialchars($fullName); ?></h2>
+                <p class="profile-role">Student Account</p>
+                <form class="profile-upload-form" method="post" enctype="multipart/form-data">
+                    <label class="profile-upload-button" for="profile-picture-input">
+                        <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
+                        Choose photo
+                    </label>
+                    <input id="profile-picture-input" class="profile-file-input" type="file" name="profile_picture" accept="image/jpeg,image/png,image/webp" required>
+                    <p class="profile-upload-hint">JPG, PNG, or WebP up to 2 MB</p>
+                    <button class="profile-save-button" type="submit">Upload picture</button>
+                </form>
+            </article>
+
+            <article class="profile-card profile-details-card">
+                <div class="profile-card-heading">
+                    <div>
+                        <p class="eyebrow">Student record</p>
+                        <h2>Profile Information</h2>
+                    </div>
+                    <span class="profile-status-chip <?= strtoupper($accountStatus) === 'ACTIVE' ? 'is-active' : ''; ?>"><?= htmlspecialchars($accountStatus); ?></span>
+                </div>
+                <div class="profile-detail-grid">
+                    <div class="profile-detail"><span>Full name</span><strong><?= htmlspecialchars($fullName); ?></strong></div>
+                    <div class="profile-detail"><span>Student ID</span><strong><?= htmlspecialchars($studentNumber ?: 'Not assigned'); ?></strong></div>
+                    <div class="profile-detail"><span>Email address</span><strong><?= htmlspecialchars($email ?: 'Not assigned'); ?></strong></div>
+                    <div class="profile-detail"><span>Year level</span><strong><?= htmlspecialchars($yearLevel); ?></strong></div>
+                    <div class="profile-detail"><span>Section</span><strong><?= htmlspecialchars($section); ?></strong></div>
+                    <div class="profile-detail"><span>Enrollment status</span><strong><?= htmlspecialchars($studentStatus); ?></strong></div>
+                </div>
+                <div class="profile-accuracy">
+                    <div class="profile-accuracy-heading"><span>Profile accuracy</span><strong><?= $profileAccuracy; ?>%</strong></div>
+                    <div class="profile-accuracy-track"><span style="width: <?= $profileAccuracy; ?>%"></span></div>
+                    <p>Keep your student record complete so your information stays accurate.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+<script src="../assets/js/student.js?v=20260916.7"></script>
 </body>
-</html> 
+</html>

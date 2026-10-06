@@ -72,7 +72,7 @@ $result = $stmt->fetchAll();
 ?>
 <!doctype html><html><head>
   <meta charset="utf-8"><title>Database Management - Students</title>
-  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -352,7 +352,7 @@ $result = $stmt->fetchAll();
 
 
 <?php if (function_exists('renderCrudTabsScript')) { renderCrudTabsScript(); } ?>
-<script src="../assets/js/admin.js"></script>
+<script src="../assets/js/admin.js?v=20260916"></script>
 
   </main>
 <?php include '../includes/footer.php'; ?>

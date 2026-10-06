@@ -24,11 +24,8 @@
 				// simple match: last segment or full pathname
 				if (current.endsWith(url.pathname) || current === url.pathname + url.search) {
 					a.classList.add('active');
-					a.style.background = '#618A61';
-					a.style.color = '#fff';
 				} else {
 					a.classList.remove('active');
-					a.style.background = '';
 				}
 			} catch (err) {
 				// ignore invalid hrefs
@@ -67,6 +64,44 @@
 			if (!confirm('Are you sure you want to log out?')) {
 				e.preventDefault();
 			}
+		});
+	}
+
+	function initPageTransitionOverlay() {
+		var navLinks = safeQueryAll('.sidebar .nav-item');
+		if (!navLinks.length) return;
+
+		var overlay = document.createElement('div');
+		overlay.className = 'page-transition-overlay';
+		overlay.setAttribute('aria-hidden', 'true');
+		overlay.setAttribute('role', 'status');
+		overlay.innerHTML = '<div class="page-transition-card"><img src="../assets/images/logo-ptc.png" alt=""><strong>PATEROS TECHNOLOGICAL COLLEGE</strong><span>Loading section...</span></div>';
+		document.body.appendChild(overlay);
+
+		navLinks.forEach(function (link) {
+			link.addEventListener('click', function (event) {
+				if (event.defaultPrevented || link.classList.contains('dropdown-toggle')) return;
+				if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+				if (link.dataset.transitioning === 'true') return;
+
+				var href = link.getAttribute('href');
+				if (!href || href.charAt(0) === '#' || link.target === '_blank') return;
+
+				event.preventDefault();
+				link.dataset.transitioning = 'true';
+				overlay.classList.add('is-visible');
+				overlay.setAttribute('aria-hidden', 'false');
+				document.body.classList.add('is-transitioning');
+
+				window.setTimeout(function () {
+					window.location.assign(href);
+				}, 700);
+			});
+		});
+
+		window.addEventListener('pageshow', function () {
+			overlay.classList.remove('is-visible');
+			overlay.setAttribute('aria-hidden', 'true');
 		});
 	}
 
@@ -154,6 +189,7 @@
 	function init() {
 		highlightNav();
 		wireLogoutConfirm();
+		initPageTransitionOverlay();
 		initUserDropdowns();
     initSidebarDropdowns();
 		initNotificationDropdowns();
