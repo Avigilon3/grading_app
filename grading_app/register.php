@@ -132,7 +132,7 @@ if ($detectedRole) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Online Grading System</title>
+    <title>Register | Academic Portal</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
@@ -160,12 +160,13 @@ if ($detectedRole) {
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
         }
         .hero {
             position: relative;
-            height: clamp(430px, 42vh, 460px);
-            min-height: clamp(430px, 42vh, 460px);
-            padding: 44px 16px 72px;
+            height: 100vh;
+            min-height: 100vh;
+            padding: 48px 48vw 72px max(16px, 4vw);
             backdrop-filter: blur(3px);
             background: 
             linear-gradient(120deg, rgba(6, 64, 42, 0.92), rgba(6, 98, 80, 0.7)),
@@ -191,6 +192,7 @@ if ($detectedRole) {
         .hero-inner {
             position: relative;
             z-index: 1;
+            width: 100%;
             max-width: 620px;
             margin: 0 auto;
             transform: translateY(-4px);
@@ -232,20 +234,39 @@ if ($detectedRole) {
           line-height: 28px;
         }
         .auth-area {
-            flex: 1;
-            background:
-              linear-gradient(180deg, rgba(255, 255, 255, 0.47) 0%, rgba(255, 255, 255, 0.95) 50.96%),
-              url('admin/assets/images/ptcfront.png') center/cover no-repeat;
-            padding: 48px 16px 56px;
+            position: absolute;
+            z-index: 3;
+            top: 0;
+            right: 0;
+            width: min(48vw, 570px);
+            height: 100vh;
+            padding: 32px clamp(18px, 4vw, 56px);
             display: flex;
             justify-content: center;
+            align-items: center;
+            background: rgba(248, 251, 249, .84);
+            border-left: 1px solid rgba(20, 90, 50, .12);
+            backdrop-filter: blur(14px);
+            opacity: 1;
         }
         .auth-card {
             width: min(440px, 100%);
+            max-height: calc(100vh - 48px);
+            overflow-x: hidden;
+            overflow-y: auto;
             background: #fff;
-            border-radius: 28px;
-            box-shadow: 0 30px 70px rgba(17, 48, 59, 0.18);
+            border: 1px solid rgba(20, 90, 50, .1);
+            border-radius: 24px;
+            box-shadow: 0 30px 70px rgba(17, 48, 59, 0.18), 0 4px 12px rgba(17, 48, 59, .06);
             padding: 28px 32px 36px;
+            position: relative;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto;
+            height: 4px;
+            background: linear-gradient(90deg, #0c5133, #f5c84c, #0e7a4c);
         }
         .auth-tabs {
             display: grid;
@@ -433,19 +454,21 @@ if ($detectedRole) {
         }
         @media (max-width: 760px) {
             .hero {
-                height: 380px;
-                min-height: 380px;
                 padding: 34px 20px 62px;
+            }
+            .hero-inner {
+                max-width: 100%;
+            }
+            .auth-area {
+                left: 0;
+                width: 100%;
+                padding: 16px;
+                background: rgba(248, 251, 249, .9);
             }
         }
         @media (max-width: 520px) {
             .hero {
-                height: 350px;
-                min-height: 350px;
-            }
-            .hero-logo {
-                width: 76px;
-                height: 76px;
+                min-height: 100vh;
             }
             .hero h1 {
                 font-size: 1.7rem;
@@ -465,7 +488,7 @@ if ($detectedRole) {
         }
     </style>
 </head>
-  <body>
+    <body class="hero-compressed">
 
     <div class="page-shell">
         <section class="hero">
@@ -473,7 +496,7 @@ if ($detectedRole) {
                 <img src="admin/assets/images/logo-ptc.png" alt="PTC Logo" class="hero-logo">
                 <h1>PATEROS TECHNOLOGICAL COLLEGE</h1>
                 <p>Gearing the way to your future!</p>
-                <h2>Online Grading System</h2>
+                <h2>Academic Portal</h2>
             </div>
         </section>
 
@@ -486,7 +509,7 @@ if ($detectedRole) {
 
                 <div class="welcome-text">
                     <h3>Hi PTCian!</h3>
-                    <p>Sign up using your PTC email address to access your portal.</p>
+                    <p>Sign up using your PTC email address to access your Academic Portal.</p>
                 </div>
 
                 <?php if ($err): ?>

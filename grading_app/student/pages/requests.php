@@ -157,7 +157,7 @@ if ($studentId) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Requests</title>
-    <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="stylesheet" href="../assets/css/student.css?v=20260916.6">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 
@@ -486,5 +486,5 @@ if ($studentId) {
 
     
 </body>
-<script src="../assets/js/student.js"></script>
+<script src="../assets/js/student.js?v=20260916.1"></script>
 </html>

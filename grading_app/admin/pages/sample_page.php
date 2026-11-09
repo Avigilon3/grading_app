@@ -18,7 +18,7 @@ $stats = ['sections' => 12, 'professors' => 4, 'students' => 128, 'edit_requests
   <head>
     <meta charset="utf-8">
     <title>Sample Admin Page</title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
   </head>
   <body>
     <?php include '../includes/header.php'; ?>
@@ -41,7 +41,7 @@ $stats = ['sections' => 12, 'professors' => 4, 'students' => 128, 'edit_requests
       </main>
     </div>
 
-    <script src="../assets/js/admin.js"></script>
+    <script src="../assets/js/admin.js?v=20260916"></script>
     <script>
       // Example: push server-side counts to the client-side badge updater
       (function () {

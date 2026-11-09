@@ -124,7 +124,7 @@ CREATE TABLE document_requests (
   student_id INT NOT NULL,
   type ENUM('report','certificate') NOT NULL,
   purpose VARCHAR(190),
-  status ENUM('pending','scheduled','ready','released') DEFAULT 'pending',
+  status ENUM('pending','scheduled','ready','released','cancelled') DEFAULT 'pending',
   scheduled_at DATETIME NULL,
   released_at DATETIME NULL,
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE

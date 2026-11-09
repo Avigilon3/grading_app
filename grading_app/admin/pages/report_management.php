@@ -16,9 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $status = $_POST['status'] ?? '';
       $scheduled_at = trim($_POST['scheduled_at'] ?? '');
       $released_at  = trim($_POST['released_at'] ?? '');
-      $allowed = ['pending','scheduled','ready','released'];
+      $allowed = ['pending','scheduled','ready','released','cancelled'];
       if (!$id || !in_array($status, $allowed, true)) {
         throw new Exception('Invalid document request update.');
+      }
+
+      if ($status === 'cancelled') {
+        $scheduled_at = '';
+        $released_at = '';
       }
 
       $stmt = $pdo->prepare('UPDATE document_requests SET status=?, scheduled_at=?, released_at=? WHERE id=?');
@@ -140,7 +145,7 @@ $docSearch = trim($_GET['doc_q'] ?? '');
 $docStatus = $_GET['doc_status'] ?? 'all';
 $profSearch = trim($_GET['prof_q'] ?? '');
 $profStatus = $_GET['prof_status'] ?? 'all';
-$docStatus = in_array($docStatus, ['all','pending','scheduled','ready','released'], true) ? $docStatus : 'all';
+$docStatus = in_array($docStatus, ['all','pending','scheduled','ready','released','cancelled'], true) ? $docStatus : 'all';
 $profStatus = in_array($profStatus, ['all','pending','approved','denied'], true) ? $profStatus : 'all';
 
 $docFiltered = array_values(array_filter($docRequests, static function ($r) use ($docSearch, $docStatus) {
@@ -208,7 +213,7 @@ foreach ($editRequests as $r) {
   <head>
     <meta charset="utf-8">
     <title>Requests</title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
   </head>
   <body>
     <?php include '../includes/header.php'; ?>
@@ -267,7 +272,7 @@ foreach ($editRequests as $r) {
               </div>
               <div>
                 <select class="status-filter" name="doc_status" onchange="this.form.submit()">
-                  <?php foreach (['all' => 'All', 'pending' => 'Pending', 'scheduled' => 'Scheduled', 'ready' => 'Ready', 'released' => 'Released'] as $val => $label): ?>
+                  <?php foreach (['all' => 'All', 'pending' => 'Pending', 'scheduled' => 'Scheduled', 'ready' => 'Ready', 'released' => 'Released', 'cancelled' => 'Cancelled'] as $val => $label): ?>
                     <option value="<?= $val; ?>" <?= $docStatus === $val ? 'selected' : ''; ?>><?= $label; ?></option>
                   <?php endforeach; ?>
                 </select>
@@ -301,6 +306,7 @@ foreach ($editRequests as $r) {
                     if ($r['status'] === 'scheduled') { $statusClass = 'scheduled'; }
                     elseif ($r['status'] === 'ready') { $statusClass = 'ready'; }
                     elseif ($r['status'] === 'released' || $r['status'] === 'completed') { $statusClass = 'released'; }
+                    elseif ($r['status'] === 'cancelled') { $statusClass = 'pending'; }
                     $requestDate = !empty($r['request_date']) ? date('Y-m-d', strtotime($r['request_date'])) : '—';
                   ?>
                   <tr>
@@ -312,17 +318,25 @@ foreach ($editRequests as $r) {
                     <td><?= htmlspecialchars($requestDate); ?></td>
                     <td><?= htmlspecialchars(!empty($r['scheduled_at']) ? date('Y-m-d', strtotime($r['scheduled_at'])) : '--'); ?></td>
                     <td><?= htmlspecialchars(!empty($r['released_at']) ? date('Y-m-d', strtotime($r['released_at'])) : '--'); ?></td>
-                    <td><span class="status-chip <?= $statusClass; ?>"><?= ucfirst($r['status']); ?></span></td>
+                    <td><span class="status-chip <?= $statusClass; ?>"><?= ucfirst($r['status'] ?? 'pending'); ?></span></td>
                     <td class="actions">
                       <div class="action-buttons">
                         <?php if ($r['status'] === 'pending'): ?>
-                          <form method="post">
+                          <form method="post" class="request-action-form">
                             <input type="hidden" name="action" value="docreq_update">
                             <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
                             <input type="hidden" name="status" value="scheduled">
                             <input type="date" name="scheduled_at" required>
                             <input type="hidden" name="released_at" value="">
                             <button type="submit" class="btn-pill primary">Set Pickup</button>
+                          </form>
+                          <form method="post" class="request-action-form">
+                            <input type="hidden" name="action" value="docreq_update">
+                            <input type="hidden" name="id" value="<?= (int)$r['id']; ?>">
+                            <input type="hidden" name="status" value="cancelled">
+                            <input type="hidden" name="scheduled_at" value="">
+                            <input type="hidden" name="released_at" value="">
+                            <button type="submit" class="btn-pill danger">Decline</button>
                           </form>
                         <?php elseif ($r['status'] === 'scheduled' || $r['status'] === 'ready'): ?>
                           <form method="post">
@@ -419,7 +433,7 @@ foreach ($editRequests as $r) {
             });
           });
         </script>
-        <script src="../assets/js/admin.js"></script>
+        <script src="../assets/js/admin.js?v=20260916"></script>
       </main>
     </div>
   </body>

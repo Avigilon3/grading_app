@@ -59,7 +59,7 @@ $sections = $pdo->query("SELECT s.id, s.section_name, s.is_active, s.year_level,
   <head>
   <meta charset="utf-8">
   <title>Database Management</title>
-  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -289,7 +289,7 @@ $sections = $pdo->query("SELECT s.id, s.section_name, s.is_active, s.year_level,
       </div>
     </div>
 
-    <script src="../assets/js/admin.js"></script>
+    <script src="../assets/js/admin.js?v=20260916"></script>
   </main>
 <?php include '../includes/footer.php'; ?>
 </div>

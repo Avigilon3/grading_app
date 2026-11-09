@@ -24,21 +24,17 @@
 		var navLinks = safeQueryAll('.nav-item');
 		if (!navLinks.length) return;
 
-		var current = window.location.pathname + window.location.search;
+		var currentPath = window.location.pathname;
 
 		navLinks.forEach(function (a) {
 			try {
 				var href = a.getAttribute('href') || '';
 				// Resolve relative URLs against the current location
 				var url = new URL(href, window.location.href);
-				// simple match: last segment or full pathname
-				if (current.endsWith(url.pathname) || current === url.pathname + url.search) {
+				if (currentPath === url.pathname) {
 					a.classList.add('active');
-					a.style.background = '#618A61';
-					a.style.color = '#fff';
 				} else {
 					a.classList.remove('active');
-					a.style.background = '';
 				}
 			} catch (err) {
 				// ignore invalid hrefs
@@ -77,6 +73,33 @@
 			if (!confirm('Are you sure you want to log out?')) {
 				e.preventDefault();
 			}
+		});
+	}
+
+	function initPageTransitionOverlay() {
+		var links = safeQueryAll('.sidebar .nav-item');
+		if (!links.length) return;
+
+		var overlay = document.createElement('div');
+		overlay.className = 'page-transition-overlay';
+		overlay.setAttribute('aria-hidden', 'true');
+		overlay.setAttribute('role', 'status');
+		overlay.innerHTML = '<div class="page-transition-card"><img src="../../admin/assets/images/logo-ptc.png" alt=""><strong>PATEROS TECHNOLOGICAL COLLEGE</strong><span>Loading section...</span></div>';
+		document.body.appendChild(overlay);
+
+		links.forEach(function (link) {
+			link.addEventListener('click', function (event) {
+				if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+				if (link.dataset.transitioning === 'true') return;
+				var href = link.getAttribute('href');
+				if (!href || href.charAt(0) === '#' || link.target === '_blank') return;
+
+				event.preventDefault();
+				link.dataset.transitioning = 'true';
+				overlay.classList.add('is-visible');
+				overlay.setAttribute('aria-hidden', 'false');
+				window.setTimeout(function () { window.location.assign(href); }, 700);
+			});
 		});
 	}
 
@@ -128,6 +151,7 @@
 	function init() {
 		highlightNav();
 		wireLogoutConfirm();
+		 initPageTransitionOverlay();
 		initUserDropdowns();
 		initNotificationDropdowns();
 		initGradeSheetViewer();

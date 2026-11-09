@@ -112,7 +112,7 @@ function dueText(?string $date): string
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
             <title>Professor Portal Dashboard</title>
-        <link rel="stylesheet" href="../assets/css/professor.css">
+        <link rel="stylesheet" href="../assets/css/professor.css?v=20260916.2">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     </head>
 <body>
@@ -216,7 +216,7 @@ function dueText(?string $date): string
       </section>
   </main>
 </div>
-<script src="../assets/js/professor.js"></script>
+<script src="../assets/js/professor.js?v=20260916.1"></script>
 </body>
 <?php include '../includes/footer.php'; ?>
 </html>

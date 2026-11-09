@@ -96,7 +96,7 @@ if ($assignments) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Classes</title>
-    <link rel="stylesheet" href="../assets/css/professor.css">
+    <link rel="stylesheet" href="../assets/css/professor.css?v=20260916.1">
 </head>
 <body>
 <?php include '../includes/header.php'; ?>
@@ -246,7 +246,7 @@ if ($assignments) {
         <?php endif; ?>
     </main>
 </div>
-<script src="../assets/js/professor.js"></script>
+<script src="../assets/js/professor.js?v=20260916.1"></script>
 </body>
 <?php include '../includes/footer.php'; ?>
 </html>

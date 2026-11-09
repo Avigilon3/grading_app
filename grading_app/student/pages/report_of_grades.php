@@ -320,7 +320,252 @@ if ($displaySemesterLabel || $displaySchoolYear) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report of Grades</title>
-    <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="stylesheet" href="../assets/css/student.css?v=20260916.6">
+    <style>
+        .page-container.report-page {
+            width: min(100%, 1180px);
+            margin: 0 auto;
+            padding-top: 6px;
+        }
+
+        .page-header {
+            margin: 0 0 18px;
+            padding: 0 8px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px;
+            font-size: clamp(2.3rem, 3vw, 4rem);
+            line-height: 1.08;
+            color: #1d2a2d;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .page-header .text-muted {
+            margin: 0;
+            color: #596771;
+            font-size: clamp(1.08rem, 1.6vw, 1.5rem);
+        }
+
+        .report-shell.report-of-grades {
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(21, 37, 26, 0.07);
+            border-radius: 18px;
+            box-shadow: none;
+            padding: 12px 18px 14px;
+        }
+
+        .grade-toolbar {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+            align-items: flex-end;
+            margin-bottom: 18px;
+            gap: 16px;
+        }
+
+        .filter-row {
+          max-width: none;
+            grid-template-columns: repeat(2, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: stretch;
+            margin-left: 0;
+        }
+
+        .action-buttons .btn {
+            flex: 1 1 0;
+            min-width: 0;
+            justify-content: center;
+        }
+
+        .input-block {
+            margin: 0;
+        }
+
+        .input-label {
+            font-size: 0.9rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .form-control {
+            border: 1px solid #7d878c;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.82);
+            color: #1d2a2d;
+            min-height: 44px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        .report-preview {
+            background: rgba(247,248,250,0.34);
+            border: 1px solid rgba(185, 191, 197, 0.75);
+            border-radius: 16px;
+            padding: 16px 18px 18px;
+            margin: 0 0 18px;
+        }
+
+        .report-paper {
+            max-width: 960px;
+            min-height: 620px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 26px 30px 18px;
+            border-radius: 12px;
+            border: 1px solid #dfe3e7;
+            background: #fff;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+        }
+
+        .paper-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 8px;
+        }
+
+        .paper-header img {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+
+        .paper-title-block {
+            flex: 1;
+            text-align: center;
+        }
+
+        .paper-school {
+            font-size: clamp(1.6rem, 2vw, 2.2rem);
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #111827;
+        }
+
+        .paper-meta {
+            margin: 8px 0 0;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: #1f2937;
+        }
+
+        .paper-date {
+            margin: 12px 0 8px;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .paper-heading {
+            margin: 8px 0 0;
+            font-size: 1.12rem;
+            letter-spacing: 0.04em;
+        }
+
+        .paper-subtitle {
+            margin: 0 0 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .student-meta {
+            width: 100%;
+            margin: 0 0 18px;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .student-meta td {
+            padding: 6px 8px;
+            vertical-align: top;
+        }
+
+        .student-meta td:first-child {
+            width: 180px;
+            font-weight: 700;
+            white-space: nowrap;
+            color: #111827;
+        }
+
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .grade-table th,
+        .grade-table td {
+            padding: 8px 10px;
+            border: 1px solid #111827;
+            text-align: left;
+        }
+
+        .grade-table th {
+            font-weight: 700;
+            background: #f8fafc;
+        }
+
+        .unit-note,
+        .data-stamp {
+            margin: 12px 0 0;
+            font-size: 0.82rem;
+        }
+
+        .doc-caption {
+            margin-top: 12px;
+            font-size: 0.82rem;
+            text-align: center;
+            color: #5b6474;
+        }
+
+        .notice-card {
+            margin-top: 0;
+            padding: 14px 16px;
+            background: #f5f9ff;
+            border-color: #dce8f7;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                grid-template-columns: 1fr;
+                max-width: none;
+            }
+
+            .grade-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                justify-content: flex-start;
+            }
+
+            .action-buttons .btn {
+                flex: 1 1 auto;
+                width: 100%;
+            }
+
+            .report-paper {
+                min-height: auto;
+                padding: 20px 18px 14px;
+            }
+
+            .paper-header {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -454,18 +699,6 @@ if ($displaySemesterLabel || $displaySchoolYear) {
                 </div>
               </div>
 
-              <div class="info-card notice-card">
-                <div class="info-icon" aria-hidden="true">i</div>
-                <div>
-                  <h3>Important Information</h3>
-                  <ul class="info-list">
-                    <li>Downloaded reports are for reference only and not official documents.</li>
-                    <li>Hard copy requests with school dry seal typically take 3-5 business days to process.</li>
-                    <li>You must pick up hard copies personally at the Registrar's Office with a valid ID.</li>
-                    <li>Official hard copies with seal are required for employment and scholarship applications.</li>
-                  </ul>
-                </div>
-              </div>
             </div>
           </div>
         </main>
@@ -551,5 +784,5 @@ if ($displaySemesterLabel || $displaySchoolYear) {
   }
 })();
 </script>
-<script src="../assets/js/student.js"></script>
+<script src="../assets/js/student.js?v=20260916.1"></script>
 </html>

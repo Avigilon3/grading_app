@@ -32,6 +32,18 @@ if (!function_exists('student_time_ago')) {
 
 $studentNotifications = [];
 $studentUnreadCount = 0;
+$studentHeaderPicture = null;
+
+if (!empty($_SESSION['user']['id'])) {
+  $headerPictureDirectory = dirname(__DIR__) . '/assets/uploads/profile';
+  foreach (['jpg', 'png', 'webp'] as $pictureExtension) {
+    $picturePath = $headerPictureDirectory . '/' . (int)$_SESSION['user']['id'] . '.' . $pictureExtension;
+    if (is_file($picturePath)) {
+      $studentHeaderPicture = '../assets/uploads/profile/' . (int)$_SESSION['user']['id'] . '.' . $pictureExtension;
+      break;
+    }
+  }
+}
 
 if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
     $currentUserId = $_SESSION['user']['id'] ?? null;
@@ -59,6 +71,7 @@ if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
     }
 }
 ?>
+<link rel="stylesheet" href="../../dist/tailwind.css">
 <style>
   .feedback-toast {
     position: fixed !important;
@@ -114,6 +127,7 @@ if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
     }
   }
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 <header>
   <div class="left-header">
     <div class="logo">
@@ -125,7 +139,8 @@ if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
   <div class="right-header">
     <div class="notifications" data-notifications-dropdown>
       <button type="button" class="notif-trigger" data-notif-trigger aria-haspopup="true" aria-expanded="false">
-        <span class="material-symbols-rounded">notifications</span>
+        <span class="notif-label">notifications</span>
+        <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
         <?php if ($studentUnreadCount > 0): ?>
           <span class="notif-count"><?php echo (int)$studentUnreadCount; ?></span>
         <?php endif; ?>
@@ -178,10 +193,18 @@ if (function_exists('isLoggedIn') && isLoggedIn() && isset($pdo)) {
       <?php if (isLoggedIn()): ?>
         <div class="user-dropdown" data-user-dropdown>
           <button type="button" class="user-trigger" data-user-trigger aria-haspopup="true" aria-expanded="false">
+            <?php if ($studentHeaderPicture): ?>
+              <img class="header-profile-picture" src="<?= htmlspecialchars($studentHeaderPicture); ?>" alt="">
+            <?php else: ?>
+              <span class="material-symbols-rounded header-profile-fallback" aria-hidden="true">account_circle</span>
+            <?php endif; ?>
             <span class="user-name"><?= htmlspecialchars(currentUserName()) ?></span>
             <span class="material-symbols-rounded" aria-hidden="true">keyboard_arrow_down</span>
           </button>
             <div class="dropdown-menu" role="menu">
+                <a href="../pages/profile.php" role="menuitem">
+                  <span class="material-symbols-rounded">account_circle</span>
+                    Profile</a>
               <a href="../pages/settings.php" role="menuitem">
                 <span class="material-symbols-rounded">settings</span>
                   Settings</a>

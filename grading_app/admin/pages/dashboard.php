@@ -148,7 +148,7 @@ try {
   <head>
     <meta charset="utf-8">
       <title>Dashboard</title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   </head>
 <body>
@@ -158,6 +158,7 @@ try {
   <main class="content">
     <?php show_flash(); ?>
     <div class="page-header">
+      <span class="page-kicker">ADMIN OVERVIEW</span>
       <h1>Dashboard</h1>
       <p class="text-muted">Welcome, <?= htmlspecialchars(adminCurrentName()); ?>. Here's what's happening with your grading system.</p>
     </div>
@@ -216,6 +217,13 @@ try {
         <span><span class="legend-dot legend-dot--submitted"></span>Submitted</span>
         <span><span class="legend-dot legend-dot--pending"></span>Pending</span>
       </div>
+      <?php if ($chart['total'] === 0 && array_sum($chart['pending']) === 0): ?>
+        <div class="chart-empty" role="status">
+          <span class="material-symbols-rounded">insights</span>
+          <strong>No submissions recorded yet</strong>
+          <span>Activity will appear here as grading sheets are submitted.</span>
+        </div>
+      <?php else: ?>
       <div class="bar-chart">
         <?php
           $todayLabel = (new DateTimeImmutable('today'))->format('D');
@@ -235,6 +243,7 @@ try {
           </div>
         <?php endforeach; ?>
       </div>
+      <?php endif; ?>
 
       <div class="chart-actions">
         <a class="button btn-outline" href="./reports.php">View Full Report</a>
@@ -245,7 +254,7 @@ try {
 
   </main>
 </div>
-<script src="../assets/js/admin.js"></script>
+<script src="../assets/js/admin.js?v=20260916"></script>
 </body>
 <?php include '../includes/footer.php'; ?>
 </html>

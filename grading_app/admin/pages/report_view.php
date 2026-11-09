@@ -284,7 +284,7 @@ $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report of Grades &mdash; <?= htmlspecialchars($studentNumber); ?></title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=20260916.4">
 
 </head>
 <body data-auto-download="<?= $autoDownload ? '1' : '0'; ?>" data-report-filename="<?= htmlspecialchars($reportFilename); ?>">
@@ -405,7 +405,7 @@ $autoDownload = isset($_GET['download']) && $_GET['download'] === '1';
         </div>
     </main>
 </div>
-<script src="../assets/js/admin.js"></script>
+<script src="../assets/js/admin.js?v=20260916"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPMjACz48zkRgLpmjDoE7YQDdyCjTiMQuuLHfoalGexiLRNvKcJsteVEh9UpAJZKkd06Pq4jG+7hM3w5f0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function () {

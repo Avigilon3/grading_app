@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Online Grading System</title>
+    <title>Verification | Academic Portal</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Bayon&family=Space+Grotesk:wght@300..700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
@@ -366,7 +366,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <img src="admin/assets/images/logo-ptc.png" alt="PTC Logo" class="hero-logo">
                 <h1>PATEROS TECHNOLOGICAL COLLEGE</h1>
                 <p>Gearing the way to your future!</p>
-                <h2>Online Grading System</h2>
+                <h2>Academic Portal</h2>
             </div>
         </section>
 

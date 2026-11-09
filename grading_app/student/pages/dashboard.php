@@ -528,6 +528,7 @@ if ($studentProfile) {
     }
 
     $subjectsForStanding = [];
+    $enrolledSubjects = [];
     if ($subjects) {
         foreach ($subjects as &$row) {
             $row['units'] = (float)$row['units'];
@@ -576,6 +577,10 @@ if ($studentProfile) {
         }
 
         $subjectsForStanding = $enrolledSubjects;
+    }
+
+    if (!isset($subjectsForStanding)) {
+        $subjectsForStanding = [];
     }
 
     try {
@@ -667,7 +672,7 @@ foreach ($chartBars as $bar) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
-    <link rel="stylesheet" href="../assets/css/student.css">
+    <link rel="stylesheet" href="../assets/css/student.css?v=20260916.6">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 </head>
 <body>
@@ -680,128 +685,137 @@ foreach ($chartBars as $bar) {
             <div class="alert alert-warning"><?= htmlspecialchars($errorMessage); ?></div>
         <?php endif; ?>
 
-        <div class="page-header">
-            <h1>Dashboard</h1>
-            <p class="text-muted">
-                Welcome back, <?= htmlspecialchars(currentUserName()); ?>.
-                <?php if ($yearLevelLabel): ?>
-                    You're currently tagged as a <?= htmlspecialchars($yearLevelLabel); ?> student of Pateros Technological College.
-                <?php endif; ?>
-            </p>
-        </div>
-
-        <?php
-            $kpiCards = [
-                ['label' => 'Total Subjects', 'value' => (string)(int)$kpis['subjects'], 'icon' => 'menu_book'],
-                ['label' => 'Current GWA', 'value' => $gwaDisplay, 'icon' => 'grade'],
-                ['label' => 'Units Enrolled', 'value' => $unitsDisplay, 'icon' => 'library_books'],
-                ['label' => 'Attendance Rate', 'value' => $attendanceDisplay, 'icon' => 'event_available'],
-            ];
-        ?>
-        <section class="dashboard-stats student-kpis">
-            <?php foreach ($kpiCards as $card): ?>
-                <article class="stat-card">
-                    <div class="stat-text"> 
-                    <p class="stat-label"><?= htmlspecialchars($card['label']); ?></p>
-                    <p class="stat-value"><?= htmlspecialchars($card['value']); ?></p>
-                    </div>
-                    <div class="stat-icon">
-                        <span class="material-symbols-rounded"><?= htmlspecialchars($card['icon']); ?></span>
-                    </div>
-                </article>
-            <?php endforeach; ?>
-        </section>
-
-        <div class="chart-card performance-card">
-            <p class="chart-title">Your Class Standing</p>
-            <p class="chart-subtitle">We surface results as soon as professors lock their grading sheets.</p>
-            <?php if ($hasStandingData): ?>
-                <?php if ($gradeStats['studentAverage'] !== null || $gradeStats['classAverage'] !== null): ?>
-                    <div class="chart-header">
-                        <div>
-                            <div class="chart-total"><?= htmlspecialchars($studentAverageDisplay); ?></div>
-                            <div class="chart-delta">My Average</div>
-                        </div>
-                        <div>
-                            <div class="chart-total"><?= htmlspecialchars($classAverageDisplay); ?></div>
-                            <div class="chart-delta">Class Average</div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <div class="class-standing-grid">
-                    <div class="standing-box">
-                        <h3>Overall Standing</h3>
-                        <p class="chart-subtitle">Subjects without a final equivalent yet are marked N/A.</p>
-                        <?php if ($standingRows): ?>
-                            <div class="standing-table-wrapper">
-                                <table class="standing-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Subject</th>
-                                        <th>Rank</th>
-                                        <th>Grade</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php foreach ($standingRows as $row): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($row['subject']); ?></td>
-                                            <td>
-                                                <?php if (!empty($row['rank_label']) && $row['rank_label'] !== 'N/A'): ?>
-                                                    <span class="rank-label"><?= htmlspecialchars($row['rank_label']); ?></span>
-                                                <?php else: ?>
-                                                    <span class="rank-empty">N/A</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($row['grade_display'] ?? 'N/A'); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <p class="text-muted">No subjects to list yet.</p>
+        <div class="dashboard-shell">
+            <div class="dashboard-main-panel">
+                <div class="page-header dashboard-header">
+                    <p class="text-muted">
+                        Welcome back, <?= htmlspecialchars(currentUserName()); ?>.
+                        <?php if ($yearLevelLabel): ?>
+                            You're currently tagged as a <strong><?= htmlspecialchars($yearLevelLabel); ?></strong> student of Pateros Technological College.
                         <?php endif; ?>
-                    </div>
-                    <div class="standing-box">
-                        <h3>You vs The Class Average Grade</h3>
-                        <?php if ($standingChart): ?>
-                            <div class="standing-chart-legend">
-                                <span><span class="dot dot-you"></span>You</span>
-                                <span><span class="dot dot-class"></span>Class Average</span>
+                    </p>
+                </div>
+
+                <?php
+                    $kpiCards = [
+                        ['label' => 'Current GWA', 'value' => $gwaDisplay, 'icon' => 'grade'],
+                        ['label' => 'Units Enrolled', 'value' => $unitsDisplay, 'icon' => 'library_books'],
+                        ['label' => 'Attendance Rate', 'value' => $attendanceDisplay, 'icon' => 'event_available'],
+                    ];
+                ?>
+                <section class="dashboard-stats student-kpis">
+                    <?php foreach ($kpiCards as $card): ?>
+                        <article class="stat-card">
+                            <div class="stat-text">
+                                <p class="stat-label"><?= htmlspecialchars($card['label']); ?></p>
+                                <p class="stat-value"><?= htmlspecialchars($card['value']); ?></p>
                             </div>
-                            <div class="standing-chart">
-                                <?php foreach ($standingChart as $bar): ?>
-                                    <?php
-                                        $youValue = $bar['you'];
-                                        $classValue = $bar['class'];
-                                        $youHeight = $youValue !== null ? max(0, min(100, round($youValue))) : 0;
-                                        $classHeight = $classValue !== null ? max(0, min(100, round($classValue))) : 0;
-                                    ?>
-                                    <div class="subject-bars" title="<?= htmlspecialchars($bar['label']); ?>">
-                                        <div class="bar-track">
-                                            <div class="bar-col you<?= $youValue === null ? ' empty' : ''; ?>" style="height: <?= $youHeight; ?>%"></div>
-                                            <div class="bar-col class<?= $classValue === null ? ' empty' : ''; ?>" style="height: <?= $classHeight; ?>%"></div>
+                            <div class="stat-icon">
+                                <span class="material-symbols-rounded"><?= htmlspecialchars($card['icon']); ?></span>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </section>
+
+                <div class="student-portal-card">
+                    <div class="portal-card-header">
+                        <span>Student Portal</span>
+                    </div>
+                    <div class="portal-card-body">
+                        <div class="chart-card performance-card">
+                            <p class="chart-title">Your Class Standing</p>
+                            <p class="chart-subtitle">We surface results as soon as professors lock their grading sheets.</p>
+                            <?php if ($hasStandingData): ?>
+                                <?php if ($gradeStats['studentAverage'] !== null || $gradeStats['classAverage'] !== null): ?>
+                                    <div class="chart-header">
+                                        <div>
+                                            <div class="chart-total"><?= htmlspecialchars($studentAverageDisplay); ?></div>
+                                            <div class="chart-delta">My Average</div>
                                         </div>
-                                        <div class="bar-caption"><?= htmlspecialchars($bar['label']); ?></div>
+                                        <div>
+                                            <div class="chart-total"><?= htmlspecialchars($classAverageDisplay); ?></div>
+                                            <div class="chart-delta">Class Average</div>
+                                        </div>
                                     </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <p class="text-muted">Waiting for class average data.</p>
-                        <?php endif; ?>
+                                <?php endif; ?>
+
+                                <div class="class-standing-grid">
+                                    <div class="standing-box">
+                                        <h3>Overall Standing</h3>
+                                        <p class="chart-subtitle">Subjects without a final equivalent yet are marked N/A.</p>
+                                        <?php if ($standingRows): ?>
+                                            <div class="standing-table-wrapper">
+                                                <table class="standing-table">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Subject</th>
+                                                        <th>Rank</th>
+                                                        <th>Grade</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <?php foreach ($standingRows as $row): ?>
+                                                        <tr>
+                                                            <td><?= htmlspecialchars($row['subject']); ?></td>
+                                                            <td>
+                                                                <?php if (!empty($row['rank_label']) && $row['rank_label'] !== 'N/A'): ?>
+                                                                    <span class="rank-label"><?= htmlspecialchars($row['rank_label']); ?></span>
+                                                                <?php else: ?>
+                                                                    <span class="rank-empty">N/A</span>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td><?= htmlspecialchars($row['grade_display'] ?? 'N/A'); ?></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        <?php else: ?>
+                                            <p class="text-muted">No subjects to list yet.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="standing-box">
+                                        <h3>You vs The Class Average Grade</h3>
+                                        <?php if ($standingChart): ?>
+                                            <div class="standing-chart-legend">
+                                                <span><span class="dot dot-you"></span>You</span>
+                                                <span><span class="dot dot-class"></span>Class Average</span>
+                                            </div>
+                                            <div class="standing-chart">
+                                                <?php foreach ($standingChart as $bar): ?>
+                                                    <?php
+                                                        $youValue = $bar['you'];
+                                                        $classValue = $bar['class'];
+                                                        $youHeight = $youValue !== null ? max(0, min(100, round($youValue))) : 0;
+                                                        $classHeight = $classValue !== null ? max(0, min(100, round($classValue))) : 0;
+                                                    ?>
+                                                    <div class="subject-bars" title="<?= htmlspecialchars($bar['label']); ?>">
+                                                        <div class="bar-track">
+                                                            <div class="bar-col you<?= $youValue === null ? ' empty' : ''; ?>" style="height: <?= $youHeight; ?>%"></div>
+                                                            <div class="bar-col class<?= $classValue === null ? ' empty' : ''; ?>" style="height: <?= $classHeight; ?>%"></div>
+                                                        </div>
+                                                        <div class="bar-caption"><?= htmlspecialchars($bar['label']); ?></div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <p class="text-muted">Waiting for class average data.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="chart-actions">
+                                    <span class="text-muted"><?= htmlspecialchars($standingLabel); ?></span>
+                                </div>
+                            <?php else: ?>
+                                <p class="text-muted">No locked grading sheets yet to compute your class standing.</p>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
-                <div class="chart-actions">
-                    <span class="text-muted"><?= htmlspecialchars($standingLabel); ?></span>
-                </div>
-            <?php else: ?>
-                <p class="text-muted">No locked grading sheets yet to compute your class standing.</p>
-            <?php endif; ?>
+            </div>
         </div>
     </main>
 </div>
-<script src="../assets/js/student.js"></script>
+<script src="../assets/js/student.js?v=20260916.1"></script>
 </body>
 </html>
